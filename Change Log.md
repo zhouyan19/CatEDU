@@ -1,0 +1,16 @@
+# CatEDU Log
+## 8.11
+
+- Initialize the repository.
+
+- Initialize the android project.
+
+- Add a bottom navigation and 3 fragments: `FragmentHome`, `FragmentQuestion`, `FragmentMine` .
+
+- Add the app icon, set the theme color.
+
+- Add a start activity.
+
+## 8.12
+
+- Add annotations.
