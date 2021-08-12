@@ -18,12 +18,8 @@ public class FragmentQuestion extends Fragment {
 
     /**
      * FragmentQuestion 创建时的操作
-     * @param LayoutInflater inflater
-     * @param ViewGroup container
-     * @param Bundle savedInstanceState
      */
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_question, container, false);
-        return root;
+        return inflater.inflate(R.layout.fragment_question, container, false);
     }
 }

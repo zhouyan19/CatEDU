@@ -19,7 +19,6 @@ public class StartActivity extends AppCompatActivity {
 
     /**
      * StartActivity 创建时的操作
-     * @param Bundle savedInstanceState
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,19 +29,17 @@ public class StartActivity extends AppCompatActivity {
 
         // 开一个子线程来启动 MainActivity
         // 以此做到边显示启动界面，边在 MainActivity 中发送网络请求获取数据
-        Thread myThread = new Thread(){ // 创建子线程
-            @Override
-            public void run() {
-                try{
-                    sleep(3000);
-                    Intent it = new Intent(getApplicationContext(), MainActivity.class); // 启动MainActivity
-                    startActivity(it);
-                    finish(); // 关闭当前活动
-                } catch (Exception e){
-                    e.printStackTrace();
-                }
+        // 创建子线程
+        Thread myThread = new Thread(() -> {
+            try{
+                Thread.sleep(3000);
+                Intent it = new Intent(getApplicationContext(), MainActivity.class); // 启动MainActivity
+                startActivity(it);
+                finish(); // 关闭当前活动
+            } catch (Exception e){
+                e.printStackTrace();
             }
-        };
+        });
         myThread.start();//启动线程
     }
 }

@@ -6,10 +6,12 @@
 
 package com.example.catedu.data;
 
+import org.jetbrains.annotations.NotNull;
+
 public class Instance {
-    String label;
-    String category;
-    String uri;
+    private String label;
+    private String category;
+    private String uri;
 
     // getters
     public String getLabel () { return label; }
@@ -20,4 +22,14 @@ public class Instance {
     public void setLabel (String l) { label = l; }
     public void setCategory (String c) {category = c; }
     public void setUri (String u) { uri = u; }
+
+    @NotNull
+    @Override
+    public String toString() {
+        return "Instance{" +
+                "label='" + label + '\'' +
+                ", category='" + category + '\'' +
+                ", uri='" + uri + '\'' +
+                '}';
+    }
 }
