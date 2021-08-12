@@ -1,3 +1,9 @@
+/**
+ * @filename MainActivity
+ * @description  app主活动
+ * @author ZhouYan
+ * */
+
 package com.example.catedu;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,6 +19,10 @@ public class MainActivity extends AppCompatActivity {
     private Fragment[] fragments;
     private int last_fragment = 0;
 
+    /**
+     * MainActivity 创建时的操作
+     * @param Bundle savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -20,6 +30,10 @@ public class MainActivity extends AppCompatActivity {
         initView();
     }
 
+
+    /**
+     * 为 BottomNavigationView 绑定三个 Fragment
+     */
     private void initView () {
         FragmentHome fragment_home = new FragmentHome();
         FragmentQuestion fragment_search = new FragmentQuestion();
@@ -31,6 +45,10 @@ public class MainActivity extends AppCompatActivity {
         nav_view.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
     }
 
+
+    /**
+     * 为 BottomNavigationView 设置选择切换
+     */
     @SuppressLint("NonConstantResourceId")
     private final BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = item -> {
@@ -59,6 +77,11 @@ public class MainActivity extends AppCompatActivity {
         return false;
     };
 
+    /**
+     * 切换组件
+     * @param last 上一组件的序号
+     * @param index 要切换的组件的序号
+     */
     private void switchFragment (int last, int index) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.hide(fragments[last]);
@@ -67,8 +90,4 @@ public class MainActivity extends AppCompatActivity {
         transaction.show(fragments[index]).commitAllowingStateLoss();
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
 }
