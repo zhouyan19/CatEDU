@@ -15,3 +15,8 @@
 
 - Add annotations.
 - Realize http connection and post request (login) .
+
+## 8.13
+
+- Add a SmartRefreshLayout + RecyclerView for the home page.
+- Enable reading jsons from assets. 

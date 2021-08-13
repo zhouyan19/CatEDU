@@ -9,27 +9,18 @@ package com.example.catedu.data;
 import org.jetbrains.annotations.NotNull;
 
 public class Instance {
-    private String label;
-    private String category;
-    private String uri;
+    private String s;
+    private String p;
+    private String o;
 
     // getters
-    public String getLabel () { return label; }
-    public String getCategory () { return category; }
-    public String getUri () { return uri; }
+    public String getS () { return s; }
+    public String getP () { return p; }
+    public String getO () { return o; }
 
     // setters
-    public void setLabel (String l) { label = l; }
-    public void setCategory (String c) {category = c; }
-    public void setUri (String u) { uri = u; }
+    public void setS (String _s) { s = _s; }
+    public void setP (String _p) { p = _p; }
+    public void setO (String _o) { o = _o; }
 
-    @NotNull
-    @Override
-    public String toString() {
-        return "Instance{" +
-                "label='" + label + '\'' +
-                ", category='" + category + '\'' +
-                ", uri='" + uri + '\'' +
-                '}';
-    }
 }

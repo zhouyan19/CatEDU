@@ -53,5 +53,5 @@ dependencies {
     implementation  'com.scwang.smart:refresh-header-two-level:2.0.1'   //二级刷新头
     implementation  'com.scwang.smart:refresh-footer-ball:2.0.1'        //球脉冲加载
     implementation  'com.scwang.smart:refresh-footer-classics:2.0.1'    //经典加载
-    compile 'com.google.code.gson:gson:2.6.2'
+    implementation "com.google.code.gson:gson:2.8.2"
 }
