@@ -23,8 +23,10 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.androidkun.xtablayout.XTabLayout;
 import com.example.catedu.data.DataLoader;
 import com.example.catedu.data.Instance;
+import com.google.android.material.tabs.TabLayout;
 import com.scwang.smart.refresh.layout.api.RefreshLayout;
 
 import org.jetbrains.annotations.NotNull;
@@ -40,6 +42,9 @@ import javax.sql.DataSource;
 public class FragmentHome extends Fragment {
     private DataLoader dataLoader;
     private ArrayList<Instance> insList; // 存取 chinese 实体的数组
+    private String course_name = "语文"; // 学科名，默认为语文
+    private final String []courses_all = {"语文", "英语", "数学", "物理", "化学", "生物", "政治", "地理", "历史"};
+    private String []courses_now = {"语文", "英语", "数学"};
     private int idx = 0; // chinese 实体计数
 
     /**
@@ -65,7 +70,7 @@ public class FragmentHome extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         try {
-            getListByCourse("语文");
+            getListByCourse(course_name); // 默认为语文
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -78,6 +83,26 @@ public class FragmentHome extends Fragment {
         rv_list.addItemDecoration(new DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL));
         rv_list.setLayoutManager(new LinearLayoutManager(getContext()));
         rv_list.setAdapter(new MyAdapter());
+
+        XTabLayout tl = view.findViewById(R.id.tab_layout);
+        tl.addOnTabSelectedListener(new XTabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(XTabLayout.Tab tab) {
+                String course = (String) tab.getText();
+                try {
+                    getListByCourse(course);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onTabUnselected(XTabLayout.Tab tab) {}
+
+            @Override
+            public void onTabReselected(XTabLayout.Tab tab) {}
+        });
+        for (String s : courses_now) tl.addTab(tl.newTab().setText(s));
 
         super.onViewCreated(view, savedInstanceState);
     }
@@ -139,8 +164,6 @@ public class FragmentHome extends Fragment {
         @Override
         public void onBindViewHolder(@NonNull @NotNull ViewHolder holder, int position) {
             holder.ins_item.setOnClickListener(v -> showDetail(insList.get(position)));
-            String s = (String) insList.get(position).getS();
-            holder.ins_title.setText(s);
         }
 
         @Override
@@ -150,12 +173,10 @@ public class FragmentHome extends Fragment {
 
         public class ViewHolder extends RecyclerView.ViewHolder {
             LinearLayout ins_item;
-            TextView ins_title;
 
             public ViewHolder(@NonNull @NotNull View itemView) {
                 super(itemView);
                 ins_item = itemView.findViewById(R.id.ins_item);
-                ins_title = itemView.findViewById(R.id.ins_title);
             }
         }
     }
