@@ -7,4 +7,5 @@
     <string name="mine_text">我的</string>
     <string name="home_text">首页</string>
     <string name="question_text">问答</string>
+    <string name="ins_item_text">一条实体</string>
 </resources>

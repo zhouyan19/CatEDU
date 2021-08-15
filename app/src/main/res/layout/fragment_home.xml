@@ -5,15 +5,36 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.androidkun.xtablayout.XTabLayout
-        android:id="@+id/tab_layout"
+    <LinearLayout
+        android:id="@+id/tab_wrapper"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
-        app:tabMode="scrollable"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent">
-    </com.androidkun.xtablayout.XTabLayout>
+
+        <com.androidkun.xtablayout.XTabLayout
+            android:id="@+id/tab_layout"
+            android:layout_width="0dp"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:gravity="start"
+            app:xTabMode="scrollable"
+            app:xTabIndicatorColor="@color/main"
+            app:xTabDividerWidthWidthText="true">
+        </com.androidkun.xtablayout.XTabLayout>
+
+        <ImageButton
+            android:id="@+id/add_button"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/add_button_foreground"
+            android:background="@color/white"
+            android:layout_gravity="center"
+            android:gravity="end" />
+
+    </LinearLayout>
 
     <com.scwang.smart.refresh.layout.SmartRefreshLayout
         android:id="@+id/smart_refresh"
@@ -24,7 +45,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tab_layout"
+        app:layout_constraintTop_toBottomOf="@+id/tab_wrapper"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <com.scwang.smart.refresh.header.ClassicsHeader

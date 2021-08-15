@@ -55,4 +55,5 @@ dependencies {
     implementation  'com.scwang.smart:refresh-footer-classics:2.0.1'    //经典加载
     implementation "com.google.code.gson:gson:2.8.2"
     implementation 'com.androidkun:XTabLayout:1.1.5'
+    implementation 'com.necer.ndialog2:ndialog:1.0.2'
 }

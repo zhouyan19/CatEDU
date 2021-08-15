@@ -1,26 +1,30 @@
 /**
  * @filename Instance
- * @description  实体类的定义
+ * @description 实体类（缩略）
  * @author ZhouYan
  * */
 
 package com.example.catedu.data;
 
-import org.jetbrains.annotations.NotNull;
-
 public class Instance {
-    private String s;
-    private String p;
-    private String o;
+    private String name;
+    private String type;
+
+    public Instance(String _n, String _t) {
+        name = _n;
+        type = _t;
+    }
+
+    public Instance() {
+        name = "无名称";
+        type = "无类别";
+    }
 
     // getters
-    public String getS () { return s; }
-    public String getP () { return p; }
-    public String getO () { return o; }
+    public String getName () { return name; }
+    public String getType () { return type; }
 
     // setters
-    public void setS (String _s) { s = _s; }
-    public void setP (String _p) { p = _p; }
-    public void setO (String _o) { o = _o; }
-
+    public void setName (String _n) { name = _n; }
+    public void setType (String _t) { type = _t; }
 }

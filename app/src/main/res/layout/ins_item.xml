@@ -13,7 +13,8 @@
     <TextView
         android:id="@+id/ins_title"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/home_text"/>
+        android:layout_height="60dp"
+        android:gravity="center"
+        android:text="@string/ins_item_text"/>
 
 </LinearLayout>
