@@ -42,19 +42,28 @@ import java.util.ArrayList;
 import java.util.Map.Entry;
 
 public class FragmentHome extends Fragment {
+    final int NUM_PER_PAGE = 10;
     private DataLoader dataLoader;
-    private ArrayList<Triple> triList; // 存取学科三元组的数组
-    private String course_name = "语文"; // 当前学科名，默认为语文
+    private int course_id = 0; // 选中学科编号，默认为语文0
     private final String []courses_all = {"语文", "英语", "数学", "物理", "化学", "生物", "政治", "地理", "历史"};
     private boolean []courses_now = {true, true, true, false, false, false, false, false, false};
-    private int idx = 0; // 三元组计数
+    public ArrayList []triLists = new ArrayList[9]; // 学科所有数据
+    public ArrayList []triNow = new ArrayList[9]; // 学科当前显示数据
+    public int []cntList = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+    private String course_name() {
+        return courses_all[course_id];
+    }
 
     /**
      * 构造函数，初始化 DataLoader 和各个列表
      */
     public FragmentHome() {
         dataLoader = new DataLoader();
-        triList = new ArrayList<>();
+        for (int i = 0; i < 9; ++i) {
+            triLists[i] = new ArrayList<Triple>();
+            triNow[i] = new ArrayList<Triple>();
+        }
     }
 
     /**
@@ -71,45 +80,51 @@ public class FragmentHome extends Fragment {
      */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+
+        for (int i = 0; i < 9; ++i) {
+            int finalI = i;
+            Thread local_data_thread = new Thread(() -> {
+                try {
+                    getListByCourse(finalI);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+            local_data_thread.start();
+            try {
+                local_data_thread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        renewData();
+
         RefreshLayout srl = view.findViewById(R.id.smart_refresh);
         RecyclerView rv_list = view.findViewById(R.id.rv_list);
         rv_list.addItemDecoration(new DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL));
         rv_list.setLayoutManager(new LinearLayoutManager(getContext()));
         rv_list.setAdapter(new MyAdapter());
         srl.setOnRefreshListener(refreshLayout -> {
-            Log.e("Refresh", course_name);
-            try {
-                idx = 0;
-                getListByCourse(course_name);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            refreshLayout.finishRefresh(5000);
+            Log.e("Refresh", course_name());
+            cntList[course_id] = 0;
+            renewData();
+            refreshLayout.finishRefresh(2000);
         });
         srl.setOnLoadMoreListener(refreshLayout -> {
-            Log.e("LoadMore", course_name);
-            try {
-                getListByCourse(course_name);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            refreshLayout.finishLoadMore(5000);
+            Log.e("LoadMore", course_name());
+            renewData();
+            refreshLayout.finishLoadMore(2000);
         });
 
         XTabLayout tl = view.findViewById(R.id.tab_layout);
         tl.addOnTabSelectedListener(new XTabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(XTabLayout.Tab tab) {
-                String course = (String) tab.getText();
-                try {
-                    Log.e("TabSelected", course);
-                    idx = 0;
-                    getListByCourse(course);
-                    rv_list.setAdapter(new MyAdapter());
-                    course_name = course;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                int idc = tab.getPosition();
+                Log.e("TabSelected", courses_all[idc]);
+                course_id = idc;
+                renewData();
+                rv_list.setAdapter(new MyAdapter());
             }
 
             @Override
@@ -118,6 +133,7 @@ public class FragmentHome extends Fragment {
             @Override
             public void onTabReselected(XTabLayout.Tab tab) {}
         });
+
         for (int i = 0; i < 9; ++i) {
             if (courses_now[i]) {
                 String c = courses_all[i];
@@ -145,9 +161,7 @@ public class FragmentHome extends Fragment {
         builder.setNegativeButton("取消", null);
 
         ImageButton addButton = view.findViewById(R.id.add_button);
-        addButton.setOnClickListener(v -> {
-            builder.show();
-        });
+        addButton.setOnClickListener(v -> builder.show());
 
         super.onViewCreated(view, savedInstanceState);
     }
@@ -168,12 +182,12 @@ public class FragmentHome extends Fragment {
 
     /**
      * 点击不同学科的按钮后获取数据
-     * @param course 学科中文名
+     * @param id 学科序号
      */
-    public void getListByCourse(String course) throws IOException {
+    public void getListByCourse(int id) throws IOException {
         Context context = getContext();
-        triList.addAll(dataLoader.getLocalCourseData(context, Utils.English(course), idx));
-        idx = triList.size();
+        assert context != null;
+        triLists[id] = dataLoader.getLocalCourseData(context, Utils.English(courses_all[id]));
     }
 
     /**
@@ -192,31 +206,46 @@ public class FragmentHome extends Fragment {
         @SuppressLint("UseCompatLoadingForDrawables")
         @Override
         public void onBindViewHolder(@NonNull @NotNull ViewHolder holder, int position) {
-            holder.ins_item.setOnClickListener(v -> showDetail(triList.get(position)));
-            Triple tri = triList.get(position);
+            Triple tri = (Triple) triNow[course_id].get(position);
+            holder.ins_item.setOnClickListener(v -> showDetail(tri));
             try {
-                Instance ins = dataLoader.getInstance(Utils.English(course_name), tri.getS());
-                holder.ins_title.setText(ins.getName());
+                Instance ins = dataLoader.getInstance(Utils.English(course_name()), tri.getS());
+                String number = String.valueOf(position + 1);
+                holder.ins_number.setText(number);
+                holder.ins_name.setText(ins.getName());
+                holder.ins_type.setText(ins.getType());
             } catch (InterruptedException e) {
-                holder.ins_title.setText("无名称");
                 e.printStackTrace();
             }
-
         }
 
         @Override
         public int getItemCount() {
-            return triList.size();
+            return triNow[course_id].size();
         }
 
         public class ViewHolder extends RecyclerView.ViewHolder {
             LinearLayout ins_item;
-            TextView ins_title;
+            TextView ins_number;
+            TextView ins_name;
+            TextView ins_type;
             public ViewHolder(@NonNull @NotNull View itemView) {
                 super(itemView);
                 ins_item = itemView.findViewById(R.id.ins_item);
-                ins_title = itemView.findViewById(R.id.ins_title);
+                ins_number = itemView.findViewById(R.id.ins_number);
+                ins_name = itemView.findViewById(R.id.ins_name);
+                ins_type = itemView.findViewById(R.id.ins_type);
             }
+        }
+    }
+
+    /**
+     * 增加 NUM_PER_PAGE 条当前学科的知识
+     */
+    public void renewData() {
+        int num = cntList[course_id];
+        for (int i = num; i < num + NUM_PER_PAGE; ++i) {
+            triNow[course_id].add(triLists[course_id].get(i));
         }
     }
 
@@ -225,7 +254,6 @@ public class FragmentHome extends Fragment {
      * @param ins 实体
      */
     public void showDetail (Triple ins) {
-
     }
 
 }

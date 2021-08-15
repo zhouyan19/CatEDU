@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class DataLoader {
-    private final int NUM_PER_PAGE = 10;
     private String id = "";
     private boolean logged = false;
 
@@ -104,7 +103,7 @@ public class DataLoader {
      * 从本地 csv 文件加载实体数据
      * @param course 课程英文名
      */
-    public ArrayList<Triple> getLocalCourseData (Context context, String course, int idx) throws IOException {
+    public ArrayList<Triple> getLocalCourseData (Context context, String course) throws IOException {
         String file = course + ".json";
         ArrayList<String> jsons = new ArrayList<>();
         AssetManager assetManager = context.getAssets(); // assets资源管理器
@@ -115,16 +114,10 @@ public class DataLoader {
                     assetManager.open(file), StandardCharsets.UTF_8));
             String line;
             while ((line = bufferedReader.readLine()) != null) {
-                // 跳过已经读入的
-                if (cnt < idx) {
-                    cnt++;
-                    continue;
-                }
-                Log.e("Reading", line);
                 jsons.add(line);
                 cnt++;
                 // 超出NUM_PER_PAGE后停止读
-                if (cnt >= idx + NUM_PER_PAGE) break;
+                if (cnt >= 1000) break;
             }
             bufferedReader.close();
         } catch (Exception e) {
@@ -153,7 +146,6 @@ public class DataLoader {
      */
     public Instance getInstance (String course, String uri) throws InterruptedException {
         // 网络请求不能在主线程中进行，而是要在一个子线程中
-        Log.e("GetInstance", course + "/" + uri);
         Instance ins = new Instance();
         Thread net_conn_thread = new Thread(() -> {
             if (!logged) {
@@ -199,7 +191,7 @@ public class DataLoader {
         map.put("uri", uri);
         map.put("id", id);
         String params = new Gson().toJson(map);
-        Log.e("Params", params);
+//        Log.e("Params", params);
 
         // 获取输出流，写入参数
         OutputStream out = conn.getOutputStream();
@@ -210,9 +202,7 @@ public class DataLoader {
         // 读取响应
         StringBuilder res = new StringBuilder();
         int code = conn.getResponseCode();
-        Log.e("Response", String.valueOf(code));
         if (code == 200) {
-            Log.e("Entity", "获取成功！");
             logged = true;
             InputStreamReader in = new InputStreamReader(conn.getInputStream());
             BufferedReader bf = new BufferedReader(in);
@@ -235,8 +225,6 @@ public class DataLoader {
         JSONObject data_json = res_json.getJSONObject("data");
         entity_type = data_json.getString("entity_type");
         entity_name = data_json.getString("entity_name");
-        Log.e("Instance/Name", entity_name);
-        Log.e("Instance/Type", entity_type);
         return new Instance(entity_name, entity_type);
     }
 
