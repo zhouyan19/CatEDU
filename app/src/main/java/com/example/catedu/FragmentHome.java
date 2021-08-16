@@ -51,8 +51,36 @@ public class FragmentHome extends Fragment {
     public ArrayList []triNow = new ArrayList[9]; // 学科当前显示数据
     public int []cntList = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-    private String course_name() {
+    /**
+     * @return 当前学科的名字
+     */
+    private String course_name () {
         return courses_all[course_id];
+    }
+
+    private int indexOfCourse (String course) {
+        switch (course) {
+            case "语文":
+                return 0;
+            case "英语":
+                return 1;
+            case "数学":
+                return 2;
+            case "物理":
+                return 3;
+            case "化学":
+                return 4;
+            case "生物":
+                return 5;
+            case "政治":
+                return 6;
+            case "地理":
+                return 7;
+            case "历史":
+                return 8;
+            default:
+                return -1;
+        }
     }
 
     /**
@@ -97,7 +125,7 @@ public class FragmentHome extends Fragment {
                 e.printStackTrace();
             }
         }
-        renewData();
+        renewAllData();
 
         RefreshLayout srl = view.findViewById(R.id.smart_refresh);
         RecyclerView rv_list = view.findViewById(R.id.rv_list);
@@ -117,13 +145,19 @@ public class FragmentHome extends Fragment {
         });
 
         XTabLayout tl = view.findViewById(R.id.tab_layout);
+        for (int i = 0; i < 9; ++i) {
+            if (courses_now[i]) {
+                String c = courses_all[i];
+                tl.addTab(tl.newTab().setText(c));
+                Log.e("AddTab", c);
+            }
+        }
         tl.addOnTabSelectedListener(new XTabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(XTabLayout.Tab tab) {
-                int idc = tab.getPosition();
-                Log.e("TabSelected", courses_all[idc]);
-                course_id = idc;
-                renewData();
+                Log.e("OnTabSelected", (String) tab.getText());
+                String course = (String) tab.getText();
+                course_id = indexOfCourse(course);
                 rv_list.setAdapter(new MyAdapter());
             }
 
@@ -133,13 +167,6 @@ public class FragmentHome extends Fragment {
             @Override
             public void onTabReselected(XTabLayout.Tab tab) {}
         });
-
-        for (int i = 0; i < 9; ++i) {
-            if (courses_now[i]) {
-                String c = courses_all[i];
-                tl.addTab(tl.newTab().setText(c));
-            }
-        }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("选择科目");
@@ -156,6 +183,8 @@ public class FragmentHome extends Fragment {
                         tl.addTab(tl.newTab().setText(c));
                     }
                 }
+                renewAllData();
+                rv_list.setAdapter(new MyAdapter());
             }
         });
         builder.setNegativeButton("取消", null);
@@ -240,12 +269,26 @@ public class FragmentHome extends Fragment {
     }
 
     /**
-     * 增加 NUM_PER_PAGE 条当前学科的知识
+     * 初始化 NUM_PER_PAGE 条当前学科的知识
      */
     public void renewData() {
         int num = cntList[course_id];
         for (int i = num; i < num + NUM_PER_PAGE; ++i) {
             triNow[course_id].add(triLists[course_id].get(i));
+        }
+        cntList[course_id] += NUM_PER_PAGE;
+    }
+
+    /**
+     * 情空并增加 NUM_PER_PAGE 条所有学科的知识
+     */
+    public void renewAllData() {
+        for (int i = 0; i < 9; ++i) {
+            triNow[i].clear();
+            cntList[i] = 0;
+            for (int j = 0; j < NUM_PER_PAGE; ++j) {
+                triNow[i].add(triLists[i].get(j));
+            }
         }
     }
 
