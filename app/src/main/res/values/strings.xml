@@ -1,3 +1,14 @@
 <resources>
-    <string name="app_name">CatEDU</string>
+    <string name="app_name">猫辅导</string>
+    <string name="copyright">Copyright © ZY YWT WZT</string>
+    <string name="nav_1">主页</string>
+    <string name="nav_2">问答</string>
+    <string name="nav_3">我的</string>
+    <string name="mine_text">我的</string>
+    <string name="home_text">首页</string>
+    <string name="question_text">问答</string>
+    <string name="ins_item_number">0</string>
+    <string name="ins_item_name">无名称</string>
+    <string name="ins_item_type" />
+    <string name="add_button">add_button</string>
 </resources>
