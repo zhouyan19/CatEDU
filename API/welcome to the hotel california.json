@@ -1,0 +1,15 @@
+{
+    "data": {
+        "results": [
+            {
+                "entity_type": "短语",
+                "entity_url": "http://edukb.org/knowledge/0.1/instance/english#-1a9c6c8704459e99a5564ecb0e6c9faf",
+                "start_index": 3,
+                "end_index": 9,
+                "entity": "come to"
+            }
+        ]
+    },
+    "code": "0",
+    "msg": "成功"
+}
