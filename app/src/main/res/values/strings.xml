@@ -10,4 +10,5 @@
     <string name="ins_item_number">0</string>
     <string name="ins_item_name">无名称</string>
     <string name="ins_item_type" />
+    <string name="add_button">add_button</string>
 </resources>

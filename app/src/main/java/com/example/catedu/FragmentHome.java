@@ -7,10 +7,10 @@
 package com.example.catedu;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Entity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -31,6 +32,8 @@ import com.androidkun.xtablayout.XTabLayout;
 import com.example.catedu.data.DataLoader;
 import com.example.catedu.data.Instance;
 import com.example.catedu.data.Triple;
+import com.github.ybq.android.spinkit.SpinKitView;
+import com.ldoublem.loadingviewlib.view.LVEatBeans;
 import com.scwang.smart.refresh.layout.api.RefreshLayout;
 
 import org.jetbrains.annotations.NotNull;
@@ -39,17 +42,25 @@ import org.json.JSONException;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Map.Entry;
+import java.util.Vector;
 
 public class FragmentHome extends Fragment {
-    final int NUM_PER_PAGE = 10;
+    final int NUM_PER_PAGE = 8;
     private DataLoader dataLoader;
     private int course_id = 0; // 选中学科编号，默认为语文0
     private final String []courses_all = {"语文", "英语", "数学", "物理", "化学", "生物", "政治", "地理", "历史"};
     private boolean []courses_now = {true, true, true, false, false, false, false, false, false};
-    public ArrayList []triLists = new ArrayList[9]; // 学科所有数据
-    public ArrayList []triNow = new ArrayList[9]; // 学科当前显示数据
-    public int []cntList = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+    public Vector []triLists = new Vector[9]; // 学科所有数据
+    public Vector []triNow = new Vector[9]; // 学科当前显示数据
+    public int []cntList = {0, 0, 0, 0, 0, 0, 0, 0, 0}; // 每个学科当前数据数量
+    public Vector []insLists = new Vector[9]; // 每个学科当前获取的实体
+
+    SpinKitView skv;
+    RefreshLayout srl;
+    RecyclerView rv_list;
+    XTabLayout tl;
+    AlertDialog.Builder builder;
+    ImageButton addButton;
 
     /**
      * @return 当前学科的名字
@@ -60,26 +71,16 @@ public class FragmentHome extends Fragment {
 
     private int indexOfCourse (String course) {
         switch (course) {
-            case "语文":
-                return 0;
-            case "英语":
-                return 1;
-            case "数学":
-                return 2;
-            case "物理":
-                return 3;
-            case "化学":
-                return 4;
-            case "生物":
-                return 5;
-            case "政治":
-                return 6;
-            case "地理":
-                return 7;
-            case "历史":
-                return 8;
-            default:
-                return -1;
+            case "语文": return 0;
+            case "英语": return 1;
+            case "数学": return 2;
+            case "物理": return 3;
+            case "化学": return 4;
+            case "生物": return 5;
+            case "政治": return 6;
+            case "地理": return 7;
+            case "历史": return 8;
+            default: return -1;
         }
     }
 
@@ -89,8 +90,9 @@ public class FragmentHome extends Fragment {
     public FragmentHome() {
         dataLoader = new DataLoader();
         for (int i = 0; i < 9; ++i) {
-            triLists[i] = new ArrayList<Triple>();
-            triNow[i] = new ArrayList<Triple>();
+            triLists[i] = new Vector<Triple>();
+            triNow[i] = new Vector<Triple>();
+            insLists[i] = new Vector<Instance>();
         }
     }
 
@@ -108,6 +110,7 @@ public class FragmentHome extends Fragment {
      */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        skv = view.findViewById(R.id.spin_kit);
 
         for (int i = 0; i < 9; ++i) {
             int finalI = i;
@@ -125,13 +128,12 @@ public class FragmentHome extends Fragment {
                 e.printStackTrace();
             }
         }
-        renewAllData();
 
-        RefreshLayout srl = view.findViewById(R.id.smart_refresh);
-        RecyclerView rv_list = view.findViewById(R.id.rv_list);
+        srl = view.findViewById(R.id.smart_refresh);
+        rv_list = view.findViewById(R.id.rv_list);
         rv_list.addItemDecoration(new DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL));
         rv_list.setLayoutManager(new LinearLayoutManager(getContext()));
-        rv_list.setAdapter(new MyAdapter());
+
         srl.setOnRefreshListener(refreshLayout -> {
             Log.e("Refresh", course_name());
             cntList[course_id] = 0;
@@ -144,7 +146,16 @@ public class FragmentHome extends Fragment {
             refreshLayout.finishLoadMore(2000);
         });
 
-        XTabLayout tl = view.findViewById(R.id.tab_layout);
+        renewAllData();
+        try {
+            dataLoader.logIn();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Log.e("FragmentHome", "Log In Success!");
+        initIns();
+
+        tl = view.findViewById(R.id.tab_layout);
         for (int i = 0; i < 9; ++i) {
             if (courses_now[i]) {
                 String c = courses_all[i];
@@ -158,7 +169,7 @@ public class FragmentHome extends Fragment {
                 Log.e("OnTabSelected", (String) tab.getText());
                 String course = (String) tab.getText();
                 course_id = indexOfCourse(course);
-                rv_list.setAdapter(new MyAdapter());
+                initIns();
             }
 
             @Override
@@ -168,7 +179,7 @@ public class FragmentHome extends Fragment {
             public void onTabReselected(XTabLayout.Tab tab) {}
         });
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder = new AlertDialog.Builder(getContext());
         builder.setTitle("选择科目");
         builder.setIcon(R.mipmap.cat_icon);
         builder.setMultiChoiceItems(courses_all, courses_now, (dialog, which, isChecked) -> courses_now[which] = isChecked);
@@ -177,37 +188,39 @@ public class FragmentHome extends Fragment {
             public void onClick(DialogInterface dialog, int which) {
                 builder.setMultiChoiceItems(courses_all, courses_now, (_dialog, _which, _isChecked) -> courses_now[_which] = _isChecked);
                 tl.removeAllTabs();
+                int tmp_id = -1;
                 for (int i = 0; i < 9; ++i) {
                     if (courses_now[i]) {
+                        if (tmp_id == -1) tmp_id = i; // 找到目前的第一个学科
+                    }
+                }
+                if (tmp_id == -1) {
+                    // TODO: 报错至少选择一门学科 或者设置可以不选
+                } else {
+                    course_id = tmp_id;
+                }
+
+                Log.e("Builder/id", String.valueOf(course_id));
+
+                renewAllData();
+
+                for (int i = 0; i < 9; ++i) {
+                    if (courses_now[i]) {
+                        if (tmp_id == -1) tmp_id = i; // 找到目前的第一个学科
                         String c = courses_all[i];
                         tl.addTab(tl.newTab().setText(c));
                     }
                 }
-                renewAllData();
-                rv_list.setAdapter(new MyAdapter());
             }
         });
         builder.setNegativeButton("取消", null);
 
-        ImageButton addButton = view.findViewById(R.id.add_button);
+        addButton = view.findViewById(R.id.add_button);
         addButton.setOnClickListener(v -> builder.show());
 
         super.onViewCreated(view, savedInstanceState);
     }
 
-    /**
-     * 加载完本地数据后，再进行登录
-     */
-    @Override
-    public void onStart() {
-        super.onStart();
-        try {
-            dataLoader.logIn();
-            Log.e("FragmentHome", "Log In Success!");
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
 
     /**
      * 点击不同学科的按钮后获取数据
@@ -237,15 +250,11 @@ public class FragmentHome extends Fragment {
         public void onBindViewHolder(@NonNull @NotNull ViewHolder holder, int position) {
             Triple tri = (Triple) triNow[course_id].get(position);
             holder.ins_item.setOnClickListener(v -> showDetail(tri));
-            try {
-                Instance ins = dataLoader.getInstance(Utils.English(course_name()), tri.getS());
-                String number = String.valueOf(position + 1);
-                holder.ins_number.setText(number);
-                holder.ins_name.setText(ins.getName());
-                holder.ins_type.setText(ins.getType());
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            Instance ins = (Instance) insLists[course_id].get(position);
+            String number = String.valueOf(position + 1);
+            holder.ins_number.setText(number);
+            holder.ins_name.setText(ins.getName());
+            holder.ins_type.setText(ins.getType());
         }
 
         @Override
@@ -269,27 +278,69 @@ public class FragmentHome extends Fragment {
     }
 
     /**
-     * 初始化 NUM_PER_PAGE 条当前学科的知识
+     * 更新 NUM_PER_PAGE 条当前学科的知识
      */
     public void renewData() {
         int num = cntList[course_id];
         for (int i = num; i < num + NUM_PER_PAGE; ++i) {
-            triNow[course_id].add(triLists[course_id].get(i));
+            Triple tri = (Triple) triLists[course_id].get(i);
+            triNow[course_id].add(tri);
+            Instance ins = null;
+            try {
+                ins = dataLoader.getInstance(Utils.English(course_name()), tri.getS());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            insLists[course_id].add(ins);
         }
         cntList[course_id] += NUM_PER_PAGE;
     }
 
     /**
-     * 情空并增加 NUM_PER_PAGE 条所有学科的知识
+     * 清空情空并初始化 NUM_PER_PAGE 条所有学科的知识
      */
     public void renewAllData() {
         for (int i = 0; i < 9; ++i) {
             triNow[i].clear();
+            insLists[i].clear();
             cntList[i] = 0;
             for (int j = 0; j < NUM_PER_PAGE; ++j) {
-                triNow[i].add(triLists[i].get(j));
+                Triple tri = (Triple) triLists[i].get(j);
+                triNow[i].add(tri);
             }
+            cntList[i] = NUM_PER_PAGE;
         }
+    }
+
+    /**
+     * 对该学科的实体访问uri来初始化
+     */
+    public void initIns () {
+        skv.setVisibility(View.VISIBLE);
+        int num = insLists[course_id].size();
+        new Thread(() -> {
+            Vector<Triple> tris = new Vector();
+            for (int j = num; j < cntList[course_id]; ++j) {
+                Triple tri = (Triple) triLists[course_id].get(j);
+                tris.add(tri);
+            }
+            try {
+                new Response().handle(tris, inss -> {
+                    for (Instance ins : inss) {
+                        insLists[course_id].add(ins);
+                        Log.e("initIns", ins.getName());
+                    }
+                    Log.e("initIns", "InsLists set");
+                    getActivity().runOnUiThread(() -> {
+                        Log.e("initIns", "Adapter set");
+                        rv_list.setAdapter(new MyAdapter());
+                    });
+                });
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            getActivity().runOnUiThread(() -> skv.setVisibility(View.INVISIBLE));
+        }).start();
     }
 
     /**
@@ -297,6 +348,22 @@ public class FragmentHome extends Fragment {
      * @param ins 实体
      */
     public void showDetail (Triple ins) {
+    }
+
+    public class Response {
+        public void handle(Vector<Triple> tris, CallBack callBack) throws InterruptedException {
+            Vector<Instance> inss = new Vector<>();
+            for (Triple tri : tris) {
+                Log.e("Response", tri.getS());
+                Instance ins =  dataLoader.getInstance(Utils.English(course_name()), tri.getS());
+                Log.e("Response", ins.getName());
+                inss.add(ins);
+            }
+            callBack.onResponse(inss);
+        };
+    }
+    interface CallBack  {
+        void onResponse(Vector<Instance> inss);
     }
 
 }

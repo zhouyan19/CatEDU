@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.util.Log;
 
+
 import com.google.gson.Gson;
 
 import org.json.JSONException;
@@ -22,9 +23,9 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Vector;
 
 public class DataLoader {
     private String id = "";
@@ -103,9 +104,9 @@ public class DataLoader {
      * 从本地 csv 文件加载实体数据
      * @param course 课程英文名
      */
-    public ArrayList<Triple> getLocalCourseData (Context context, String course) throws IOException {
+    public Vector<Triple> getLocalCourseData (Context context, String course) throws IOException {
         String file = course + ".json";
-        ArrayList<String> jsons = new ArrayList<>();
+        Vector<String> jsons = new Vector<>();
         AssetManager assetManager = context.getAssets(); // assets资源管理器
         int cnt = 0;
         try {
@@ -131,14 +132,14 @@ public class DataLoader {
      * 把读到的 json 字符串转为 Instance 对象
      * @param jsons json字符串数组
      */
-    public ArrayList<Triple> getDataFromJson(ArrayList<String> jsons) {
-        ArrayList<Triple> arrayList = new ArrayList<>();
+    public Vector<Triple> getDataFromJson(Vector<String> jsons) {
+        Vector<Triple> vector = new Vector<>();
         Gson gson = new Gson(); // 使用 Gson 工具
         for (String j : jsons) {
             Triple in = gson.fromJson(j, Triple.class); // 反序列化
-            arrayList.add(in);
+            vector.add(in);
         }
-        return arrayList;
+        return vector;
     }
 
     /**
