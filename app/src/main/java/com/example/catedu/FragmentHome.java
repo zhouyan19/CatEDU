@@ -11,6 +11,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -42,6 +43,8 @@ import org.json.JSONException;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Objects;
+import java.util.TreeMap;
 import java.util.Vector;
 
 public class FragmentHome extends Fragment {
@@ -106,7 +109,7 @@ public class FragmentHome extends Fragment {
 
     /**
      * CreateView 之后初始化数据
-     * 绑定 SmartRefreshLayout, RecyclerView, TabLayout
+     * 重要！此函数为魔法，勿动
      */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -249,7 +252,7 @@ public class FragmentHome extends Fragment {
         @Override
         public void onBindViewHolder(@NonNull @NotNull ViewHolder holder, int position) {
             Triple tri = (Triple) triNow[course_id].get(position);
-            holder.ins_item.setOnClickListener(v -> showDetail(tri));
+            holder.ins_item.setOnClickListener(v -> showDetail(position));
             Instance ins = (Instance) insLists[course_id].get(position);
             String number = String.valueOf(position + 1);
             holder.ins_number.setText(number);
@@ -328,10 +331,9 @@ public class FragmentHome extends Fragment {
                 new Response().handle(tris, inss -> {
                     for (Instance ins : inss) {
                         insLists[course_id].add(ins);
-                        Log.e("initIns", ins.getName());
                     }
                     Log.e("initIns", "InsLists set");
-                    getActivity().runOnUiThread(() -> {
+                    requireActivity().runOnUiThread(() -> {
                         Log.e("initIns", "Adapter set");
                         rv_list.setAdapter(new MyAdapter());
                     });
@@ -339,31 +341,40 @@ public class FragmentHome extends Fragment {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            getActivity().runOnUiThread(() -> skv.setVisibility(View.INVISIBLE));
+            requireActivity().runOnUiThread(() -> skv.setVisibility(View.INVISIBLE));
         }).start();
-    }
-
-    /**
-     * 查看实体详情
-     * @param ins 实体
-     */
-    public void showDetail (Triple ins) {
     }
 
     public class Response {
         public void handle(Vector<Triple> tris, CallBack callBack) throws InterruptedException {
             Vector<Instance> inss = new Vector<>();
-            for (Triple tri : tris) {
+            for (int i = 0; i < tris.size(); ++i) inss.add(new Instance());
+            for (int i = 0; i < tris.size(); ++i) {
+                Triple tri = tris.get(i);
                 Log.e("Response", tri.getS());
                 Instance ins =  dataLoader.getInstance(Utils.English(course_name()), tri.getS());
                 Log.e("Response", ins.getName());
-                inss.add(ins);
+                inss.set(i, ins);
             }
             callBack.onResponse(inss);
         };
     }
     interface CallBack  {
         void onResponse(Vector<Instance> inss);
+    }
+
+    /**
+     * 查看实体详情
+     * @param pos 实体的序号
+     */
+    public void showDetail (int pos) {
+        Triple tri = (Triple) triNow[course_id].get(pos);
+        String uri = tri.getS();
+        requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.ins_detail, new FragmentInsDetail(uri, course_name()), null)
+                .addToBackStack("ins_detail")
+                .commit();
     }
 
 }

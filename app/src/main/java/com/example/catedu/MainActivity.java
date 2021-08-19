@@ -12,8 +12,12 @@ import androidx.fragment.app.FragmentTransaction;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Window;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
     private Fragment[] fragments;
@@ -25,13 +29,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Objects.requireNonNull(getSupportActionBar()).hide();
         setContentView(R.layout.activity_main);
         initView();
     }
 
 
     /**
-     * 为 BottomNavigationView 绑定三个 Fragment
+     * 为 BottomNavigationView 绑定 Fragment
      */
     private void initView () {
         FragmentHome fragment_home = new FragmentHome();
@@ -49,8 +54,13 @@ public class MainActivity extends AppCompatActivity {
      * 为 BottomNavigationView 设置选择切换
      */
     @SuppressLint("NonConstantResourceId")
-    private final BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = item -> {
+    private final BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener = item -> {
+        int cnt = getSupportFragmentManager().getBackStackEntryCount();
+        Log.e("Stack Cnt", String.valueOf(cnt));
+        while (cnt > 0) {
+            getSupportFragmentManager().popBackStack();
+            cnt--;
+        }
         switch (item.getItemId()) {
             case R.id.navigation_home:
                 if (last_fragment != 0) {
