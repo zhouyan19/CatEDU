@@ -12,4 +12,6 @@
     <string name="ins_item_type" />
     <string name="add_button">add_button</string>
     <string name="back">返回</string>
+    <string name="detail_name" />
+    <string name="detail_type" />
 </resources>

@@ -198,7 +198,8 @@ public class FragmentHome extends Fragment {
                     }
                 }
                 if (tmp_id == -1) {
-                    // TODO: 报错至少选择一门学科 或者设置可以不选
+                    courses_now = new boolean[]{true, true, true, false, false, false, false, false, false};
+                    course_id = 0;
                 } else {
                     course_id = tmp_id;
                 }
@@ -370,9 +371,18 @@ public class FragmentHome extends Fragment {
     public void showDetail (int pos) {
         Triple tri = (Triple) triNow[course_id].get(pos);
         String uri = tri.getS();
+
+        for (int i = 0; i < 9; ++i) {
+            triLists[i] = new Vector<Triple>();
+            triNow[i] = new Vector<Triple>();
+            insLists[i] = new Vector<Instance>();
+            cntList[i] = 0;
+        }
+        course_id = 0;
+
         requireActivity().getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.ins_detail, new FragmentInsDetail(uri, course_name()), null)
+                .replace(R.id.nav_host_fragment, new FragmentInsDetail(uri, course_name()), null)
                 .addToBackStack("ins_detail")
                 .commit();
     }

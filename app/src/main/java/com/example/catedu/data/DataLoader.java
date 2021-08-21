@@ -26,6 +26,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Vector;
 
@@ -142,6 +144,7 @@ public class DataLoader {
             Triple in = gson.fromJson(j, Triple.class); // 反序列化
             vector.add(in);
         }
+        Collections.shuffle(vector);
         return vector;
     }
 
