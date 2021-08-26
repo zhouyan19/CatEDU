@@ -18,10 +18,14 @@
         android:textSize="18sp"
         android:textColor="@color/black"/>
 
-    <TextView
+    <com.daquexian.flexiblerichtextview.FlexibleRichTextView
         android:id="@+id/feature_value"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="14sp"/>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 
 </LinearLayout>

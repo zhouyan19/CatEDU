@@ -17,11 +17,17 @@ import android.view.Window;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import org.scilab.forge.jlatexmath.core.AjLatexMath;
+
 import java.util.Objects;
+import java.util.Vector;
+
+import io.github.kbiakov.codeview.classifier.CodeProcessor;
 
 public class MainActivity extends AppCompatActivity {
-    private Fragment[] fragments;
-    private int last_fragment = 0;
+    public static Vector<Fragment> fragments;
+    public static int last_fragment = 0;
+    public static int major_fragment = 0;
 
     /**
      * MainActivity 创建时的操作
@@ -30,6 +36,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Objects.requireNonNull(getSupportActionBar()).hide();
+        AjLatexMath.init(this);
+        CodeProcessor.init(this);
         setContentView(R.layout.activity_main);
         initView();
     }
@@ -42,7 +50,11 @@ public class MainActivity extends AppCompatActivity {
         FragmentHome fragment_home = new FragmentHome();
         FragmentQuestion fragment_search = new FragmentQuestion();
         FragmentMine fragment_mine = new FragmentMine();
-        fragments = new Fragment[]{fragment_home, fragment_search, fragment_mine};
+
+        fragments = new Vector<>();
+        fragments.add(fragment_home);
+        fragments.add(fragment_search);
+        fragments.add(fragment_mine);
 
         getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, fragment_home).show(fragment_home).commit();
         BottomNavigationView nav_view = findViewById(R.id.nav_view);
@@ -55,29 +67,20 @@ public class MainActivity extends AppCompatActivity {
      */
     @SuppressLint("NonConstantResourceId")
     private final BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener = item -> {
-        int cnt = getSupportFragmentManager().getBackStackEntryCount();
-        Log.e("Stack Cnt", String.valueOf(cnt));
-        while (cnt > 0) {
-            getSupportFragmentManager().popBackStack();
-            cnt--;
-        }
         switch (item.getItemId()) {
             case R.id.navigation_home:
                 if (last_fragment != 0) {
                     switchFragment(last_fragment, 0);
-                    last_fragment = 0;
                 }
                 return true;
             case R.id.navigation_question:
                 if (last_fragment != 1) {
                     switchFragment(last_fragment, 1);
-                    last_fragment = 1;
                 }
                 return true;
             case R.id.navigation_mine:
                 if (last_fragment != 2) {
                     switchFragment(last_fragment, 2);
-                    last_fragment = 2;
                 }
                 return true;
             default:
@@ -93,10 +96,15 @@ public class MainActivity extends AppCompatActivity {
      */
     private void switchFragment (int last, int index) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.hide(fragments[last]);
-        if (!fragments[index].isAdded())
-            transaction.add(R.id.nav_host_fragment, fragments[index]);
-        transaction.show(fragments[index]).commitAllowingStateLoss();
+        transaction.hide(fragments.get(last));
+        if (!fragments.get(index).isAdded())
+            transaction.add(R.id.nav_host_fragment, fragments.get(index));
+        transaction.show(fragments.get(index)).commitAllowingStateLoss();
+        for (int i = fragments.size() - 1; i >= 3; i--) {  //删多余的页面
+            fragments.removeElementAt(i);
+        }
+        last_fragment = index;
+        major_fragment = index;
     }
 
 }

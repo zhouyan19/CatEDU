@@ -58,4 +58,5 @@ dependencies {
     implementation 'com.necer.ndialog2:ndialog:1.0.2'
     implementation 'com.github.ybq:Android-SpinKit:1.4.0'
     implementation 'com.ldoublem.loadingview:loadingviewlib:1.0'
+    implementation 'com.github.daquexian:FlexibleRichTextView:0.8.2'
 }

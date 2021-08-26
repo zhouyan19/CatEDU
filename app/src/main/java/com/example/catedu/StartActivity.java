@@ -32,7 +32,7 @@ public class StartActivity extends AppCompatActivity {
         // 创建子线程
         Thread myThread = new Thread(() -> {
             try{
-                Thread.sleep(2000);
+                Thread.sleep(1000);
                 Intent it = new Intent(getApplicationContext(), MainActivity.class); // 启动MainActivity
                 startActivity(it);
                 finish(); // 关闭当前活动

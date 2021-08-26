@@ -19,6 +19,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -27,7 +28,8 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DecodeFormat;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.target.Target;
-import com.example.catedu.data.BingSpider;
+import com.daquexian.flexiblerichtextview.FlexibleRichTextView;
+import com.example.catedu.data.PicSpider;
 import com.example.catedu.data.DataLoader;
 import com.example.catedu.data.InstanceDetail;
 import com.github.ybq.android.spinkit.SpinKitView;
@@ -52,7 +54,7 @@ public class FragmentInsDetail extends Fragment {
 
     ImageButton back_home;
     SpinKitView skv;
-    TextView detail_name;
+    FlexibleRichTextView detail_name;
     TextView detail_type;
     RecyclerView detail_feature;
     ImageView entity_pic;
@@ -79,7 +81,7 @@ public class FragmentInsDetail extends Fragment {
         skv = view.findViewById(R.id.spin_kit);
 
         back_home = view.findViewById(R.id.detail_back_home);
-        back_home.setOnClickListener(v -> getParentFragmentManager().popBackStack());
+        back_home.setOnClickListener(v -> backSwitchFragment());
 
         detail_name = view.findViewById(R.id.detail_name);
         detail_type = view.findViewById(R.id.detail_type);
@@ -91,11 +93,11 @@ public class FragmentInsDetail extends Fragment {
 
         getInstanceDetail();
 
-        try {
-            setPic(instance.getEntity_name());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            setPic(instance.getEntity_name());
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 
     @SuppressLint("SetTextI18n")
@@ -121,6 +123,7 @@ public class FragmentInsDetail extends Fragment {
                             e.printStackTrace();
                         }
                         detail_feature.setAdapter(new FeatureAdapter());
+                        requireActivity().runOnUiThread(() -> skv.setVisibility(View.INVISIBLE));
                         Log.e("getInstanceDetail", "FeatureAdapter");
                     });
                 });
@@ -171,7 +174,7 @@ public class FragmentInsDetail extends Fragment {
 
         public class ViewHolder extends RecyclerView.ViewHolder {
             TextView feature_key;
-            TextView feature_value;
+            FlexibleRichTextView feature_value;
             public ViewHolder(@NonNull @NotNull View itemView) {
                 super(itemView);
                 feature_key = itemView.findViewById(R.id.feature_key);
@@ -185,15 +188,17 @@ public class FragmentInsDetail extends Fragment {
             try {
                 new Response2().handle(res -> {
                     picUrl = res;
-                    Glide.with(getContext())
-                            .load(picUrl)
-                            .centerCrop()
-                            .dontTransform()
-                            .dontAnimate()
-                            .format(DecodeFormat.PREFER_ARGB_8888)
-                            .diskCacheStrategy(DiskCacheStrategy.ALL)
-                            .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
-                            .into(entity_pic);
+                    requireActivity().runOnUiThread(() -> {
+                        Glide.with(getContext())
+                                .load(picUrl)
+                                .centerCrop()
+                                .dontTransform()
+                                .dontAnimate()
+                                .format(DecodeFormat.PREFER_ARGB_8888)
+                                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                                .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
+                                .into(entity_pic);
+                    });
                 });
             } catch (IOException | InterruptedException | JSONException e) {
                 e.printStackTrace();
@@ -203,7 +208,7 @@ public class FragmentInsDetail extends Fragment {
     }
     public class Response2 {
         public void handle (CallBack2 callBack) throws IOException, JSONException, InterruptedException {
-            BingSpider bs = new BingSpider(instance.getEntity_name());
+            PicSpider bs = new PicSpider(instance.getEntity_name());
             String res = bs.getPic();
             callBack.onResponse(res);
         }
@@ -212,5 +217,20 @@ public class FragmentInsDetail extends Fragment {
         void onResponse(String res) throws IOException;
     }
 
+    protected void backSwitchFragment() {
+        int from = MainActivity.last_fragment, to;
+        FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
+        transaction.hide(MainActivity.fragments.get(from));
+        if (MainActivity.last_fragment == 3) { //次级页面
+            to = MainActivity.major_fragment;
+        } else { //多级页面
+            to = MainActivity.last_fragment - 1;
+        }
+        if (!MainActivity.fragments.get(to).isAdded())
+            transaction.add(R.id.nav_host_fragment, MainActivity.fragments.get(to));
+        transaction.show(MainActivity.fragments.get(to)).commitAllowingStateLoss();
+        MainActivity.last_fragment = to; //更新
+        MainActivity.fragments.removeElementAt(from); //删多余的页面
+    }
 
 }

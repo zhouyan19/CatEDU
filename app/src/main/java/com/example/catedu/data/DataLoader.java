@@ -123,7 +123,7 @@ public class DataLoader {
                 if (cnt <= 24) continue;
                 jsons.add(line);
                 // 超出NUM_PER_PAGE后停止读
-                if (cnt >= 1024) break;
+                if (cnt >= 8096) break;
             }
             bufferedReader.close();
         } catch (Exception e) {
@@ -139,8 +139,10 @@ public class DataLoader {
      */
     public Vector<Triple> getDataFromJson (Vector<String> jsons) {
         Vector<Triple> vector = new Vector<>();
+        Collections.shuffle(vector);
         Gson gson = new Gson(); // 使用 Gson 工具
-        for (String j : jsons) {
+        for (int i = 0; i < 1024; ++i) {
+            String j = jsons.get(i);
             Triple in = gson.fromJson(j, Triple.class); // 反序列化
             vector.add(in);
         }
