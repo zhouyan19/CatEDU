@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">猫辅导</string>
+    <string name="cat_app_name">猫辅导</string>
     <string name="copyright">Copyright © ZY YWT WZT</string>
     <string name="nav_1">主页</string>
     <string name="nav_2">问答</string>
@@ -11,9 +11,26 @@
     <string name="ins_item_name">无名称</string>
     <string name="ins_item_type" />
     <string name="add_button">add_button</string>
+<<<<<<< HEAD
     <string name="test">测试</string>
     <string name="entity_retrieval">实体检索</string>
     <string name="entity_link">实体链接</string>
     <string name="entity_qa">知识问答</string>
 
+=======
+    <string name="name">请输入名字</string>
+    <string name="password">请输入密码</string>
+    <string name="login">登录</string>
+    <string name="me">我</string>
+    <string name="settings">设置</string>
+    <string name="register">没有账号？注册一个</string>
+    <string name="username">用户名</string>
+    <string name="set_password">密码</string>
+    <string name="confirm_password">确认密码</string>
+    <string name="email">邮箱</string>
+    <string name="submit">提交</string>
+    <string name="back">返回</string>
+    <string name="detail_name" />
+    <string name="detail_type" />
+>>>>>>> main
 </resources>
