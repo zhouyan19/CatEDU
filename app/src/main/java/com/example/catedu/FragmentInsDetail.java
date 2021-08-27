@@ -52,7 +52,6 @@ public class FragmentInsDetail extends Fragment {
 
     private static Vector<JSONObject> feature_list;
 
-    ImageButton back_home;
     SpinKitView skv;
     FlexibleRichTextView detail_name;
     TextView detail_type;
@@ -60,6 +59,7 @@ public class FragmentInsDetail extends Fragment {
     ImageView entity_pic;
 
     FragmentInsDetail (String _u, String _c) {
+        Log.e("FragmentInsDetail", "New!");
         uri = _u;
         course = _c;
         dataLoader = new DataLoader();
@@ -79,9 +79,6 @@ public class FragmentInsDetail extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         skv = view.findViewById(R.id.spin_kit);
-
-        back_home = view.findViewById(R.id.detail_back_home);
-        back_home.setOnClickListener(v -> backSwitchFragment());
 
         detail_name = view.findViewById(R.id.detail_name);
         detail_type = view.findViewById(R.id.detail_type);
@@ -161,7 +158,20 @@ public class FragmentInsDetail extends Fragment {
             JSONObject feature = feature_list.get(position);
             try {
                 holder.feature_key.setText(feature.getString("feature_key"));
-                holder.feature_value.setText(feature.getString("feature_value"));
+                String value = feature.getString("feature_value");
+                if (value.contains("http://kb.cs.tsinghua.edu.cn/apihtml/getjpg") || value.contains("http://kb.cs.tsinghua.edu.cn/apihtml/getpng")) {
+                    Glide.with(getContext())
+                            .load(value)
+                            .centerCrop()
+                            .dontTransform()
+                            .dontAnimate()
+                            .format(DecodeFormat.PREFER_ARGB_8888)
+                            .diskCacheStrategy(DiskCacheStrategy.ALL)
+                            .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
+                            .into(holder.feature_value_image);
+                } else {
+                    holder.feature_value.setText(value);
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -175,10 +185,12 @@ public class FragmentInsDetail extends Fragment {
         public class ViewHolder extends RecyclerView.ViewHolder {
             TextView feature_key;
             FlexibleRichTextView feature_value;
+            ImageView feature_value_image;
             public ViewHolder(@NonNull @NotNull View itemView) {
                 super(itemView);
                 feature_key = itemView.findViewById(R.id.feature_key);
                 feature_value = itemView.findViewById(R.id.feature_value);
+                feature_value_image = itemView.findViewById(R.id.feature_value_img);
             }
         }
     }
@@ -215,22 +227,6 @@ public class FragmentInsDetail extends Fragment {
     }
     interface CallBack2  {
         void onResponse(String res) throws IOException;
-    }
-
-    protected void backSwitchFragment() {
-        int from = MainActivity.last_fragment, to;
-        FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
-        transaction.hide(MainActivity.fragments.get(from));
-        if (MainActivity.last_fragment == 3) { //次级页面
-            to = MainActivity.major_fragment;
-        } else { //多级页面
-            to = MainActivity.last_fragment - 1;
-        }
-        if (!MainActivity.fragments.get(to).isAdded())
-            transaction.add(R.id.nav_host_fragment, MainActivity.fragments.get(to));
-        transaction.show(MainActivity.fragments.get(to)).commitAllowingStateLoss();
-        MainActivity.last_fragment = to; //更新
-        MainActivity.fragments.removeElementAt(from); //删多余的页面
     }
 
 }

@@ -397,8 +397,8 @@ public class FragmentHome extends Fragment {
 //        }
 //        ins_cnt = 0;
 
-        FragmentInsDetail fid = new FragmentInsDetail(uri, course_name());
-        MainActivity.fragments.add(fid);
+        FragmentInstance fi = new FragmentInstance(uri, course_name());
+        MainActivity.fragments.add(fi);
         forwardSwitchFragment();
 
 //        requireActivity().getSupportFragmentManager()
