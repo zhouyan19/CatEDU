@@ -11,4 +11,9 @@
     <string name="ins_item_name">无名称</string>
     <string name="ins_item_type" />
     <string name="add_button">add_button</string>
+    <string name="test">测试</string>
+    <string name="entity_retrieval">实体检索</string>
+    <string name="entity_link">实体链接</string>
+    <string name="entity_qa">知识问答</string>
+
 </resources>
