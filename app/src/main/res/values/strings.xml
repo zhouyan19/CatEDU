@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">猫辅导</string>
+    <string name="cat_app_name">猫辅导</string>
     <string name="copyright">Copyright © ZY YWT WZT</string>
     <string name="nav_1">主页</string>
     <string name="nav_2">问答</string>
@@ -11,8 +11,6 @@
     <string name="ins_item_name">无名称</string>
     <string name="ins_item_type" />
     <string name="add_button">add_button</string>
-
-<!--    <string name="app_name">Login</string>-->
     <string name="name">请输入名字</string>
     <string name="password">请输入密码</string>
     <string name="login">登录</string>
@@ -24,4 +22,7 @@
     <string name="confirm_password">确认密码</string>
     <string name="email">邮箱</string>
     <string name="submit">提交</string>
+    <string name="back">返回</string>
+    <string name="detail_name" />
+    <string name="detail_type" />
 </resources>

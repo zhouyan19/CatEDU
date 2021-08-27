@@ -13,6 +13,7 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -21,9 +22,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Vector;
 
@@ -54,8 +58,8 @@ public class DataLoader {
         URL login_url = new URL("http://open.edukg.cn/opedukg/api/typeAuth/user/login");
         HttpURLConnection conn = (HttpURLConnection) login_url.openConnection(); // 创建HttpURLConnection对象
         conn.setRequestMethod("POST"); // 请求方式为 POST
-        conn.setConnectTimeout(4000); // 设置超时
-        conn.setReadTimeout(4000);
+        conn.setConnectTimeout(3000); // 设置超时
+        conn.setReadTimeout(3000);
         conn.setDoOutput(true);
         conn.setDoInput(true);
         conn.setUseCaches(false); // Post方式不能缓存,需手动设置为false
@@ -115,10 +119,11 @@ public class DataLoader {
                     assetManager.open(file), StandardCharsets.UTF_8));
             String line;
             while ((line = bufferedReader.readLine()) != null) {
-                jsons.add(line);
                 cnt++;
+                if (cnt <= 24) continue;
+                jsons.add(line);
                 // 超出NUM_PER_PAGE后停止读
-                if (cnt >= 1000) break;
+                if (cnt >= 8096) break;
             }
             bufferedReader.close();
         } catch (Exception e) {
@@ -132,13 +137,16 @@ public class DataLoader {
      * 把读到的 json 字符串转为 Instance 对象
      * @param jsons json字符串数组
      */
-    public Vector<Triple> getDataFromJson(Vector<String> jsons) {
+    public Vector<Triple> getDataFromJson (Vector<String> jsons) {
         Vector<Triple> vector = new Vector<>();
+        Collections.shuffle(vector);
         Gson gson = new Gson(); // 使用 Gson 工具
-        for (String j : jsons) {
+        for (int i = 0; i < 1024; ++i) {
+            String j = jsons.get(i);
             Triple in = gson.fromJson(j, Triple.class); // 反序列化
             vector.add(in);
         }
+        Collections.shuffle(vector);
         return vector;
     }
 
@@ -152,9 +160,7 @@ public class DataLoader {
             if (!logged) {
                 try {
                     logInOnSubThread();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (JSONException e) {
+                } catch (IOException | JSONException e) {
                     e.printStackTrace();
                 }
             }
@@ -172,14 +178,14 @@ public class DataLoader {
     }
 
     /**
-     * 根据 uri 来获取知识
+     * 根据 uri 来获取实体简略信息
      */
     public Instance getKnowledgeByUri(String course, String uri) throws IOException, JSONException {
         URL ins_url = new URL("http://open.edukg.cn/opedukg/api/typeOpen/open/getKnowledgeCard");
         HttpURLConnection conn = (HttpURLConnection) ins_url.openConnection(); // 创建HttpURLConnection对象
         conn.setRequestMethod("POST"); // 请求方式为 POST
-        conn.setConnectTimeout(4000); // 设置超时
-        conn.setReadTimeout(4000);
+        conn.setConnectTimeout(3000); // 设置超时
+        conn.setReadTimeout(3000);
         conn.setDoOutput(true);
         conn.setDoInput(true);
         conn.setUseCaches(false); // Post方式不能缓存,需手动设置为false
@@ -192,7 +198,6 @@ public class DataLoader {
         map.put("uri", uri);
         map.put("id", id);
         String params = new Gson().toJson(map);
-//        Log.e("Params", params);
 
         // 获取输出流，写入参数
         OutputStream out = conn.getOutputStream();
@@ -204,7 +209,6 @@ public class DataLoader {
         StringBuilder res = new StringBuilder();
         int code = conn.getResponseCode();
         if (code == 200) {
-            logged = true;
             InputStreamReader in = new InputStreamReader(conn.getInputStream());
             BufferedReader bf = new BufferedReader(in);
             String line;
@@ -227,6 +231,65 @@ public class DataLoader {
         entity_type = data_json.getString("entity_type");
         entity_name = data_json.getString("entity_name");
         return new Instance(entity_name, entity_type);
+    }
+
+    /**
+     * Post 请求根据 uri 获取实体详情
+     */
+    public InstanceDetail getDetailByUri (String course, String uri) throws IOException, JSONException, InterruptedException {
+        if (!logged) logIn();
+        URL ins_url = new URL("http://open.edukg.cn/opedukg/api/typeOpen/open/getKnowledgeCard");
+        HttpURLConnection conn = (HttpURLConnection) ins_url.openConnection(); // 创建HttpURLConnection对象
+        conn.setRequestMethod("POST"); // 请求方式为 POST
+        conn.setConnectTimeout(3000); // 设置超时
+        conn.setReadTimeout(3000);
+        conn.setDoOutput(true);
+        conn.setDoInput(true);
+        conn.setUseCaches(false); // Post方式不能缓存,需手动设置为false
+        conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8"); // 设置请求头
+        conn.connect();
+
+        // 写入参数
+        HashMap map = new HashMap<String, String>();
+        map.put("course", course);
+        map.put("uri", uri);
+        map.put("id", id);
+        String params = new Gson().toJson(map);
+
+        // 获取输出流，写入参数
+        OutputStream out = conn.getOutputStream();
+        out.write(params.getBytes());
+        out.flush();
+        out.close();
+
+        // 读取响应
+        StringBuilder res = new StringBuilder();
+        int code = conn.getResponseCode();
+        if (code == 200) {
+            InputStreamReader in = new InputStreamReader(conn.getInputStream());
+            BufferedReader bf = new BufferedReader(in);
+            String line;
+            // 一行一行读取
+            while ((line = bf.readLine()) != null){
+                res.append(line);
+            }
+            in.close();
+            conn.disconnect();
+        }
+        if (res.toString().equals("")) {
+            Log.e("Entity", "Empty!");
+            return new InstanceDetail();
+        }
+        Log.e("Res(Detail)", res.toString());
+        String entity_type;
+        String entity_name;
+        JSONArray entity_features;
+        JSONObject res_json = new JSONObject(res.toString());
+        JSONObject data_json = res_json.getJSONObject("data");
+        entity_type = data_json.getString("entity_type");
+        entity_name = data_json.getString("entity_name");
+        entity_features = data_json.getJSONArray("entity_features");
+        return new InstanceDetail(entity_type, entity_name, entity_features);
     }
 
 }
