@@ -11,13 +11,10 @@
     <string name="ins_item_name">无名称</string>
     <string name="ins_item_type" />
     <string name="add_button">add_button</string>
-<<<<<<< HEAD
     <string name="test">测试</string>
     <string name="entity_retrieval">实体检索</string>
     <string name="entity_link">实体链接</string>
     <string name="entity_qa">知识问答</string>
-
-=======
     <string name="name">请输入名字</string>
     <string name="password">请输入密码</string>
     <string name="login">登录</string>
@@ -32,5 +29,4 @@
     <string name="back">返回</string>
     <string name="detail_name" />
     <string name="detail_type" />
->>>>>>> main
 </resources>
