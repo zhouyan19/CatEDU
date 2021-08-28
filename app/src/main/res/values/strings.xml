@@ -25,4 +25,6 @@
     <string name="back">返回</string>
     <string name="detail_name" />
     <string name="detail_type" />
+    <string name="text_ins_ques">试题</string>
+    <string name="text_ins_related">相关实体</string>
 </resources>
