@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -13,12 +14,14 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.androidkun.xtablayout.XTabLayout;
+import com.github.ybq.android.spinkit.SpinKitView;
 
 import java.util.Map;
 import java.util.Vector;
 
 public class FragmentInstance extends Fragment {
     public static String uri; // 实体uri
+    public static String name; // 实体名称
     public static String course; // 学科名称
     public static Vector<Fragment> fragments;
     public static int last_fragment = 0;
@@ -28,27 +31,27 @@ public class FragmentInstance extends Fragment {
     FragmentInsRelated fragment_ins_related;
 
     ImageButton back_home;
+    public static SpinKitView skv;
+    XTabLayout detail_tabLayout;
 
-    public FragmentInstance (String _u, String _c) {
+    public FragmentInstance (String _u, String _n, String _c) {
         Log.e("FragmentInstance", "New!");
         uri = _u;
+        name = _n;
         course = _c;
-        fragment_ins_detail = new FragmentInsDetail(uri, course);
-        fragment_ins_ques = new FragmentInsQues();
-        fragment_ins_related = new FragmentInsRelated();
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // 绑定 layout
-        Log.e("FragmentInstance", "onCreateView");
         return inflater.inflate(R.layout.fragment_instance, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        Log.e("FragmentInstance", "onViewCreated");
+        skv = view.findViewById(R.id.spin_kit);
+        skv.setVisibility(View.VISIBLE);
 
-        XTabLayout detail_tabLayout = view.findViewById(R.id.detail_tab_layout);
+        detail_tabLayout = view.findViewById(R.id.detail_tab_layout);
 
         back_home = view.findViewById(R.id.detail_back_home);
         back_home.setOnClickListener(v -> {
@@ -58,6 +61,10 @@ public class FragmentInstance extends Fragment {
                 throwable.printStackTrace();
             }
         });
+
+        fragment_ins_detail = new FragmentInsDetail(uri, name, course);
+        fragment_ins_ques = new FragmentInsQues(name);
+        fragment_ins_related = new FragmentInsRelated();
 
         fragments = new Vector<>();
 

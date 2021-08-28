@@ -15,6 +15,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Window;
 
+import com.example.catedu.data.DataLoader;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.scilab.forge.jlatexmath.core.AjLatexMath;
@@ -22,12 +23,16 @@ import org.scilab.forge.jlatexmath.core.AjLatexMath;
 import java.util.Objects;
 import java.util.Vector;
 
+import javax.sql.DataSource;
+
 import io.github.kbiakov.codeview.classifier.CodeProcessor;
 
 public class MainActivity extends AppCompatActivity {
     public static Vector<Fragment> fragments;
     public static int last_fragment = 0;
     public static int major_fragment = 0;
+
+    public static DataLoader dataLoader;
 
     /**
      * MainActivity 创建时的操作
@@ -38,6 +43,11 @@ public class MainActivity extends AppCompatActivity {
         Objects.requireNonNull(getSupportActionBar()).hide();
         AjLatexMath.init(this);
         CodeProcessor.init(this);
+        try {
+            dataLoader = new DataLoader();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         setContentView(R.layout.activity_main);
         initView();
     }

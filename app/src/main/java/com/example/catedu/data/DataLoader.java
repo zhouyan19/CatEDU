@@ -8,6 +8,7 @@ package com.example.catedu.data;
 
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.os.Parcelable;
 import android.util.Log;
 
 
@@ -34,6 +35,10 @@ import java.util.Vector;
 public class DataLoader {
     private String id = "";
     private boolean logged = false;
+
+    public DataLoader () throws InterruptedException {
+        logIn();
+    }
 
     public void logIn () throws InterruptedException {
         Thread net_conn_thread = new Thread(() -> {
@@ -157,13 +162,6 @@ public class DataLoader {
         // 网络请求不能在主线程中进行，而是要在一个子线程中
         Instance ins = new Instance();
         Thread net_conn_thread = new Thread(() -> {
-            if (!logged) {
-                try {
-                    logInOnSubThread();
-                } catch (IOException | JSONException e) {
-                    e.printStackTrace();
-                }
-            }
             try {
                 Instance tmp = getKnowledgeByUri(course, uri);
                 ins.setName(tmp.getName());
@@ -237,7 +235,6 @@ public class DataLoader {
      * Post 请求根据 uri 获取实体详情
      */
     public InstanceDetail getDetailByUri (String course, String uri) throws IOException, JSONException, InterruptedException {
-        if (!logged) logIn();
         URL ins_url = new URL("http://open.edukg.cn/opedukg/api/typeOpen/open/getKnowledgeCard");
         HttpURLConnection conn = (HttpURLConnection) ins_url.openConnection(); // 创建HttpURLConnection对象
         conn.setRequestMethod("POST"); // 请求方式为 POST
@@ -290,6 +287,58 @@ public class DataLoader {
         entity_name = data_json.getString("entity_name");
         entity_features = data_json.getJSONArray("entity_features");
         return new InstanceDetail(entity_type, entity_name, entity_features);
+    }
+
+    /**
+     * Get 请求根据实体名称获取相关试题
+     */
+    public Vector<Ques> getInstanceQues (String name) throws IOException, JSONException {
+        String root = "http://open.edukg.cn/opedukg/api/typeOpen/open/questionListByUriName?uriName=";
+        String tail = "&id=" + id;
+        URL url = new URL(root + name + tail);
+        HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+        conn.setRequestMethod("GET");
+        //Get请求不需要DoOutPut
+        conn.setDoOutput(false);
+        conn.setDoInput(true);
+        //设置连接超时时间和读取超时时间
+        conn.setConnectTimeout(5000);
+        conn.setReadTimeout(5000);
+        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+        //连接服务器
+        conn.connect();
+        // 取得输入流，并使用Reader读取
+        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+        StringBuilder result = new StringBuilder();
+        String line;
+        while ((line = in.readLine()) != null) {
+            result.append(line);
+        }
+        in.close();
+        JSONObject json = new JSONObject(result.toString());
+        return getQuesFromJson(json);
+    }
+
+    public Vector<Ques> getQuesFromJson (JSONObject json) throws JSONException {
+        Vector<Ques> vector = new Vector<>();
+        Gson gson = new Gson(); // 使用 Gson 工具
+        JSONArray data = json.getJSONArray("data");
+        if (data.length() == 0) return vector;
+        else {
+            for (int i = 0; i < data.length(); ++i) {
+                JSONObject item = data.getJSONObject(i);
+                Ques ques = gson.fromJson(String.valueOf(item), Ques.class);
+                String answer = ques.getqAnswer();
+                if (answer.equals("A") ||
+                        answer.equals("B") ||
+                        answer.equals("C") ||
+                        answer.equals("D")) {
+                    ques.print();
+                    vector.add(ques);
+                }
+            }
+        }
+        return vector;
     }
 
 }

@@ -46,7 +46,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
                         android:layout_weight="1"
-                        android:layout_marginTop="20dp"
+                        android:layout_marginTop="30dp"
                         android:textSize="16sp"
                         android:text="@string/detail_name" />
 
@@ -78,16 +78,5 @@
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>
-
-    <com.github.ybq.android.spinkit.SpinKitView
-        android:id="@+id/spin_kit"
-        style="@style/SpinKitView.Pulse"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:SpinKit_Color="@color/main"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
