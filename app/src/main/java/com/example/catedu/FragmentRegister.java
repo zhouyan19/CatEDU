@@ -4,13 +4,19 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -18,14 +24,13 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.google.gson.JsonObject;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.regex.Pattern;
 
-public class RegisterActivity extends AppCompatActivity {
+public class FragmentRegister extends Fragment {
 
     EditText username;
     ImageView username_sign;
@@ -37,16 +42,16 @@ public class RegisterActivity extends AppCompatActivity {
     ImageView email_sign;
     Button submit_button;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-//        Logger.e("ERROR","register");
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.register);
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.register, container, false);
+    }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         final boolean[] input_valid=new boolean[4];
 
-        username = (EditText) this.findViewById(R.id.edit_username);
-        username_sign = (ImageView) this.findViewById(R.id.username_sign);
+        username = (EditText) view.findViewById(R.id.edit_username);
+        username_sign = (ImageView) view.findViewById(R.id.username_sign);
         TextWatcher username_watcher = new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -67,8 +72,8 @@ public class RegisterActivity extends AppCompatActivity {
         };
         username.addTextChangedListener(username_watcher);
 //
-        password = (EditText) this.findViewById(R.id.edit_password);
-        password_sign=(ImageView) this.findViewById(R.id.password_sign);
+        password = (EditText) view.findViewById(R.id.edit_password);
+        password_sign=(ImageView) view.findViewById(R.id.password_sign);
         password.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -89,8 +94,8 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
 
-        confirm_password = (EditText) this.findViewById(R.id.edit_confirm_password);
-        confirm_password_sign=(ImageView) this.findViewById(R.id.confirm_password_sign);
+        confirm_password = (EditText) view.findViewById(R.id.edit_confirm_password);
+        confirm_password_sign=(ImageView)view.findViewById(R.id.confirm_password_sign);
         confirm_password.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -110,8 +115,8 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
 
-        email=(EditText) this.findViewById(R.id.edit_email);
-        email_sign=(ImageView) this.findViewById(R.id.email_sign);
+        email=(EditText) view.findViewById(R.id.edit_email);
+        email_sign=(ImageView) view.findViewById(R.id.email_sign);
         email.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -132,7 +137,7 @@ public class RegisterActivity extends AppCompatActivity {
             }
         });
 
-        submit_button=(Button) this.findViewById(R.id.submit_button);
+        submit_button=(Button) view.findViewById(R.id.submit_button);
         submit_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -147,14 +152,13 @@ public class RegisterActivity extends AppCompatActivity {
                 }
                 else
                 {
-                    Toast.makeText(RegisterActivity.this,"请确认输入信息符合格式后再提交！",Toast.LENGTH_LONG).show();;
+                    Toast.makeText(getActivity(),"请确认输入信息符合格式后再提交！",Toast.LENGTH_LONG).show();;
                 }
 
             }
         });
-
-
     }
+
 
     void submit()
     {
@@ -171,30 +175,30 @@ public class RegisterActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         String url="http://183.173.179.9:8080/user/register";
-        RequestQueue requestQueue = Volley.newRequestQueue(RegisterActivity.this);
+        RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
         JsonObjectRequest jsonObjectRequest=new JsonObjectRequest(Request.Method.POST, url, jsonObject, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
                 try {
                     Logger.d("DEBUG", jsonObject.toString());
                     String msg = response.getString("msg");
-                    Toast.makeText(RegisterActivity.this, msg, Toast.LENGTH_LONG).show();
+                    Toast.makeText(getActivity(), msg, Toast.LENGTH_LONG).show();
                     if(msg.equals("注册成功")){
 //                        JSONObject detail =jsonObject.getJSONObject("detail");
 //                        final String username_login=detail.getString("username");
-                        Intent intent=new Intent(RegisterActivity.this,LoginActivity.class);
-                        startActivity(intent);
+//                        MainActivity.fragments.add(new FragmentHome());
+                        backSwitchFragment();
                     }
 
                 } catch (JSONException e) {
-                    Toast.makeText(RegisterActivity.this,e.getMessage().toString(),Toast.LENGTH_LONG).show();
+                    Toast.makeText(getActivity(),e.getMessage().toString(),Toast.LENGTH_LONG).show();
                     e.printStackTrace();
                 }
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Toast.makeText(RegisterActivity.this,"网络出错",Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(),"网络出错",Toast.LENGTH_LONG).show();
                 Logger.d("DEBUG","Register connection failed");
             }
         });
@@ -210,5 +214,20 @@ public class RegisterActivity extends AppCompatActivity {
             image.setImageResource(R.drawable.false_mark);
             image.setVisibility(View.VISIBLE);
         }
+    }
+    public void backSwitchFragment() {
+        int from = MainActivity.last_fragment, to;
+        FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
+        transaction.hide(MainActivity.fragments.get(from));
+        if (MainActivity.last_fragment == 3) { //次级页面
+            to = MainActivity.major_fragment;
+        } else { //多级页面
+            to = MainActivity.last_fragment - 1;
+        }
+        if (!MainActivity.fragments.get(to).isAdded())
+            transaction.add(R.id.nav_host_fragment, MainActivity.fragments.get(to));
+        transaction.show(MainActivity.fragments.get(to)).commitAllowingStateLoss();
+        MainActivity.last_fragment = to; //更新
+        MainActivity.fragments.removeElementAt(from); //删多余的页面
     }
 }

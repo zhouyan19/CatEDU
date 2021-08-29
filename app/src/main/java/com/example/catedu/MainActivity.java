@@ -107,4 +107,25 @@ public class MainActivity extends AppCompatActivity {
         major_fragment = index;
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        backSwitchFragment();
+    }
+
+    protected void backSwitchFragment() {
+        int from = MainActivity.last_fragment, to;
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.hide(MainActivity.fragments.get(from));
+        if (MainActivity.last_fragment == 3) { //次级页面
+            to = MainActivity.major_fragment;
+        } else { //多级页面
+            to = MainActivity.last_fragment - 1;
+        }
+        if (!MainActivity.fragments.get(to).isAdded())
+            transaction.add(R.id.nav_host_fragment, MainActivity.fragments.get(to));
+        transaction.show(MainActivity.fragments.get(to)).commitAllowingStateLoss();
+        MainActivity.last_fragment = to; //更新
+        MainActivity.fragments.removeElementAt(from); //删多余的页面
+    }
 }

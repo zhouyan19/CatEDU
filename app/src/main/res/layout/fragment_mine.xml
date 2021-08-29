@@ -18,7 +18,7 @@
             android:id="@+id/selfie"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/cat_edu"></ImageView>
+            android:src="@drawable/cat_edu"></ImageView>
     </androidx.cardview.widget.CardView>
 
 <!--    <View-->
@@ -44,6 +44,15 @@
         app:layout_constraintBottom_toBottomOf="@id/card"
         ></TextView>
 
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/card"
+        android:layout_marginTop="20dp"
+        android:layout_marginHorizontal="50dp"
+        android:id="@+id/clear_backup"
+        android:text="清除缓存"
+        ></Button>
     <LinearLayout
         android:id="@+id/title_bar"
         android:layout_width="match_parent"

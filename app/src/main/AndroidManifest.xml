@@ -23,8 +23,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".ProgressBarActivity"></activity>
-        <activity android:name=".LoginActivity"></activity>
-        <activity android:name=".RegisterActivity"></activity>
+        <activity android:name=".FragmentRegister"></activity>
     </application>
 
 </manifest>
