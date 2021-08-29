@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,87 +30,136 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.catedu.widget.RoundImageView;
+import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class FragmentMine extends Fragment {
 
     /**
      * FragmentMine 创建时的操作
      */
+    boolean logined;
+    RoundImageView selfie;
+    TextView nickname_view;
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        logined=false;
         return inflater.inflate(R.layout.fragment_mine, container, false);
     }
 
     public void refreshView(View view,String token) {
-        if (token != null) {
-            ImageView selfie = (ImageView) view.findViewById(R.id.selfie);
-            TextView nickname_view = (TextView) view.findViewById(R.id.login_textView);
-            String url = "http://183.173.179.9:8080/user/info";
-            JSONObject jsonObject = new JSONObject();
-            try {
-                jsonObject.put("token", token);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            RequestQueue requestQueue = Volley.newRequestQueue(this.getActivity());
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, jsonObject, new Response.Listener<JSONObject>() {
-                @Override
-                public void onResponse(JSONObject jsonObject) {
+        Runnable networkTask = new Runnable() {
+            @Override
+            public void run() {
+                int refIds[] ={R.id.selfie,R.id.login_textView};
+                for (int id : refIds) {
+                    if(!logined){
+                        view.findViewById(id).setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                // your code here.
+                                MainActivity.fragments.add(new FragmentLogin());
+                                forwardSwitchFragment();
+                            }
+                        });
+                    }
+                    else{
+                        view.findViewById(id).setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                MainActivity.fragments.add(new FragmentUserInfo());
+                                forwardSwitchFragment();
+                            }
+                        });
+                    }}
+                if (token != null) {
+                    String url = "http://183.173.179.9:8080/user/info";
+                    HashMap<String, String> headers = new HashMap<>();
+                    headers.put("Content-Type", "application/json");
+                    Document doc = null;
                     try {
-                        Logger.d("信息", jsonObject.toString());
-                        String msg = jsonObject.getString("msg");
-                        boolean suc = jsonObject.getBoolean("success");
-                        Logger.d("msg", msg);
-                        if (suc) {
-                            JSONObject detail = jsonObject.getJSONObject("detail");
-                            String nickname = detail.getString("nickname");
-                            int selfie_num = detail.getInt("selfie");
-                            String image_name = "selfie_" + String.valueOf(selfie_num) + ".png";
-                            int src = getResources().getIdentifier(image_name, "drawable", getActivity().getPackageName());
-                            selfie.setImageResource(src);
-                            nickname_view.setText(nickname);
-                        } else {
-                            Toast.makeText(getActivity(), "获取个人信息失败", Toast.LENGTH_LONG).show();
+                        doc = Jsoup.connect(url).ignoreContentType(true).data("token",token).post();
+                        if(doc!=null){
+                            Element body = doc.body();
+                            String str = body.text();
+                            Gson gson = new Gson();
+                            Map<String, Object> map = new HashMap<String, Object>();
+                            map = gson.fromJson(str, map.getClass());
+                            boolean suc = (boolean) map.get("success");
+                            LinkedTreeMap linkedTreeMap=(LinkedTreeMap) map.get("detail");
+                            if (suc) {
+                                logined=true;
+                                String nickname=(String) linkedTreeMap.get("nickname");
+                                Double selfie_num = (Double) linkedTreeMap.get("selfie");
+                                String image_name = "avatar_icon_" + String.valueOf(selfie_num.intValue()) ;
+                                Logger.e("DEBUG",image_name);
+                                int src = getActivity().getResources().getIdentifier(image_name, "drawable", getActivity().getPackageName());
+                                getActivity().runOnUiThread(()->{
+                                    selfie.setImageResource(src);
+                                    nickname_view.setText(nickname);
+                                });
+
+                            }
+                        }
+                        else {
+                            Looper.prepare();
+                            Toast.makeText(getActivity(), "网络出错", Toast.LENGTH_SHORT).show();
+                            Looper.loop();
                         }
 
-
-                    } catch (JSONException e) {
+                    } catch (IOException e) {
                         e.printStackTrace();
                     }
 
                 }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError volleyError) {
-
-                    Toast.makeText(getActivity(), "网络出错" + volleyError.toString(), Toast.LENGTH_SHORT).show();
-                }
-            });
-            requestQueue.add(jsonObjectRequest);
-        }
+            }
+        };
+        new Thread(networkTask).start();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
-        SharedPreferences sharedPreferences= getActivity().getSharedPreferences("token", Context.MODE_PRIVATE);
+        selfie = (RoundImageView) view.findViewById(R.id.selfie);
+        nickname_view = (TextView) view.findViewById(R.id.login_textView);
+        SharedPreferences sharedPreferences= getActivity().getSharedPreferences("user", Context.MODE_PRIVATE);
         String token=sharedPreferences.getString("token",null);
 
+        refreshView(view,token);
         int refIds[] ={R.id.selfie,R.id.login_textView};
         for (int id : refIds) {
-            view.findViewById(id).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    // your code here.
-                    FragmentLogin fid = new FragmentLogin();
-                    MainActivity.fragments.add(fid);
-                    forwardSwitchFragment();
-                }
-            });
+            if(!logined){
+                view.findViewById(id).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        // your code here.
+                        MainActivity.fragments.add(new FragmentLogin());
+                        forwardSwitchFragment();
+                    }
+                });
+            }
+            else{
+                view.findViewById(id).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        MainActivity.fragments.add(new FragmentUserInfo());
+                        forwardSwitchFragment();
+                    }
+                });
+            }
+
         }
-        refreshView(view,token);
+
         Button clear_backup=(Button) view.findViewById(R.id.clear_backup);
         clear_backup.setOnClickListener(new View.OnClickListener() {
             @Override

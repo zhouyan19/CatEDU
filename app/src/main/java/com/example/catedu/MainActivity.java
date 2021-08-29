@@ -11,6 +11,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Window;
@@ -137,5 +139,14 @@ public class MainActivity extends AppCompatActivity {
         transaction.show(MainActivity.fragments.get(to)).commitAllowingStateLoss();
         MainActivity.last_fragment = to; //更新
         MainActivity.fragments.removeElementAt(from); //删多余的页面
+    }
+
+    @Override
+    protected void onStop() {
+        SharedPreferences sharedPref = getSharedPreferences("user", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.clear();
+        editor.apply();
+        super.onStop();
     }
 }

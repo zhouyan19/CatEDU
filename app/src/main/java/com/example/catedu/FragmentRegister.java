@@ -1,6 +1,8 @@
 package com.example.catedu;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -24,10 +26,17 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.gson.Gson;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 public class FragmentRegister extends Fragment {
@@ -175,35 +184,28 @@ public class FragmentRegister extends Fragment {
             e.printStackTrace();
         }
         String url="http://183.173.179.9:8080/user/register";
-        RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
-        JsonObjectRequest jsonObjectRequest=new JsonObjectRequest(Request.Method.POST, url, jsonObject, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                try {
-                    Logger.d("DEBUG", jsonObject.toString());
-                    String msg = response.getString("msg");
-                    Toast.makeText(getActivity(), msg, Toast.LENGTH_LONG).show();
-                    if(msg.equals("注册成功")){
-//                        JSONObject detail =jsonObject.getJSONObject("detail");
-//                        final String username_login=detail.getString("username");
-//                        MainActivity.fragments.add(new FragmentHome());
-                        backSwitchFragment();
-                    }
-
-                } catch (JSONException e) {
-                    Toast.makeText(getActivity(),e.getMessage().toString(),Toast.LENGTH_LONG).show();
-                    e.printStackTrace();
-                }
+        Document doc = null;
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put("Content-Type", "application/json");
+        try {
+            doc = Jsoup.connect(url).headers(headers).ignoreContentType(true).requestBody(jsonObject.toString()).post();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Element body = doc.body();
+        String str = body.text();
+        Gson gson = new Gson();
+        Map<String, Object> map = new HashMap<String, Object>();
+        map = gson.fromJson(str, map.getClass());
+        boolean suc = (boolean) map.get("success");
+        String msg = (String) map.get("message");
+        Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
+        if (suc) {
+            if(msg.equals("注册成功")){
+                backSwitchFragment();
             }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Toast.makeText(getActivity(),"网络出错",Toast.LENGTH_LONG).show();
-                Logger.d("DEBUG","Register connection failed");
-            }
-        });
-        requestQueue.add(jsonObjectRequest);
-//        Toast.makeText(RegisterActivity.this,"提交成功！",Toast.LENGTH_LONG).show();;
+        }
+//        Toast.makeText(getActivity(),"网络出错",Toast.LENGTH_LONG).show();
     }
     void setImage(ImageView image,boolean isMatch)
     {

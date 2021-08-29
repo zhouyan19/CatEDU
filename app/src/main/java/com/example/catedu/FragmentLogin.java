@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Looper;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.view.LayoutInflater;
@@ -59,70 +60,59 @@ public class FragmentLogin extends Fragment {
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String name=nameInput.getText().toString().trim();
-                String password=passwordInput.getText().toString().trim();
-                if(name.equals("")||password.equals("")) {
+                String name = nameInput.getText().toString().trim();
+                String password = passwordInput.getText().toString().trim();
+                if (name.equals("") || password.equals("")) {
                     Toast.makeText(getActivity(), "用户名密码不能为空", Toast.LENGTH_SHORT).show();
-                }
-                else {
-                    JSONObject jsonObject=new JSONObject();
+                } else {
+                    JSONObject jsonObject = new JSONObject();
                     try {
-                        jsonObject.put("username",name);
-                        jsonObject.put("password",password);
+                        jsonObject.put("username", name);
+                        jsonObject.put("password", password);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    String url="http://183.173.179.9:8080/user/login";
-                    Document doc = null;
-                    try {
-                        doc = Jsoup.connect(url).data((Collection<Connection.KeyVal>) jsonObject).ignoreContentType(true).post();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    Element body=doc.body();
-                    String str=body.text();
-                    Gson gson=new Gson();
-                    Map<String, Object> map = new HashMap<String, Object>();
-                    map = gson.fromJson(str, map.getClass());
-                    System.out.println(map.get("detail"));
-                    LinkedTreeMap linkedTreeMap=(LinkedTreeMap) map.get("detail");
-                    System.out.println(linkedTreeMap.get("nickname"));
-                    RequestQueue requestQueue= Volley.newRequestQueue(getActivity());
-                    JsonObjectRequest jsonObjectRequest=new JsonObjectRequest(Request.Method.POST, url,jsonObject, new Response.Listener<JSONObject>() {
+                    HashMap<String, String> headers = new HashMap<>();
+                    headers.put("Content-Type", "application/json");
+                    String url = "http://183.173.179.9:8080/user/login";
+                    final Document[] doc = {null};
+                    Runnable networkTask=new Runnable() {
                         @Override
-                        public void onResponse(JSONObject jsonObject) {
+                        public void run() {
                             try {
-                                Logger.d("信息", jsonObject.toString());
-                                String msg = jsonObject.getString("msg");
-                                Logger.d("msg", msg);
-                                if(msg.equals("登录成功")){
-
-                                    JSONObject detail = jsonObject.getJSONObject("detail");
-                                    String username = detail.getString("username");
-                                    SharedPreferences sharedPref = getActivity().getSharedPreferences("token", Context.MODE_PRIVATE);
-                                    SharedPreferences.Editor editor=sharedPref.edit();
-                                    editor.putString("token",jsonObject.getString("token"));
-                                    editor.apply();
-                                    backSwitchFragment();
-                                    Toast.makeText(getActivity(),"登录成功",Toast.LENGTH_LONG).show();
-                                }else if(msg.equals("用户名或密码错误")){
-                                    Toast.makeText(getActivity(), "用户名密码有误", Toast.LENGTH_SHORT).show();
+                                doc[0] = Jsoup.connect(url).headers(headers).ignoreContentType(true).requestBody(jsonObject.toString()).post();
+                                if(doc[0]!=null){
+                                    Element body = doc[0].body();
+                                    String str = body.text();
+                                    Gson gson = new Gson();
+                                    Map<String, Object> map = new HashMap<String, Object>();
+                                    map = gson.fromJson(str, map.getClass());
+                                    boolean suc = (boolean) map.get("success");
+                                    String token = (String) map.get("token");
+                                    if (suc) {
+                                        SharedPreferences sharedPref = getActivity().getSharedPreferences("user", Context.MODE_PRIVATE);
+                                        SharedPreferences.Editor editor = sharedPref.edit();
+                                        editor.putString("token", token);
+                                        editor.apply();
+                                        backSwitchFragment();
+                                        Looper.prepare();
+                                        Toast.makeText(getActivity(), "登录成功", Toast.LENGTH_SHORT).show();
+                                        Looper.loop();
+                                    } else {
+                                        Looper.prepare();
+                                        Toast.makeText(getActivity(), "用户名密码有误", Toast.LENGTH_SHORT).show();
+                                        Looper.loop();
+                                    }
                                 }
 
-                            } catch (JSONException e) {
+                            } catch (IOException e) {
                                 e.printStackTrace();
                             }
-
                         }
-                    }, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError volleyError) {
-                            Toast.makeText(getActivity(), "网络出错", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                    requestQueue.add(jsonObjectRequest);
-            }
-        }});
+                    };
+                    new Thread(networkTask).start();
+                }
+            }});
         TextView register = (TextView) view.findViewById(R.id.register);
         register.setOnClickListener(
                 new View.OnClickListener(){
@@ -160,7 +150,6 @@ public class FragmentLogin extends Fragment {
 
         InputMethodManager inputMethodManager =(InputMethodManager)getActivity().getApplicationContext().
                 getSystemService(Context.INPUT_METHOD_SERVICE);
-
         inputMethodManager.hideSoftInputFromWindow(loginBtn.getWindowToken(), 0);
         super.onViewCreated(view,savedInstanceState);
     }
@@ -190,4 +179,5 @@ public class FragmentLogin extends Fragment {
         MainActivity.last_fragment = to; //更新
         MainActivity.fragments.removeElementAt(from); //删多余的页面
     }
+
 }
