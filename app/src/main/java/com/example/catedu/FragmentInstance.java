@@ -1,6 +1,10 @@
 package com.example.catedu;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,6 +29,7 @@ public class FragmentInstance extends Fragment {
     public static String course; // 学科名称
     public static Vector<Fragment> fragments;
     public static int last_fragment = 0;
+    public static int loaded;
 
     FragmentInsDetail fragment_ins_detail;
     FragmentInsQues fragment_ins_ques;
@@ -39,6 +44,7 @@ public class FragmentInstance extends Fragment {
         uri = _u;
         name = _n;
         course = _c;
+        loaded = 0;
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -64,7 +70,7 @@ public class FragmentInstance extends Fragment {
 
         fragment_ins_detail = new FragmentInsDetail(uri, name, course);
         fragment_ins_ques = new FragmentInsQues(name);
-        fragment_ins_related = new FragmentInsRelated();
+        fragment_ins_related = new FragmentInsRelated(name, course);
 
         fragments = new Vector<>();
 
@@ -107,7 +113,7 @@ public class FragmentInstance extends Fragment {
         last_fragment = index;
     }
 
-    protected void backSwitchFragment() throws Throwable {
+    protected void backSwitchFragment() {
         int from = MainActivity.last_fragment, to;
         FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
         transaction.hide(MainActivity.fragments.get(from));
@@ -121,6 +127,26 @@ public class FragmentInstance extends Fragment {
         transaction.show(MainActivity.fragments.get(to)).commitAllowingStateLoss();
         MainActivity.last_fragment = to; //更新
         MainActivity.fragments.removeElementAt(from); //删多余的页面
-        finalize();
     }
+
+//    public static void finishLoading() {
+//        loaded++;
+//        if (loaded >= 3) {
+//            Log.e("Loaded", String.valueOf(loaded));
+//            skv.setVisibility(View.GONE);
+//        }
+//    }
+
+    @SuppressLint("HandlerLeak")
+    public static Handler mHandler = new Handler(Looper.getMainLooper()) {
+        @Override
+        public void handleMessage (Message msg) {
+            super.handleMessage(msg);
+            loaded++;
+            if (loaded >= 3) {
+                Log.e("Loaded", String.valueOf(loaded));
+                skv.setVisibility(View.GONE);
+            }
+        }
+    };
 }

@@ -18,4 +18,7 @@
     <string name="text_ins_related">相关实体</string>
     <string name="text_ques_title">题目</string>
     <string name="submit_button_text">提交</string>
+    <string name="sub_number">0</string>
+    <string name="sub_name">关联实体</string>
+    <string name="sub_dir">→</string>
 </resources>

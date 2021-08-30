@@ -29,15 +29,17 @@ public class PicSpider {
 //        String docs = getRequest();
         docs = unicodeToString(docs);
 //        Log.e("Docs", docs);
-        System.out.println(docs);
+//        System.out.println(docs);
         String pattern = "locImageLink\":\"(.+?)\",";
         Pattern r = Pattern.compile(pattern);
         Matcher m = r.matcher(docs);
         Log.e("getPic", "Compile and Match");
         String res = "";
         if (m.find()) {
-            Log.e("Match", m.group(0));
             res = m.group(0);
+            res = res.substring(15);
+            res = res.substring(0, res.length() - 2);
+            Log.e("Match", res);
         }
         return res;
     }
