@@ -32,12 +32,12 @@
 
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="132dp"
-        android:orientation="vertical"
-        tools:layout_editor_absoluteX="16dp">
+<!--    <LinearLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:layout_marginTop="132dp"-->
+<!--        android:orientation="horizontal"-->
+<!--        tools:layout_editor_absoluteX="16dp">-->
         <!--定义一个SearchView-->
         <!--        <SearchView-->
         <!--            android:id="@+id/sv"-->
@@ -47,25 +47,38 @@
         <!--        <SearchView style="@style/CardView"-->
 
         <!--            />-->
-        <androidx.appcompat.widget.SearchView
-            android:id="@+id/sv_retrieval"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_margin="40dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:queryHint="请输入要查找的实体"
-            android:background="#dddddd"
-            android:inputType="text"
-            />
+    <Spinner
+        android:id="@+id/sp_course"
+        app:layout_constraintTop_toBottomOf="@id/title_bar"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginTop="50dp"
+        android:layout_marginEnd="10dp"
+        android:layout_width="110dp"
+        android:layout_height="50dp"
+        android:backgroundTint="@color/main"/>
 
-        <ListView
-            android:id="@+id/lv"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1" />
-    </LinearLayout>
-
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/sv_retrieval"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginStart="20dp"
+        app:layout_constraintTop_toBottomOf="@id/title_bar"
+        app:layout_constraintEnd_toStartOf="@id/sp_course"
+        app:layout_constraintStart_toStartOf="parent"
+        app:queryHint="请输入要查找的实体"
+        android:background="#F0E0D0"
+        android:inputType="text"
+        />
+<!--    </LinearLayout>-->
+    <ListView
+        android:id="@+id/lv"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sv_retrieval"
+        android:layout_width="match_parent"
+        android:layout_height="328dp"
+        android:layout_weight="1"/>
     <!--    <com.google.android.material.card.MaterialCardView-->
 <!--        android:id="@+id/card_retrieval"-->
 <!--        android:layout_width="match_parent"-->

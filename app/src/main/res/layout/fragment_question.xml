@@ -62,8 +62,8 @@
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/card_retrieval"
         android:layout_width="match_parent"
-        android:layout_height="130dp"
-        android:layout_margin="30dp"
+        android:layout_height="112dp"
+        android:layout_margin="40dp"
         app:cardCornerRadius="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -81,7 +81,7 @@
             <ImageView
                 android:layout_weight="3"
                 android:layout_width="0dp"
-                android:layout_height="80dp"
+                android:layout_height="60dp"
                 android:layout_gravity="center"
                 android:src="@drawable/retrieval"/>
 
@@ -92,15 +92,15 @@
                 android:layout_gravity="center"
                 android:text="@string/ques_retrieval"
                 android:textColor="@color/white"
-                android:textSize="36sp" />
+                android:textSize="32sp" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/card_link"
         android:layout_width="match_parent"
-        android:layout_height="130dp"
-        android:layout_margin="30dp"
+        android:layout_height="112dp"
+        android:layout_margin="40dp"
         app:cardCornerRadius="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -118,7 +118,7 @@
             <ImageView
                 android:layout_weight="3"
                 android:layout_width="0dp"
-                android:layout_height="80dp"
+                android:layout_height="60dp"
                 android:layout_gravity="center"
                 android:src="@drawable/link"/>
 
@@ -129,15 +129,15 @@
                 android:layout_gravity="center"
                 android:text="@string/ques_link"
                 android:textColor="@color/white"
-                android:textSize="36sp" />
+                android:textSize="32sp" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/card_qa"
         android:layout_width="match_parent"
-        android:layout_height="130dp"
-        android:layout_margin="30dp"
+        android:layout_height="112dp"
+        android:layout_margin="40dp"
         app:cardCornerRadius="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -155,7 +155,7 @@
             <ImageView
                 android:layout_weight="3"
                 android:layout_width="0dp"
-                android:layout_height="80dp"
+                android:layout_height="60dp"
                 android:layout_gravity="center"
                 android:src="@drawable/qa"/>
 
@@ -166,7 +166,7 @@
                 android:layout_gravity="center"
                 android:text="@string/ques_qa"
                 android:textColor="@color/white"
-                android:textSize="36sp" />
+                android:textSize="32sp" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 

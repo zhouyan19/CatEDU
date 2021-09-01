@@ -1,7 +1,7 @@
 package com.example.catedu;
 
 import android.os.Bundle;
-
+import com.example.catedu.data.*;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -14,6 +14,12 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 import androidx.appcompat.widget.SearchView;
 import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+import android.widget.AdapterView;
+
+import org.json.JSONException;
+
+import java.io.IOException;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -21,9 +27,13 @@ import android.widget.ArrayAdapter;
  * create an instance of this fragment.
  */
 public class FragmentQuesRetrieval extends Fragment {
+    private DataLoader dataLoader;
     private final String[] mStrs = {"aaa", "bbb", "ccc", "airsaid"};
+    private final String[] courses = {"语文", "数学", "英语", "物理", "化学", "生物", "历史", "地理", "政治"};
+    int course_id = 0;
     SearchView mSearchView;
     ListView mListView;
+    Spinner mSpinner;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -35,7 +45,7 @@ public class FragmentQuesRetrieval extends Fragment {
     private String mParam2;
 
     public FragmentQuesRetrieval() {
-        // Required empty public constructor
+        dataLoader = new DataLoader();
     }
 
     /**
@@ -56,14 +66,14 @@ public class FragmentQuesRetrieval extends Fragment {
         return fragment;
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
+//    @Override
+//    public void onCreate(Bundle savedInstanceState) {
+//        super.onCreate(savedInstanceState);
+//        if (getArguments() != null) {
+//            mParam1 = getArguments().getString(ARG_PARAM1);
+//            mParam2 = getArguments().getString(ARG_PARAM2);
+//        }
+//    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -74,10 +84,29 @@ public class FragmentQuesRetrieval extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        mSearchView = (SearchView)view.findViewById(R.id.sv_retrieval);
+        mSearchView = view.findViewById(R.id.sv_retrieval);
         mListView = view.findViewById(R.id.lv);
         mListView.setAdapter(new ArrayAdapter<String>(this.getContext(), android.R.layout.simple_list_item_1, mStrs));
         mListView.setTextFilterEnabled(true);
+
+        mSpinner = view.findViewById(R.id.sp_course);
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(this.getContext(), android.R.layout.simple_list_item_1, courses);
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSpinner.setAdapter(spinnerAdapter);
+
+        mSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                Log.i("spinner", courses[pos]);
+                course_id = pos;
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // TODO
+                Log.i("spinner", "nothing selected");
+            }
+        });
 
         //设置搜索文本监听
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -85,6 +114,9 @@ public class FragmentQuesRetrieval extends Fragment {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 Log.i("String query", query);
+                try{
+                    dataLoader.getInstanceListByString(Utils.English(courses[course_id]), query);
+                }catch(JSONException|IOException e){}
                 return false;
             }
 
