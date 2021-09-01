@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ques_item"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="10dp"
+    android:layout_marginStart="10dp"
+    android:layout_marginRight="10dp"
+    android:layout_marginEnd="10dp"
+    android:layout_marginTop="10dp"
+    android:layout_marginBottom="10dp"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/ques_title"
+        android:layout_marginLeft="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/text_ques_title"
+        android:textColor="@color/black"
+        android:textSize="20sp"/>
+
+    <com.daquexian.flexiblerichtextview.FlexibleRichTextView
+        android:id="@+id/ques_content"
+        android:layout_marginLeft="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textSize="14sp"/>
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:columnCount="4"
+        android:rowCount="1"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/option_a"
+            android:layout_columnWeight="1"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/button_border"
+            android:scaleType="centerCrop"
+            android:src="@mipmap/a_grey_round" />
+
+        <ImageButton
+            android:id="@+id/option_b"
+            android:layout_columnWeight="1"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/button_border"
+            android:scaleType="centerCrop"
+            android:src="@mipmap/b_grey_round" />
+
+        <ImageButton
+            android:id="@+id/option_c"
+            android:layout_columnWeight="1"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/button_border"
+            android:scaleType="centerCrop"
+            android:src="@mipmap/c_grey_round" />
+
+        <ImageButton
+            android:id="@+id/option_d"
+            android:layout_columnWeight="1"
+            android:layout_gravity="center_horizontal"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/button_border"
+            android:scaleType="centerCrop"
+            android:src="@mipmap/d_grey_round" />
+
+    </GridLayout>
+
+</LinearLayout>

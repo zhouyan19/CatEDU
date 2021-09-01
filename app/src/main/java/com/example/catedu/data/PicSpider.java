@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class PicSpider {
     public static String name;
@@ -20,40 +22,39 @@ public class PicSpider {
 
     public String getPic () throws IOException {
         String url = "https://pic.sogou.com/pics?query=" + name;
-        String ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.77 Safari/537.36";
+        Log.e("URL", url);
+        String ua = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:2.0.1) Gecko/20100101 Firefox/4.0.1";
         Document document = Jsoup.connect(url).userAgent(ua).get();
-//        Log.e("Document", String.valueOf(document).substring(5000));
-        Elements imgs = document.getElementsByTag("img");
-        Log.e("imgs", String.valueOf(imgs.size()));
-        return "";
-//        Element ul_list = document.getElementsByClass("figure-result-list").select("ul").first();
-//        Element img = ul_list.child(0).child(0).child(0).children().select("img").first();
-//        String res = img.attr("src");
-//        Log.e("Pic", res);
-//        return res;
+        String docs = document.toString();
+        docs = unicodeToString(docs);
+        String pattern = "locImageLink\":\"(.+?)\",";
+        Pattern r = Pattern.compile(pattern);
+        Matcher m = r.matcher(docs);
+        Log.e("getPic", "Compile and Match");
+        String res = "";
+        if (m.find()) {
+            res = m.group(0);
+            res = res.substring(15);
+            res = res.substring(0, res.length() - 2);
+            Log.e("Match", res);
+        }
+        return res;
     }
 
-//    public String getRequest () throws IOException {
-//        URL url = new URL("https://pic.sogou.com/pics?query=" + name);
-//        HttpURLConnection conn = (HttpURLConnection)url.openConnection();
-//        conn.setRequestMethod("GET");
-//        //Get请求不需要DoOutPut
-//        conn.setDoOutput(false);
-//        conn.setDoInput(true);
-//        //设置连接超时时间和读取超时时间
-//        conn.setConnectTimeout(5000);
-//        conn.setReadTimeout(5000);
-//        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-//        //连接服务器
-//        conn.connect();
-//        // 取得输入流，并使用Reader读取
-//        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
-//        StringBuilder result = new StringBuilder();
-//        String line;
-//        while ((line = in.readLine()) != null) {
-//            result.append(line);
-//        }
-//        in.close();
-//        return result.toString();
-//    }
+    public static String unicodeToString(String str) {
+        Pattern pattern = Pattern.compile("(\\\\u(\\p{XDigit}{4}))");
+        Matcher matcher = pattern.matcher(str);
+        char ch;
+        while (matcher.find()) {
+            //group 6728
+            String group = matcher.group(2);
+            //ch:'木' 26408
+            ch = (char) Integer.parseInt(group, 16);
+            //group1 \u6728
+            String group1 = matcher.group(1);
+            str = str.replace(group1, ch + "");
+        }
+        return str;
+    }
+
 }
