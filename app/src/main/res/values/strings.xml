@@ -31,4 +31,6 @@
     <string name="detail_type" />
     <string name="text_ins_ques">试题</string>
     <string name="text_ins_related">相关实体</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
