@@ -32,69 +32,76 @@
 
     </LinearLayout>
 
-    <!--    <TextView-->
-    <!--        android:id="@+id/text_question"-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        android:layout_marginStart="8dp"-->
-    <!--        android:layout_marginTop="604dp"-->
-    <!--        android:layout_marginEnd="8dp"-->
-    <!--        android:gravity="center_horizontal"-->
-    <!--        android:text="@string/question_text"-->
-    <!--        android:textAlignment="center"-->
-    <!--        android:textSize="20sp"-->
-    <!--        app:layout_constraintEnd_toEndOf="parent"-->
-    <!--        app:layout_constraintHorizontal_bias="0.0"-->
-    <!--        app:layout_constraintStart_toStartOf="parent"-->
-    <!--        app:layout_constraintTop_toTopOf="parent" />-->
-
-    <!--    <Button-->
-    <!--        android:id="@+id/btn_retrieval"-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="140dp"-->
-    <!--        android:layout_margin="30dp"-->
-    <!--        android:text="@string/entity_retrieval"-->
-    <!--        app:layout_constraintEnd_toEndOf="parent"-->
-    <!--        app:layout_constraintStart_toStartOf="parent"-->
-    <!--        app:layout_constraintTop_toBottomOf="@id/title_bar"-->
-    <!--        android:textSize="36sp"/>-->
-
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/card_retrieval"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="130dp"
-        android:layout_margin="30dp"
-        app:cardCornerRadius="10dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/title_bar"
-        app:cardBackgroundColor="@color/retrieval_card"
-        android:clickable="true"
-        android:foreground="?android:attr/selectableItemBackgroundBorderless">
-        <LinearLayout
-            android:id="@+id/ll_retrieval"
+        android:layout_height="match_parent"
+        android:layout_marginTop="132dp"
+        android:orientation="vertical"
+        tools:layout_editor_absoluteX="16dp">
+        <!--定义一个SearchView-->
+        <!--        <SearchView-->
+        <!--            android:id="@+id/sv"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="wrap_content"/>-->
+
+        <!--        <SearchView style="@style/CardView"-->
+
+        <!--            />-->
+        <androidx.appcompat.widget.SearchView
+            android:id="@+id/sv_retrieval"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:layout_margin="20dp">
+            android:layout_height="50dp"
+            android:layout_margin="40dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:queryHint="请输入要查找的实体"
+            android:background="#dddddd"
+            android:inputType="text"
+            />
 
-            <ImageView
-                android:layout_weight="3"
-                android:layout_width="0dp"
-                android:layout_height="80dp"
-                android:layout_gravity="center"
-                android:src="@drawable/retrieval"/>
+        <ListView
+            android:id="@+id/lv"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+    </LinearLayout>
 
-            <TextView
-                android:layout_weight="7"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="@string/ques_retrieval"
-                android:textColor="@color/white"
-                android:textSize="36sp" />
-        </LinearLayout>
-    </com.google.android.material.card.MaterialCardView>
+    <!--    <com.google.android.material.card.MaterialCardView-->
+<!--        android:id="@+id/card_retrieval"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="130dp"-->
+<!--        android:layout_margin="30dp"-->
+<!--        app:cardCornerRadius="10dp"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/title_bar"-->
+<!--        app:cardBackgroundColor="@color/retrieval_card"-->
+<!--        android:clickable="true"-->
+<!--        android:foreground="?android:attr/selectableItemBackgroundBorderless">-->
+<!--        <LinearLayout-->
+<!--            android:id="@+id/ll_retrieval"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:orientation="horizontal"-->
+<!--            android:layout_margin="20dp">-->
+
+<!--            <ImageView-->
+<!--                android:layout_weight="3"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="80dp"-->
+<!--                android:layout_gravity="center"-->
+<!--                android:src="@drawable/retrieval"/>-->
+
+<!--            <TextView-->
+<!--                android:layout_weight="7"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_gravity="center"-->
+<!--                android:text="@string/ques_retrieval"-->
+<!--                android:textColor="@color/white"-->
+<!--                android:textSize="36sp" />-->
+<!--        </LinearLayout>-->
+<!--    </com.google.android.material.card.MaterialCardView>-->
 
 
 

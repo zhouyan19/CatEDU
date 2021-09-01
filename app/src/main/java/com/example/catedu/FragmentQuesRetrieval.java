@@ -2,11 +2,18 @@ package com.example.catedu;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
+import androidx.appcompat.widget.SearchView;
+import android.widget.ArrayAdapter;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -14,6 +21,9 @@ import android.view.ViewGroup;
  * create an instance of this fragment.
  */
 public class FragmentQuesRetrieval extends Fragment {
+    private final String[] mStrs = {"aaa", "bbb", "ccc", "airsaid"};
+    SearchView mSearchView;
+    ListView mListView;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -60,5 +70,38 @@ public class FragmentQuesRetrieval extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_ques_retrieval, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        mSearchView = (SearchView)view.findViewById(R.id.sv_retrieval);
+        mListView = view.findViewById(R.id.lv);
+        mListView.setAdapter(new ArrayAdapter<String>(this.getContext(), android.R.layout.simple_list_item_1, mStrs));
+        mListView.setTextFilterEnabled(true);
+
+        //设置搜索文本监听
+        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            // 当点击搜索按钮时触发该方法
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                Log.i("String query", query);
+                return false;
+            }
+
+            // 当搜索内容改变时触发该方法
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                if (!TextUtils.isEmpty(newText)){
+                    mListView.setFilterText(newText);
+                }else{
+                    mListView.clearTextFilter();
+                }
+                return false;
+            }
+        });
+
+
+
+
     }
 }
