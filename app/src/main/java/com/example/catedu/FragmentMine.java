@@ -49,39 +49,22 @@ public class FragmentMine extends Fragment {
     /**
      * FragmentMine 创建时的操作
      */
+    String token=null;
     boolean logined;
     RoundImageView selfie;
     TextView nickname_view;
+    SharedPreferences sharedPreferences;
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        logined=false;
+
         return inflater.inflate(R.layout.fragment_mine, container, false);
     }
 
-    public void refreshView(View view,String token) {
+    public void refreshView(View view) throws InterruptedException {
+        sharedPreferences= getActivity().getSharedPreferences("user", Context.MODE_PRIVATE);
+        this.token=sharedPreferences.getString("token",null);
         Runnable networkTask = new Runnable() {
             @Override
             public void run() {
-                int refIds[] ={R.id.selfie,R.id.login_textView};
-                for (int id : refIds) {
-                    if(!logined){
-                        view.findViewById(id).setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                // your code here.
-                                MainActivity.fragments.add(new FragmentLogin());
-                                forwardSwitchFragment();
-                            }
-                        });
-                    }
-                    else{
-                        view.findViewById(id).setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                MainActivity.fragments.add(new FragmentUserInfo());
-                                forwardSwitchFragment();
-                            }
-                        });
-                    }}
                 if (token != null) {
                     String url = "http://183.173.179.9:8080/user/info";
                     HashMap<String, String> headers = new HashMap<>();
@@ -102,13 +85,11 @@ public class FragmentMine extends Fragment {
                                 String nickname=(String) linkedTreeMap.get("nickname");
                                 Double selfie_num = (Double) linkedTreeMap.get("selfie");
                                 String image_name = "avatar_icon_" + String.valueOf(selfie_num.intValue()) ;
-                                Logger.e("DEBUG",image_name);
                                 int src = getActivity().getResources().getIdentifier(image_name, "drawable", getActivity().getPackageName());
                                 getActivity().runOnUiThread(()->{
                                     selfie.setImageResource(src);
                                     nickname_view.setText(nickname);
                                 });
-
                             }
                         }
                         else {
@@ -120,22 +101,12 @@ public class FragmentMine extends Fragment {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-
                 }
             }
         };
-        new Thread(networkTask).start();
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-
-        selfie = (RoundImageView) view.findViewById(R.id.selfie);
-        nickname_view = (TextView) view.findViewById(R.id.login_textView);
-        SharedPreferences sharedPreferences= getActivity().getSharedPreferences("user", Context.MODE_PRIVATE);
-        String token=sharedPreferences.getString("token",null);
-
-        refreshView(view,token);
+        Thread newThread= new Thread(networkTask);
+        newThread.start();
+        newThread.join();
         int refIds[] ={R.id.selfie,R.id.login_textView};
         for (int id : refIds) {
             if(!logined){
@@ -156,14 +127,29 @@ public class FragmentMine extends Fragment {
                         forwardSwitchFragment();
                     }
                 });
-            }
+            }}
+    }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+
+        logined=false;
+        selfie = (RoundImageView) view.findViewById(R.id.selfie);
+        nickname_view = (TextView) view.findViewById(R.id.login_textView);
+
+
+        try {
+            refreshView(view);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
 
         Button clear_backup=(Button) view.findViewById(R.id.clear_backup);
         clear_backup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+//                MainActivity.fragments.add(new FragmentAvatar());
+//                forwardSwitchFragment();
                 sharedPreferences.edit().clear();
                 sharedPreferences.edit().apply();
                 Toast.makeText(getActivity(),"缓存清除成功",Toast.LENGTH_LONG).show();
@@ -176,8 +162,11 @@ public class FragmentMine extends Fragment {
         super.onHiddenChanged( hidden );
         if (hidden) {// 不在最前端界面显示
         } else {// 重新显示到最前端中
-            String token=getActivity().getSharedPreferences("token", Context.MODE_PRIVATE).getString("token",null);
-            refreshView(getView(),token);
+            try {
+                refreshView(getView());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 

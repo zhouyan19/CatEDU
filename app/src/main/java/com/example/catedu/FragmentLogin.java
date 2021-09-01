@@ -95,6 +95,7 @@ public class FragmentLogin extends Fragment {
                                         editor.putString("token", token);
                                         editor.apply();
                                         backSwitchFragment();
+//                                        FragmentMine.
                                         Looper.prepare();
                                         Toast.makeText(getActivity(), "登录成功", Toast.LENGTH_SHORT).show();
                                         Looper.loop();
@@ -163,8 +164,7 @@ public class FragmentLogin extends Fragment {
         transaction.show(MainActivity.fragments.get(to)).commitAllowingStateLoss();
         MainActivity.last_fragment = to; // 更新
     }
-
-    public void backSwitchFragment() {
+    protected void backSwitchFragment() {
         int from = MainActivity.last_fragment, to;
         FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
         transaction.hide(MainActivity.fragments.get(from));

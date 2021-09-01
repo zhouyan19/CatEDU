@@ -31,7 +31,6 @@
             android:layout_weight="1"
             android:gravity="center_vertical"
             android:background="@null"
-            android:hint="请输入姓名"
             android:singleLine="true"
             android:paddingLeft="@dimen/margin_left_and_right"
             android:textSize="13sp" />

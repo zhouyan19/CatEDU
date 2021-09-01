@@ -9,6 +9,7 @@ import android.graphics.PorterDuffXfermode;
 import android.graphics.RectF;
 import android.util.AttributeSet;
 
+import androidx.annotation.DrawableRes;
 import androidx.appcompat.widget.AppCompatImageView;
 
 public class RoundImageView extends AppCompatImageView {
@@ -62,5 +63,4 @@ public class RoundImageView extends AppCompatImageView {
         super.draw(canvas);
         canvas.restore();
     }
-
 }
