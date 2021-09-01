@@ -28,7 +28,7 @@ public class FragmentInstance extends Fragment {
     public static String name; // 实体名称
     public static String course; // 学科名称
     public static Vector<Fragment> fragments;
-    public static int last_fragment = 0;
+    public static int last_fragment;
     public static int loaded;
 
     FragmentInsDetail fragment_ins_detail;
@@ -45,6 +45,7 @@ public class FragmentInstance extends Fragment {
         name = _n;
         course = _c;
         loaded = 0;
+        last_fragment = 0;
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -128,14 +129,6 @@ public class FragmentInstance extends Fragment {
         MainActivity.last_fragment = to; //更新
         MainActivity.fragments.removeElementAt(from); //删多余的页面
     }
-
-//    public static void finishLoading() {
-//        loaded++;
-//        if (loaded >= 3) {
-//            Log.e("Loaded", String.valueOf(loaded));
-//            skv.setVisibility(View.GONE);
-//        }
-//    }
 
     @SuppressLint("HandlerLeak")
     public static Handler mHandler = new Handler(Looper.getMainLooper()) {

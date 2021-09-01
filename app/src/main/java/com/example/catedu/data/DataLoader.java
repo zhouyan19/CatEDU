@@ -126,10 +126,10 @@ public class DataLoader {
             String line;
             while ((line = bufferedReader.readLine()) != null) {
                 cnt++;
-                if (cnt <= 24) continue;
+                if (cnt <= 4096) continue;
                 jsons.add(line);
                 // 超出上限后停止读
-                if (cnt >= 8096) break;
+                if (cnt >= 6120) break;
             }
             bufferedReader.close();
         } catch (Exception e) {
@@ -145,14 +145,14 @@ public class DataLoader {
      */
     public Vector<Triple> getDataFromJson (Vector<String> jsons) {
         Vector<Triple> vector = new Vector<>();
-        Collections.shuffle(vector);
+//        Collections.shuffle(vector);
         Gson gson = new Gson(); // 使用 Gson 工具
         for (int i = 0; i < 1024; ++i) {
             String j = jsons.get(i);
             Triple in = gson.fromJson(j, Triple.class); // 反序列化
             vector.add(in);
         }
-        Collections.shuffle(vector);
+//        Collections.shuffle(vector);
         return vector;
     }
 

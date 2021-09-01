@@ -34,7 +34,6 @@ public class FragmentInsRelated extends Fragment {
 
     RecyclerView rv_subjects;
     TextView no_subjects;
-    NestedScrollView nested_scroll;
 
     FragmentInsRelated (String _n, String _c) {
         Log.e("FragmentInsRelated", "New!");
@@ -55,7 +54,6 @@ public class FragmentInsRelated extends Fragment {
         rv_subjects.setLayoutManager(new LinearLayoutManager(getContext()));
         no_subjects = view.findViewById(R.id.no_subjects);
         no_subjects.setVisibility(View.GONE);
-        nested_scroll = view.findViewById(R.id.nested_scroll_sub);
 
         requireActivity().runOnUiThread(() -> {
             if (sub_vec.size() > 0) {
@@ -63,7 +61,7 @@ public class FragmentInsRelated extends Fragment {
             } else {
                 no_subjects.setText("暂无相关实体");
                 no_subjects.setVisibility(View.VISIBLE);
-                nested_scroll.setVisibility(View.GONE);
+                rv_subjects.setVisibility(View.GONE);
             }
             Log.e("getSubjects", "SubAdapter");
         });
@@ -77,16 +75,6 @@ public class FragmentInsRelated extends Fragment {
                 new FragmentInsRelated.Response().handle(subjects_got -> {
                     sub_vec = subjects_got;
                     FragmentInstance.mHandler.sendMessage(new Message());
-//                    requireActivity().runOnUiThread(() -> {
-//                        if (sub_vec.size() > 0) {
-//                            rv_subjects.setAdapter(new FragmentInsRelated.SubAdapter());
-//                        } else {
-//                            no_subjects.setText("暂无相关实体");
-//                            no_subjects.setVisibility(View.VISIBLE);
-//                            nested_scroll.setVisibility(View.GONE);
-//                        }
-//                        Log.e("getSubjects", "SubAdapter");
-//                    });
                 });
             } catch (JSONException | IOException | InterruptedException e) {
                 e.printStackTrace();
@@ -119,8 +107,11 @@ public class FragmentInsRelated extends Fragment {
 
         @Override
         public void onBindViewHolder(@NonNull @NotNull ViewHolder holder, int position) {
+            Log.e("onBindViewHolder", String.valueOf(position));
             Subject sub = sub_vec.get(position);
-            holder.sub_number.setText(position + 1);
+            Log.e("Sub", sub.getName());
+            String number = String.valueOf(position + 1);
+            holder.sub_number.setText(number);
             holder.sub_pre.setText(sub.getPredicate());
             holder.sub_name.setText(sub.getName());
             if (sub.isType()) { // object
@@ -131,9 +122,7 @@ public class FragmentInsRelated extends Fragment {
         }
 
         @Override
-        public int getItemCount() {
-            return sub_vec.size();
-        }
+        public int getItemCount() { return sub_vec.size(); }
 
         public class ViewHolder extends RecyclerView.ViewHolder {
             TextView sub_number, sub_pre, sub_name;
