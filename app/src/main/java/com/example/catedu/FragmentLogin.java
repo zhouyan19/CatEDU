@@ -22,12 +22,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 
@@ -74,7 +68,7 @@ public class FragmentLogin extends Fragment {
                     }
                     HashMap<String, String> headers = new HashMap<>();
                     headers.put("Content-Type", "application/json");
-                    String url = "http://183.173.179.9:8080/user/login";
+                    String url = "http://183.172.166.145:8080/user/login";
                     final Document[] doc = {null};
                     Runnable networkTask=new Runnable() {
                         @Override

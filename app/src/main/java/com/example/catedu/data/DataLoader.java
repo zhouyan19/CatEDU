@@ -59,8 +59,8 @@ public class DataLoader {
      * 发送 POST 请求以登录， 并获取 id
      */
     public void logInOnSubThread () throws IOException, JSONException {
-        String phone = "18811781150"; // zy的手机号
-        String password = "wzt107210"; // zy的密码
+        String phone = "18357331593"; // zy的手机号
+        String password = "2021zyywtwzt"; // zy的密码
         URL login_url = new URL("http://open.edukg.cn/opedukg/api/typeAuth/user/login");
         HttpURLConnection conn = (HttpURLConnection) login_url.openConnection(); // 创建HttpURLConnection对象
         conn.setRequestMethod("POST"); // 请求方式为 POST
@@ -126,10 +126,10 @@ public class DataLoader {
             String line;
             while ((line = bufferedReader.readLine()) != null) {
                 cnt++;
-                if (cnt <= 4096) continue;
+                if (cnt <= 0) continue;
                 jsons.add(line);
                 // 超出上限后停止读
-                if (cnt >= 6120) break;
+                if (cnt >= 2000) break;
             }
             bufferedReader.close();
         } catch (Exception e) {
@@ -147,7 +147,7 @@ public class DataLoader {
         Vector<Triple> vector = new Vector<>();
 //        Collections.shuffle(vector);
         Gson gson = new Gson(); // 使用 Gson 工具
-        for (int i = 0; i < 1024; ++i) {
+        for (int i = 0; i < 2000; ++i) {
             String j = jsons.get(i);
             Triple in = gson.fromJson(j, Triple.class); // 反序列化
             vector.add(in);
