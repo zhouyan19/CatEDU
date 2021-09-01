@@ -3,4 +3,7 @@
     <color name="main">#FFFE8D31</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="retrieval_card">#FFB01C</color>
+    <color name="link_card">#F08E21</color>
+    <color name="qa_card">#FF7F28</color>
 </resources>
