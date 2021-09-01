@@ -24,6 +24,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -58,13 +59,13 @@ public class DataLoader {
      * 发送 POST 请求以登录， 并获取 id
      */
     public void logInOnSubThread () throws IOException, JSONException {
-        String phone = "18357331593"; // zy的手机号
-        String password = "2021zyywtwzt"; // zy的密码
+        String phone = "18811781150"; // zy的手机号
+        String password = "wzt107210"; // zy的密码
         URL login_url = new URL("http://open.edukg.cn/opedukg/api/typeAuth/user/login");
         HttpURLConnection conn = (HttpURLConnection) login_url.openConnection(); // 创建HttpURLConnection对象
         conn.setRequestMethod("POST"); // 请求方式为 POST
-        conn.setConnectTimeout(3000); // 设置超时
-        conn.setReadTimeout(3000);
+        conn.setConnectTimeout(8000); // 设置超时
+        conn.setReadTimeout(8000);
         conn.setDoOutput(true);
         conn.setDoInput(true);
         conn.setUseCaches(false); // Post方式不能缓存,需手动设置为false
@@ -125,10 +126,10 @@ public class DataLoader {
             String line;
             while ((line = bufferedReader.readLine()) != null) {
                 cnt++;
-                if (cnt <= 24) continue;
+                if (cnt <= 4096) continue;
                 jsons.add(line);
-                // 超出NUM_PER_PAGE后停止读
-                if (cnt >= 8096) break;
+                // 超出上限后停止读
+                if (cnt >= 6120) break;
             }
             bufferedReader.close();
         } catch (Exception e) {
@@ -144,14 +145,14 @@ public class DataLoader {
      */
     public Vector<Triple> getDataFromJson (Vector<String> jsons) {
         Vector<Triple> vector = new Vector<>();
-        Collections.shuffle(vector);
+//        Collections.shuffle(vector);
         Gson gson = new Gson(); // 使用 Gson 工具
         for (int i = 0; i < 1024; ++i) {
             String j = jsons.get(i);
             Triple in = gson.fromJson(j, Triple.class); // 反序列化
             vector.add(in);
         }
-        Collections.shuffle(vector);
+//        Collections.shuffle(vector);
         return vector;
     }
 
@@ -182,8 +183,8 @@ public class DataLoader {
         URL ins_url = new URL("http://open.edukg.cn/opedukg/api/typeOpen/open/getKnowledgeCard");
         HttpURLConnection conn = (HttpURLConnection) ins_url.openConnection(); // 创建HttpURLConnection对象
         conn.setRequestMethod("POST"); // 请求方式为 POST
-        conn.setConnectTimeout(3000); // 设置超时
-        conn.setReadTimeout(3000);
+        conn.setConnectTimeout(8000); // 设置超时
+        conn.setReadTimeout(8000);
         conn.setDoOutput(true);
         conn.setDoInput(true);
         conn.setUseCaches(false); // Post方式不能缓存,需手动设置为false
@@ -238,8 +239,8 @@ public class DataLoader {
         URL ins_url = new URL("http://open.edukg.cn/opedukg/api/typeOpen/open/getKnowledgeCard");
         HttpURLConnection conn = (HttpURLConnection) ins_url.openConnection(); // 创建HttpURLConnection对象
         conn.setRequestMethod("POST"); // 请求方式为 POST
-        conn.setConnectTimeout(3000); // 设置超时
-        conn.setReadTimeout(3000);
+        conn.setConnectTimeout(8000); // 设置超时
+        conn.setReadTimeout(8000);
         conn.setDoOutput(true);
         conn.setDoInput(true);
         conn.setUseCaches(false); // Post方式不能缓存,需手动设置为false
@@ -302,8 +303,10 @@ public class DataLoader {
         conn.setDoOutput(false);
         conn.setDoInput(true);
         //设置连接超时时间和读取超时时间
-        conn.setConnectTimeout(5000);
-        conn.setReadTimeout(5000);
+
+        conn.setConnectTimeout(8000);
+        conn.setReadTimeout(8000);
+      
         conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
         //连接服务器
         conn.connect();
@@ -335,6 +338,60 @@ public class DataLoader {
                         answer.equals("D")) {
                     ques.print();
                     vector.add(ques);
+                }
+            }
+        }
+        return vector;
+    }
+
+    public Vector<Subject> getLinkSubjects (String name, String course) throws IOException, JSONException {
+        String root = "http://open.edukg.cn/opedukg/api/typeOpen/open/infoByInstanceName?name=";
+        String middle = "&course=" + course;
+        String tail = "&id=" + id;
+        URL url = new URL(root + name + middle + tail);
+        HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+        conn.setRequestMethod("GET");
+        //Get请求不需要DoOutPut
+        conn.setDoOutput(false);
+        conn.setDoInput(true);
+        //设置连接超时时间和读取超时时间
+        conn.setConnectTimeout(8000);
+        conn.setReadTimeout(8000);
+        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+        //连接服务器
+        conn.connect();
+        // 取得输入流，并使用Reader读取
+        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+        StringBuilder result = new StringBuilder();
+        String line;
+        while ((line = in.readLine()) != null) {
+            result.append(line);
+        }
+        in.close();
+        JSONObject json = new JSONObject(result.toString());
+        Log.e("LinkSubjects", result.toString());
+        return getSubjectsFromJson(json);
+    }
+
+    public Vector<Subject> getSubjectsFromJson (JSONObject json) throws JSONException {
+        Vector<Subject> vector = new Vector<>();
+        JSONObject data = json.getJSONObject("data");
+        JSONArray content = data.getJSONArray("content");
+        if (content.length() == 0) return vector;
+        else {
+            for (int i = 0; i < content.length(); ++i) {
+                JSONObject item = content.getJSONObject(i);
+                String sub_pre = item.getString("predicate_label");
+                if (item.has("object")) { // object
+                    String sub_name = item.getString("object_label");
+                    String sub_uri = item.getString("object");
+                    Subject sub = new Subject(sub_pre, sub_name, sub_uri, true);
+                    vector.add(sub);
+                } else { // subject
+                    String sub_name = item.getString("subject_label");
+                    String sub_uri = item.getString("subject");
+                    Subject sub = new Subject(sub_pre, sub_name, sub_uri, false);
+                    vector.add(sub);
                 }
             }
         }

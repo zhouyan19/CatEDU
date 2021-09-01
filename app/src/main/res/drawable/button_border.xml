@@ -12,8 +12,8 @@
     <!--    这里是设置四周的空白-->
     <padding
         android:bottom="5dp"
-        android:left="5dp"
-        android:right="5dp"
+        android:left="10dp"
+        android:right="10dp"
         android:top="5dp" />
 
     <!--    这里是设置四周圆角半径-->

@@ -2,6 +2,7 @@ package com.example.catedu;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -49,7 +50,6 @@ public class FragmentInsQues extends Fragment {
     int correct; // 正确数
     double correction; // 正确率
 
-    SpinKitView skv;
     RecyclerView rv_ques;
     Button sub_button;
     TextView acc_text;
@@ -63,6 +63,7 @@ public class FragmentInsQues extends Fragment {
         done = false;
         correct = 0;
         correction = 0.0;
+        getQues();
     }
 
     public boolean hasQues() {
@@ -76,7 +77,6 @@ public class FragmentInsQues extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        skv = view.findViewById(R.id.spin_kit);
         rv_ques = view.findViewById(R.id.rv_ques);
         rv_ques.addItemDecoration(new DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL));
         rv_ques.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -89,7 +89,17 @@ public class FragmentInsQues extends Fragment {
         no_ques.setVisibility(View.GONE);
         nested_scroll = view.findViewById(R.id.nested_scroll);
 
-        getQues();
+        requireActivity().runOnUiThread(() -> {
+            if (ques_vec.size() > 0) {
+                rv_ques.setAdapter(new QuesAdapter());
+                sub_button.setVisibility(View.VISIBLE);
+            } else {
+                no_ques.setText("暂无试题");
+                no_ques.setVisibility(View.VISIBLE);
+                nested_scroll.setVisibility(View.GONE);
+            }
+            Log.e("getQues", "QuesAdapter");
+        });
 
         super.onViewCreated(view, savedInstanceState);
     }
@@ -101,17 +111,7 @@ public class FragmentInsQues extends Fragment {
                     ques_vec = ques_got;
                     options = new String[ques_vec.size()];
                     for (int i = 0; i < ques_vec.size(); ++i) options[i] = "";
-                    requireActivity().runOnUiThread(() -> {
-                        if (ques_vec.size() > 0) {
-                            rv_ques.setAdapter(new QuesAdapter());
-                            sub_button.setVisibility(View.VISIBLE);
-                        } else {
-                            no_ques.setText("暂无试题");
-                            no_ques.setVisibility(View.VISIBLE);
-                            nested_scroll.setVisibility(View.GONE);
-                        }
-                        Log.e("getQues", "QuesAdapter");
-                    });
+                    FragmentInstance.mHandler.sendMessage(new Message());
                 });
             } catch (JSONException | IOException | InterruptedException e) {
                 e.printStackTrace();

@@ -8,6 +8,7 @@ package com.example.catedu;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -60,6 +61,7 @@ public class FragmentInsDetail extends Fragment {
     FragmentInsDetail (String _u, String _n, String _c) {
         Log.e("FragmentInsDetail", "New!");
         uri = _u;
+        name = _n;
         course = _c;
         instance = new InstanceDetail();
         feature_list = new Vector<>();
@@ -115,8 +117,9 @@ public class FragmentInsDetail extends Fragment {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                        detail_feature.setAdapter(new FeatureAdapter());
-                        requireActivity().runOnUiThread(() -> FragmentInstance.skv.setVisibility(View.INVISIBLE));
+                        detail_feature.setAdapter(new FeatureAdapter());=
+                        requireActivity().runOnUiThread(() -> FragmentInstance.skv.setVisibility(View.INVISIBLE));=
+                        FragmentInstance.mHandler.sendMessage(new Message());=
                         Log.e("getInstanceDetail", "FeatureAdapter");
                     });
                 });

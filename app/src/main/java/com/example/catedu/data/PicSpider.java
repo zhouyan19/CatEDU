@@ -26,18 +26,17 @@ public class PicSpider {
         String ua = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:2.0.1) Gecko/20100101 Firefox/4.0.1";
         Document document = Jsoup.connect(url).userAgent(ua).get();
         String docs = document.toString();
-//        String docs = getRequest();
         docs = unicodeToString(docs);
-//        Log.e("Docs", docs);
-        System.out.println(docs);
         String pattern = "locImageLink\":\"(.+?)\",";
         Pattern r = Pattern.compile(pattern);
         Matcher m = r.matcher(docs);
         Log.e("getPic", "Compile and Match");
         String res = "";
         if (m.find()) {
-            Log.e("Match", m.group(0));
             res = m.group(0);
+            res = res.substring(15);
+            res = res.substring(0, res.length() - 2);
+            Log.e("Match", res);
         }
         return res;
     }
@@ -58,27 +57,4 @@ public class PicSpider {
         return str;
     }
 
-//    public String getRequest () throws IOException {
-//        URL url = new URL("https://pic.sogou.com/pics?query=" + name);
-//        HttpURLConnection conn = (HttpURLConnection)url.openConnection();
-//        conn.setRequestMethod("GET");
-//        //Get请求不需要DoOutPut
-//        conn.setDoOutput(false);
-//        conn.setDoInput(true);
-//        //设置连接超时时间和读取超时时间
-//        conn.setConnectTimeout(5000);
-//        conn.setReadTimeout(5000);
-//        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-//        //连接服务器
-//        conn.connect();
-//        // 取得输入流，并使用Reader读取
-//        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
-//        StringBuilder result = new StringBuilder();
-//        String line;
-//        while ((line = in.readLine()) != null) {
-//            result.append(line);
-//        }
-//        in.close();
-//        return result.toString();
-//    }
 }
