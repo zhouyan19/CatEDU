@@ -30,7 +30,6 @@ public class FragmentInstance extends Fragment {
     public static Vector<Fragment> fragments;
     public static int last_fragment;
     public static int loaded;
-
     FragmentInsDetail fragment_ins_detail;
     FragmentInsQues fragment_ins_ques;
     FragmentInsRelated fragment_ins_related;
@@ -72,7 +71,6 @@ public class FragmentInstance extends Fragment {
         fragment_ins_detail = new FragmentInsDetail(uri, name, course);
         fragment_ins_ques = new FragmentInsQues(name);
         fragment_ins_related = new FragmentInsRelated(name, course);
-
         fragments = new Vector<>();
 
         fragments.add(fragment_ins_detail);
@@ -113,6 +111,7 @@ public class FragmentInstance extends Fragment {
         transaction.show(fragments.get(index)).commitAllowingStateLoss();
         last_fragment = index;
     }
+
 
     protected void backSwitchFragment() {
         int from = MainActivity.last_fragment, to;

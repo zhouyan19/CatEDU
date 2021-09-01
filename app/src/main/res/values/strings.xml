@@ -1,4 +1,5 @@
 <resources>
+    <string name="ip">http://183.173.179.9:8080</string>
     <string name="cat_app_name">猫辅导</string>
     <string name="copyright">Copyright © ZY YWT WZT</string>
     <string name="nav_1">主页</string>

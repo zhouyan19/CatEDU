@@ -117,8 +117,9 @@ public class FragmentInsDetail extends Fragment {
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-                        detail_feature.setAdapter(new FeatureAdapter());
-                        FragmentInstance.mHandler.sendMessage(new Message());
+                        detail_feature.setAdapter(new FeatureAdapter());=
+                        requireActivity().runOnUiThread(() -> FragmentInstance.skv.setVisibility(View.INVISIBLE));=
+                        FragmentInstance.mHandler.sendMessage(new Message());=
                         Log.e("getInstanceDetail", "FeatureAdapter");
                     });
                 });

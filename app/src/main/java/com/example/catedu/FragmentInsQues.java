@@ -112,17 +112,6 @@ public class FragmentInsQues extends Fragment {
                     options = new String[ques_vec.size()];
                     for (int i = 0; i < ques_vec.size(); ++i) options[i] = "";
                     FragmentInstance.mHandler.sendMessage(new Message());
-//                    requireActivity().runOnUiThread(() -> {
-//                        if (ques_vec.size() > 0) {
-//                            rv_ques.setAdapter(new QuesAdapter());
-//                            sub_button.setVisibility(View.VISIBLE);
-//                        } else {
-//                            no_ques.setText("暂无试题");
-//                            no_ques.setVisibility(View.VISIBLE);
-//                            nested_scroll.setVisibility(View.GONE);
-//                        }
-//                        Log.e("getQues", "QuesAdapter");
-//                    });
                 });
             } catch (JSONException | IOException | InterruptedException e) {
                 e.printStackTrace();

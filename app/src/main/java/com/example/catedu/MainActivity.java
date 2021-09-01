@@ -8,11 +8,17 @@ package com.example.catedu;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Context;
+import android.content.ContextWrapper;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.view.Window;
 
 import com.example.catedu.data.DataLoader;
@@ -115,6 +121,59 @@ public class MainActivity extends AppCompatActivity {
         }
         last_fragment = index;
         major_fragment = index;
+    }
+
+//    @Override
+//    public void onBackPressed() {
+//        super.onBackPressed();
+//        backSwitchFragment();
+//    }
+
+    protected void backSwitchFragment() {
+        int from = MainActivity.last_fragment, to;
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.hide(MainActivity.fragments.get(from));
+        if (MainActivity.last_fragment == 3) { //次级页面
+            to = MainActivity.major_fragment;
+        } else { //多级页面
+            to = MainActivity.last_fragment - 1;
+        }
+        if (!MainActivity.fragments.get(to).isAdded())
+            transaction.add(R.id.nav_host_fragment, MainActivity.fragments.get(to));
+        transaction.show(MainActivity.fragments.get(to)).commitAllowingStateLoss();
+        MainActivity.last_fragment = to; //更新
+        MainActivity.fragments.removeElementAt(from); //删多余的页面
+    }
+    public void forwardSwitchFragment() {
+        int from = MainActivity.last_fragment, to = MainActivity.fragments.size() - 1;
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.hide(MainActivity.fragments.get(from));
+        if (!MainActivity.fragments.get(to).isAdded())
+            transaction.add(R.id.nav_host_fragment, MainActivity.fragments.get(to));
+        transaction.show(MainActivity.fragments.get(to)).commitAllowingStateLoss();
+        MainActivity.last_fragment = to; // 更新
+    }
+
+    @Override
+    protected void onStop() {
+        SharedPreferences sharedPref = getSharedPreferences("user", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.clear();
+        editor.apply();
+        super.onStop();
+    }
+
+    public static FragmentActivity getFragmentActivityFromView(View view) {
+        if (null != view) {
+            Context context = view.getContext();
+            while (context instanceof ContextWrapper) {
+                if (context instanceof Activity) {
+                    return (FragmentActivity) context;
+                }
+                context = ((ContextWrapper) context).getBaseContext();
+            }
+        }
+        return null;
     }
 
 }

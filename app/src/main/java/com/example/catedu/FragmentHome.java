@@ -402,7 +402,6 @@ public class FragmentHome extends Fragment {
         seenLists[course_id].insertElementAt(new Boolean(true), pos);
         rv_list.setAdapter(new MyAdapter());
 
-
         FragmentInstance fi = new FragmentInstance(uri, name, course_name());
         MainActivity.fragments.add(fi);
         forwardSwitchFragment();
