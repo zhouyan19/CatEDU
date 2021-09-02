@@ -7,13 +7,20 @@
 package com.example.catedu;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -45,24 +52,23 @@ import java.util.Vector;
 
 public class FragmentInsDetail extends Fragment {
     public static String uri; // 实体uri
+    public static String name; // 实体名称
     public static String course; // 学科名称
-    private static DataLoader dataLoader;
     private static InstanceDetail instance;
     private static String picUrl;
 
     private static Vector<JSONObject> feature_list;
 
-    SpinKitView skv;
     FlexibleRichTextView detail_name;
     TextView detail_type;
     RecyclerView detail_feature;
     ImageView entity_pic;
 
-    FragmentInsDetail (String _u, String _c) {
+    FragmentInsDetail (String _u, String _n, String _c) {
         Log.e("FragmentInsDetail", "New!");
         uri = _u;
+        name = _n;
         course = _c;
-        dataLoader = new DataLoader();
         instance = new InstanceDetail();
         feature_list = new Vector<>();
         picUrl = "";
@@ -78,7 +84,6 @@ public class FragmentInsDetail extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        skv = view.findViewById(R.id.spin_kit);
 
         detail_name = view.findViewById(R.id.detail_name);
         detail_type = view.findViewById(R.id.detail_type);
@@ -90,16 +95,15 @@ public class FragmentInsDetail extends Fragment {
 
         getInstanceDetail();
 
-//        try {
-//            setPic(instance.getEntity_name());
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            setPic(name);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @SuppressLint("SetTextI18n")
     public void getInstanceDetail () {
-        skv.setVisibility(View.VISIBLE);
         new Thread(() -> {
             try {
                 new Response().handle(ins -> {
@@ -120,7 +124,8 @@ public class FragmentInsDetail extends Fragment {
                             e.printStackTrace();
                         }
                         detail_feature.setAdapter(new FeatureAdapter());
-                        requireActivity().runOnUiThread(() -> skv.setVisibility(View.INVISIBLE));
+                        requireActivity().runOnUiThread(() -> FragmentInstance.skv.setVisibility(View.INVISIBLE));
+                        FragmentInstance.mHandler.sendMessage(new Message());
                         Log.e("getInstanceDetail", "FeatureAdapter");
                     });
                 });
@@ -131,7 +136,7 @@ public class FragmentInsDetail extends Fragment {
     }
     public class Response {
         public void handle (CallBack callBack) throws IOException, JSONException, InterruptedException {
-            InstanceDetail ins =  dataLoader.getDetailByUri(Utils.English(course), uri);
+            InstanceDetail ins =  MainActivity.dataLoader.getDetailByUri(Utils.English(course), uri);
             callBack.onResponse(ins);
         }
     }
@@ -212,15 +217,14 @@ public class FragmentInsDetail extends Fragment {
                                 .into(entity_pic);
                     });
                 });
-            } catch (IOException | InterruptedException | JSONException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
-            requireActivity().runOnUiThread(() -> skv.setVisibility(View.INVISIBLE));
         }).start();
     }
     public class Response2 {
-        public void handle (CallBack2 callBack) throws IOException, JSONException, InterruptedException {
-            PicSpider bs = new PicSpider(instance.getEntity_name());
+        public void handle (CallBack2 callBack) throws IOException {
+            PicSpider bs = new PicSpider(name);
             String res = bs.getPic();
             callBack.onResponse(res);
         }

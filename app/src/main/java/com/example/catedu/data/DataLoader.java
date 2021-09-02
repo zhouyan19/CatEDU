@@ -8,6 +8,7 @@ package com.example.catedu.data;
 
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.os.Parcelable;
 import android.util.Log;
 
 
@@ -23,6 +24,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -34,6 +36,10 @@ import java.util.Vector;
 public class DataLoader {
     private String id = "";
     private boolean logged = false;
+
+    public DataLoader () throws InterruptedException {
+        logIn();
+    }
 
     public void logIn () throws InterruptedException {
         Thread net_conn_thread = new Thread(() -> {
@@ -58,8 +64,8 @@ public class DataLoader {
         URL login_url = new URL("http://open.edukg.cn/opedukg/api/typeAuth/user/login");
         HttpURLConnection conn = (HttpURLConnection) login_url.openConnection(); // 创建HttpURLConnection对象
         conn.setRequestMethod("POST"); // 请求方式为 POST
-        conn.setConnectTimeout(3000); // 设置超时
-        conn.setReadTimeout(3000);
+        conn.setConnectTimeout(8000); // 设置超时
+        conn.setReadTimeout(8000);
         conn.setDoOutput(true);
         conn.setDoInput(true);
         conn.setUseCaches(false); // Post方式不能缓存,需手动设置为false
@@ -120,10 +126,10 @@ public class DataLoader {
             String line;
             while ((line = bufferedReader.readLine()) != null) {
                 cnt++;
-                if (cnt <= 24) continue;
+                if (cnt <= 0) continue;
                 jsons.add(line);
-                // 超出NUM_PER_PAGE后停止读
-                if (cnt >= 8096) break;
+                // 超出上限后停止读
+                if (cnt >= 2000) break;
             }
             bufferedReader.close();
         } catch (Exception e) {
@@ -139,14 +145,14 @@ public class DataLoader {
      */
     public Vector<Triple> getDataFromJson (Vector<String> jsons) {
         Vector<Triple> vector = new Vector<>();
-        Collections.shuffle(vector);
+//        Collections.shuffle(vector);
         Gson gson = new Gson(); // 使用 Gson 工具
-        for (int i = 0; i < 1024; ++i) {
+        for (int i = 0; i < 2000; ++i) {
             String j = jsons.get(i);
             Triple in = gson.fromJson(j, Triple.class); // 反序列化
             vector.add(in);
         }
-        Collections.shuffle(vector);
+//        Collections.shuffle(vector);
         return vector;
     }
 
@@ -157,13 +163,6 @@ public class DataLoader {
         // 网络请求不能在主线程中进行，而是要在一个子线程中
         Instance ins = new Instance();
         Thread net_conn_thread = new Thread(() -> {
-            if (!logged) {
-                try {
-                    logInOnSubThread();
-                } catch (IOException | JSONException e) {
-                    e.printStackTrace();
-                }
-            }
             try {
                 Instance tmp = getKnowledgeByUri(course, uri);
                 ins.setName(tmp.getName());
@@ -184,8 +183,8 @@ public class DataLoader {
         URL ins_url = new URL("http://open.edukg.cn/opedukg/api/typeOpen/open/getKnowledgeCard");
         HttpURLConnection conn = (HttpURLConnection) ins_url.openConnection(); // 创建HttpURLConnection对象
         conn.setRequestMethod("POST"); // 请求方式为 POST
-        conn.setConnectTimeout(3000); // 设置超时
-        conn.setReadTimeout(3000);
+        conn.setConnectTimeout(8000); // 设置超时
+        conn.setReadTimeout(8000);
         conn.setDoOutput(true);
         conn.setDoInput(true);
         conn.setUseCaches(false); // Post方式不能缓存,需手动设置为false
@@ -237,12 +236,11 @@ public class DataLoader {
      * Post 请求根据 uri 获取实体详情
      */
     public InstanceDetail getDetailByUri (String course, String uri) throws IOException, JSONException, InterruptedException {
-        if (!logged) logIn();
         URL ins_url = new URL("http://open.edukg.cn/opedukg/api/typeOpen/open/getKnowledgeCard");
         HttpURLConnection conn = (HttpURLConnection) ins_url.openConnection(); // 创建HttpURLConnection对象
         conn.setRequestMethod("POST"); // 请求方式为 POST
-        conn.setConnectTimeout(3000); // 设置超时
-        conn.setReadTimeout(3000);
+        conn.setConnectTimeout(8000); // 设置超时
+        conn.setReadTimeout(8000);
         conn.setDoOutput(true);
         conn.setDoInput(true);
         conn.setUseCaches(false); // Post方式不能缓存,需手动设置为false
@@ -325,7 +323,7 @@ public class DataLoader {
             BufferedReader bf = new BufferedReader(in);
             String line;
             // 一行一行读取
-            while ((line = bf.readLine()) != null){
+            while ((line = bf.readLine()) != null) {
                 Log.i("res_line", line);
                 res.append(line);
             }
@@ -344,6 +342,113 @@ public class DataLoader {
 //        entity_type = data_json.getString("entity_type");
 //        entity_name = data_json.getString("entity_name");
         return new Vector<Triple>();
+    }
+    /**
+     * Get 请求根据实体名称获取相关试题
+     */
+    public Vector<Ques> getInstanceQues (String name) throws IOException, JSONException {
+        String root = "http://open.edukg.cn/opedukg/api/typeOpen/open/questionListByUriName?uriName=";
+        String tail = "&id=" + id;
+        URL url = new URL(root + name + tail);
+        HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+        conn.setRequestMethod("GET");
+        //Get请求不需要DoOutPut
+        conn.setDoOutput(false);
+        conn.setDoInput(true);
+        //设置连接超时时间和读取超时时间
+
+        conn.setConnectTimeout(8000);
+        conn.setReadTimeout(8000);
+      
+        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+        //连接服务器
+        conn.connect();
+        // 取得输入流，并使用Reader读取
+        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+        StringBuilder result = new StringBuilder();
+        String line;
+        while ((line = in.readLine()) != null) {
+            result.append(line);
+        }
+        in.close();
+        JSONObject json = new JSONObject(result.toString());
+        return getQuesFromJson(json);
+    }
+
+    public Vector<Ques> getQuesFromJson (JSONObject json) throws JSONException {
+        Vector<Ques> vector = new Vector<>();
+        Gson gson = new Gson(); // 使用 Gson 工具
+        JSONArray data = json.getJSONArray("data");
+        if (data.length() == 0) return vector;
+        else {
+            for (int i = 0; i < data.length(); ++i) {
+                JSONObject item = data.getJSONObject(i);
+                Ques ques = gson.fromJson(String.valueOf(item), Ques.class);
+                String answer = ques.getqAnswer();
+                if (answer.equals("A") ||
+                        answer.equals("B") ||
+                        answer.equals("C") ||
+                        answer.equals("D")) {
+                    ques.print();
+                    vector.add(ques);
+                }
+            }
+        }
+        return vector;
+    }
+
+    public Vector<Subject> getLinkSubjects (String name, String course) throws IOException, JSONException {
+        String root = "http://open.edukg.cn/opedukg/api/typeOpen/open/infoByInstanceName?name=";
+        String middle = "&course=" + course;
+        String tail = "&id=" + id;
+        URL url = new URL(root + name + middle + tail);
+        HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+        conn.setRequestMethod("GET");
+        //Get请求不需要DoOutPut
+        conn.setDoOutput(false);
+        conn.setDoInput(true);
+        //设置连接超时时间和读取超时时间
+        conn.setConnectTimeout(8000);
+        conn.setReadTimeout(8000);
+        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+        //连接服务器
+        conn.connect();
+        // 取得输入流，并使用Reader读取
+        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+        StringBuilder result = new StringBuilder();
+        String line;
+        while ((line = in.readLine()) != null) {
+            result.append(line);
+        }
+        in.close();
+        JSONObject json = new JSONObject(result.toString());
+        Log.e("LinkSubjects", result.toString());
+        return getSubjectsFromJson(json);
+    }
+
+    public Vector<Subject> getSubjectsFromJson (JSONObject json) throws JSONException {
+        Vector<Subject> vector = new Vector<>();
+        JSONObject data = json.getJSONObject("data");
+        JSONArray content = data.getJSONArray("content");
+        if (content.length() == 0) return vector;
+        else {
+            for (int i = 0; i < content.length(); ++i) {
+                JSONObject item = content.getJSONObject(i);
+                String sub_pre = item.getString("predicate_label");
+                if (item.has("object")) { // object
+                    String sub_name = item.getString("object_label");
+                    String sub_uri = item.getString("object");
+                    Subject sub = new Subject(sub_pre, sub_name, sub_uri, true);
+                    vector.add(sub);
+                } else { // subject
+                    String sub_name = item.getString("subject_label");
+                    String sub_uri = item.getString("subject");
+                    Subject sub = new Subject(sub_pre, sub_name, sub_uri, false);
+                    vector.add(sub);
+                }
+            }
+        }
+        return vector;
     }
 
 }

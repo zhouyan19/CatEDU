@@ -14,7 +14,8 @@
         android:layout_width="wrap_content"
         android:layout_height="60dp"
         android:gravity="center"
-        android:text="@string/ins_item_number" />
+        android:textColor="@color/black"
+        android:text="" />
 
     <TextView
         android:id="@+id/ins_name"
@@ -22,6 +23,7 @@
         android:layout_height="60dp"
         android:layout_marginStart="20dp"
         android:gravity="center"
+        android:textColor="@color/black"
         android:text=""/>
 
 </LinearLayout>

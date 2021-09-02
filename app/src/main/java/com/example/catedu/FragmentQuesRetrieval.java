@@ -33,7 +33,6 @@ import java.util.Vector;
  * create an instance of this fragment.
  */
 public class FragmentQuesRetrieval extends Fragment {
-    private DataLoader dataLoader;
     private final String[] mStrs = {"aaa", "bbb", "ccc", "airsaid"};
     private final String[] courses = {"语文", "数学", "英语", "物理", "化学", "生物", "历史", "地理", "政治"};
     int courseId = 0;
@@ -53,7 +52,7 @@ public class FragmentQuesRetrieval extends Fragment {
     private String mParam2;
 
     public FragmentQuesRetrieval() {
-        dataLoader = new DataLoader();
+
     }
 
     /**
@@ -189,7 +188,7 @@ public class FragmentQuesRetrieval extends Fragment {
     }
     public class Response {
         public void handle (FragmentQuesRetrieval.CallBack callBack) throws IOException, JSONException, InterruptedException {
-            Vector<Triple> res = dataLoader.getInstanceListByString(Utils.English(courses[courseId]), queryWord);
+            Vector<Triple> res = MainActivity.dataLoader.getInstanceListByString(Utils.English(courses[courseId]), queryWord);
             callBack.onResponse(res);
         }
     }

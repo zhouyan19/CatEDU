@@ -1,11 +1,22 @@
 package com.example.catedu;
 
+import android.annotation.SuppressLint;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.PopupWindow;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -13,42 +24,49 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.androidkun.xtablayout.XTabLayout;
+import com.github.ybq.android.spinkit.SpinKitView;
 
 import java.util.Map;
 import java.util.Vector;
 
 public class FragmentInstance extends Fragment {
     public static String uri; // 实体uri
+    public static String name; // 实体名称
     public static String course; // 学科名称
     public static Vector<Fragment> fragments;
-    public static int last_fragment = 0;
-
+    public static int last_fragment;
+    public static int loaded;
     FragmentInsDetail fragment_ins_detail;
     FragmentInsQues fragment_ins_ques;
     FragmentInsRelated fragment_ins_related;
 
     ImageButton back_home;
+    public static SpinKitView skv;
+    XTabLayout detail_tabLayout;
 
-    public FragmentInstance (String _u, String _c) {
+    ImageButton more_op;
+    CustomPopWindow pop_window;
+
+    public FragmentInstance (String _u, String _n, String _c) {
         Log.e("FragmentInstance", "New!");
         uri = _u;
+        name = _n;
         course = _c;
-        fragment_ins_detail = new FragmentInsDetail(uri, course);
-        fragment_ins_ques = new FragmentInsQues();
-        fragment_ins_related = new FragmentInsRelated();
+        loaded = 0;
+        last_fragment = 0;
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // 绑定 layout
-        Log.e("FragmentInstance", "onCreateView");
         return inflater.inflate(R.layout.fragment_instance, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        Log.e("FragmentInstance", "onViewCreated");
+        skv = view.findViewById(R.id.spin_kit);
+        skv.setVisibility(View.VISIBLE);
 
-        XTabLayout detail_tabLayout = view.findViewById(R.id.detail_tab_layout);
+        detail_tabLayout = view.findViewById(R.id.detail_tab_layout);
 
         back_home = view.findViewById(R.id.detail_back_home);
         back_home.setOnClickListener(v -> {
@@ -59,6 +77,17 @@ public class FragmentInstance extends Fragment {
             }
         });
 
+        more_op = view.findViewById(R.id.more_op);
+        more_op.setOnClickListener(v -> {
+            pop_window = new CustomPopWindow();
+            pop_window.showAtLocation(v,
+                    Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
+            pop_window.setOnDismissListener(() -> pop_window.backgroundAlpha(1f));
+        });
+
+        fragment_ins_detail = new FragmentInsDetail(uri, name, course);
+        fragment_ins_ques = new FragmentInsQues(name);
+        fragment_ins_related = new FragmentInsRelated(name, course);
         fragments = new Vector<>();
 
         fragments.add(fragment_ins_detail);
@@ -100,7 +129,8 @@ public class FragmentInstance extends Fragment {
         last_fragment = index;
     }
 
-    protected void backSwitchFragment() throws Throwable {
+
+    protected void backSwitchFragment() {
         int from = MainActivity.last_fragment, to;
         FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
         transaction.hide(MainActivity.fragments.get(from));
@@ -114,6 +144,72 @@ public class FragmentInstance extends Fragment {
         transaction.show(MainActivity.fragments.get(to)).commitAllowingStateLoss();
         MainActivity.last_fragment = to; //更新
         MainActivity.fragments.removeElementAt(from); //删多余的页面
-        finalize();
     }
+
+    @SuppressLint("HandlerLeak")
+    public static Handler mHandler = new Handler(Looper.getMainLooper()) {
+        @Override
+        public void handleMessage (Message msg) {
+            super.handleMessage(msg);
+            loaded++;
+            if (loaded >= 3) {
+                Log.e("Loaded", String.valueOf(loaded));
+                skv.setVisibility(View.GONE);
+            }
+        }
+    };
+
+    public class CustomPopWindow extends PopupWindow {
+        private final View view;
+
+        public CustomPopWindow() {
+            super();
+            LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(getContext().LAYOUT_INFLATER_SERVICE);
+            view = inflater.inflate(R.layout.widget_popupwindow, null);
+            initView();
+            initPopWindow();
+        }
+
+
+        private void initView() {
+            ImageButton shareBtn = view.findViewById(R.id.button_share);
+            ImageButton likeBtn = view.findViewById(R.id.button_like);
+            TextView cancelTv = view.findViewById(R.id.share_cancel);
+
+            shareBtn.setOnClickListener(v -> {
+
+            });
+            likeBtn.setOnClickListener(v -> {
+                likeBtn.setImageResource(R.mipmap.like_yes);
+            });
+
+            cancelTv.setOnClickListener(v -> dismiss());
+
+        }
+
+        private void initPopWindow() {
+            this.setContentView(view);
+            // 设置弹出窗体的宽
+            this.setWidth(ViewGroup.LayoutParams.MATCH_PARENT);
+            // 设置弹出窗体的高
+            this.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
+            // 设置弹出窗体可点击()
+            this.setFocusable(true);
+            this.setOutsideTouchable(true);
+            //设置SelectPicPopupWindow弹出窗体动画效果
+            this.setAnimationStyle(R.style.mypopwindow_anim_style);
+            ColorDrawable dw = new ColorDrawable(0x00FFFFFF);
+            //设置弹出窗体的背景
+            this.setBackgroundDrawable(dw);
+            backgroundAlpha(0.5f); //0.0-1.0
+        }
+
+        public void backgroundAlpha(float bgAlpha) {
+            WindowManager.LayoutParams lp = getActivity().getWindow().getAttributes();
+            lp.alpha = bgAlpha;
+            getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+            getActivity().getWindow().setAttributes(lp);
+        }
+    }
+
 }

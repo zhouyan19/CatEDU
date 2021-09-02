@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        android:id="@+id/title_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/main"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/detail_back"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:background="#FF7d30"
+            android:contentDescription="@string/back"
+            android:paddingStart="0dp"
+            android:src="@drawable/back_home_foreground"
+            tools:ignore="RtlSymmetry" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:layout_gravity="center"
+            android:layout_marginStart="10dp"
+            android:textSize="20sp"
+            android:text="@string/cat_app_name" />
+
+    </LinearLayout>
+    <LinearLayout
+        app:layout_constraintTop_toBottomOf="@id/title_bar"
+        android:id="@+id/ll_portrait"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="30dp"
+        android:paddingBottom="10dp"
+        android:background="@color/white"
+        android:clickable="true"
+        tools:ignore="MissingConstraints">
+
+        <com.example.catedu.widget.RoundImageView
+            android:id="@+id/selfie_to_change"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginLeft="20dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/cat_edu"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="修改头像"
+            android:layout_gravity="center"
+            android:paddingLeft="@dimen/margin_left_and_right"/>
+
+    </LinearLayout>
+    <com.example.catedu.widget.ItemGroup
+        android:id="@+id/item_email"
+        android:layout_width="match_parent"
+        android:layout_marginHorizontal="@dimen/margin_left_and_right"
+        android:layout_height="45dp"
+        app:title="邮箱"
+        app:edt_content="email"
+        app:layout_constraintTop_toBottomOf="@id/item_nickname">
+    </com.example.catedu.widget.ItemGroup>
+    <com.example.catedu.widget.ItemGroup
+        android:id="@+id/item_nickname"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_marginHorizontal="@dimen/margin_left_and_right"
+        app:edt_content="nickname"
+        app:layout_constraintTop_toBottomOf="@id/ll_portrait"
+        app:title="昵称"
+        tools:layout_editor_absoluteX="20dp"></com.example.catedu.widget.ItemGroup>
+
+    <Button
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="50dp"
+        android:layout_marginHorizontal="@dimen/margin_left_and_right"
+        android:id="@+id/exit_login"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text="退出登录"></Button>
+</androidx.constraintlayout.widget.ConstraintLayout>

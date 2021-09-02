@@ -1,4 +1,5 @@
 <resources>
+    <string name="ip">http://183.173.179.9:8080</string>
     <string name="cat_app_name">猫辅导</string>
     <string name="copyright">Copyright © ZY YWT WZT</string>
     <string name="nav_1">主页</string>
@@ -31,6 +32,14 @@
     <string name="detail_type" />
     <string name="text_ins_ques">试题</string>
     <string name="text_ins_related">相关实体</string>
+    <string name="text_ques_title">题目</string>
+    <string name="submit_button_text">提交</string>
+    <string name="sub_number">0</string>
+    <string name="sub_name">关联实体</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="cancel">取消</string>
+    <string name="weibo_share">微博分享</string>
+    <string name="like_text">加入收藏</string>
+    <string name="more_text">更多操作</string>
 </resources>

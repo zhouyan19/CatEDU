@@ -12,6 +12,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -51,7 +52,6 @@ import java.util.Vector;
 
 public class FragmentHome extends Fragment {
     final int NUM_PER_PAGE = 8;
-    private DataLoader dataLoader;
     private int course_id = 0; // 选中学科编号，默认为语文0
     private final String []courses_all = {"语文", "英语", "数学", "物理", "化学", "生物", "政治", "地理", "历史"};
     private boolean []courses_now = {true, true, true, false, false, false, false, false, false};
@@ -59,6 +59,7 @@ public class FragmentHome extends Fragment {
     public Vector []triNow = new Vector[9]; // 学科当前显示数据
     public int []cntList = {0, 0, 0, 0, 0, 0, 0, 0, 0}; // 每个学科当前数据数量
     public Vector []insLists = new Vector[9]; // 每个学科当前获取的实体
+    public Vector []seenLists = new Vector[9];
     public int ins_cnt = 0;
 
     SpinKitView skv;
@@ -100,11 +101,11 @@ public class FragmentHome extends Fragment {
      * 构造函数，初始化 DataLoader 和各个列表
      */
     public FragmentHome() {
-        dataLoader = new DataLoader();
         for (int i = 0; i < 9; ++i) {
             triLists[i] = new Vector<Triple>();
             triNow[i] = new Vector<Triple>();
             insLists[i] = new Vector<Instance>();
+            seenLists[i] = new Vector<Boolean>();
         }
     }
 
@@ -255,7 +256,7 @@ public class FragmentHome extends Fragment {
     public void getListByCourse(int id) throws IOException {
         Context context = getContext();
         assert context != null;
-        triLists[id] = dataLoader.getLocalCourseData(context, Utils.English(courses_all[id]));
+        triLists[id] = MainActivity.dataLoader.getLocalCourseData(context, Utils.English(courses_all[id]));
     }
 
     /**
@@ -271,7 +272,7 @@ public class FragmentHome extends Fragment {
             return new ViewHolder(v);
         }
 
-        @SuppressLint("UseCompatLoadingForDrawables")
+        @SuppressLint({"UseCompatLoadingForDrawables", "ResourceAsColor"})
         @Override
         public void onBindViewHolder(@NonNull @NotNull ViewHolder holder, int position) {
             holder.ins_item.setOnClickListener(v -> showDetail(position));
@@ -281,6 +282,11 @@ public class FragmentHome extends Fragment {
             String number = String.valueOf(position + 1);
             holder.ins_number.setText(number);
             holder.ins_name.setText(ins.getName());
+            Boolean seen = (Boolean) seenLists[course_id].get(position);
+            if (seen) {
+                holder.ins_number.setTextColor(Color.LTGRAY);
+                holder.ins_name.setTextColor(Color.LTGRAY);
+            }
         }
 
         @Override
@@ -311,11 +317,12 @@ public class FragmentHome extends Fragment {
             triNow[course_id].add(tri);
             Instance ins = null;
             try {
-                ins = dataLoader.getInstance(Utils.English(course_name()), tri.getS());
+                ins = MainActivity.dataLoader.getInstance(Utils.English(course_name()), tri.getS());
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             insLists[course_id].add(ins);
+            seenLists[course_id].add(new Boolean(false));
         }
         cntList[course_id] += NUM_PER_PAGE;
     }
@@ -328,6 +335,7 @@ public class FragmentHome extends Fragment {
         for (int i = 0; i < 9; ++i) {
             triNow[i].clear();
             insLists[i].clear();
+            seenLists[i].clear();
             cntList[i] = 0;
             for (int j = 0; j < NUM_PER_PAGE; ++j) {
                 Triple tri = (Triple) triLists[i].get(j);
@@ -352,6 +360,7 @@ public class FragmentHome extends Fragment {
                 new Response().handle(tris, _id, inss -> {
                     for (Instance ins : inss) {
                         insLists[_id].add(ins);
+                        seenLists[_id].add(new Boolean(false));
                         ins_cnt++;
                     }
                     Log.e("initIns", "InsLists set");
@@ -369,7 +378,7 @@ public class FragmentHome extends Fragment {
             for (int i = 0; i < tris.size(); ++i) {
                 Triple tri = tris.get(i);
                 Log.e("Response", tri.getS());
-                Instance ins = dataLoader.getInstance(Utils.English(courses_all[course_id]), tri.getS());
+                Instance ins = MainActivity.dataLoader.getInstance(Utils.English(courses_all[course_id]), tri.getS());
                 Log.e("Response", ins.getName());
                 inss.set(i, ins);
             }
@@ -388,24 +397,14 @@ public class FragmentHome extends Fragment {
         Log.e("showDetail", String.valueOf(pos + 1));
         Triple tri = (Triple) triNow[course_id].get(pos);
         String uri = tri.getS();
+        String name = ((Instance) insLists[course_id].get(pos)).getName();
+        seenLists[course_id].removeElementAt(pos);
+        seenLists[course_id].insertElementAt(new Boolean(true), pos);
+        rv_list.setAdapter(new MyAdapter());
 
-//        for (int i = 0; i < 9; ++i) {
-//            triLists[i] = new Vector<Triple>();
-//            triNow[i] = new Vector<Triple>();
-//            insLists[i] = new Vector<Instance>();
-//            cntList[i] = 0;
-//        }
-//        ins_cnt = 0;
-
-        FragmentInstance fi = new FragmentInstance(uri, course_name());
+        FragmentInstance fi = new FragmentInstance(uri, name, course_name());
         MainActivity.fragments.add(fi);
         forwardSwitchFragment();
-
-//        requireActivity().getSupportFragmentManager()
-//                .beginTransaction()
-//                .replace(R.id.nav_host_fragment, new FragmentInsDetail(uri, course_name()), null)
-//                .addToBackStack("ins_detail")
-//                .commit();
 
     }
 
