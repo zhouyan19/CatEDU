@@ -1,15 +1,19 @@
 package com.example.catedu;
 
 import android.annotation.SuppressLint;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Message;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import androidx.annotation.DrawableRes;
@@ -55,6 +59,8 @@ public class FragmentInsQues extends Fragment {
     TextView acc_text;
     TextView no_ques;
     NestedScrollView nested_scroll;
+
+    CustomPopWindow pop_window;
 
     FragmentInsQues (String _n) {
         Log.e("FragmentInsQues", "New!");
@@ -226,6 +232,13 @@ public class FragmentInsQues extends Fragment {
                 }
             }
 
+            holder.more_op.setOnClickListener(v -> {
+                pop_window = new CustomPopWindow();
+                pop_window.showAtLocation(v,
+                        Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
+                pop_window.setOnDismissListener(() -> pop_window.backgroundAlpha(1f));
+            });
+
         }
 
         @Override
@@ -237,6 +250,7 @@ public class FragmentInsQues extends Fragment {
             TextView ques_title;
             FlexibleRichTextView ques_content;
             ImageButton optA, optB, optC, optD;
+            ImageButton more_op;
             public ViewHolder(@NonNull @NotNull View itemView) {
                 super(itemView);
                 ques_title = itemView.findViewById(R.id.ques_title);
@@ -245,6 +259,7 @@ public class FragmentInsQues extends Fragment {
                 optB = itemView.findViewById(R.id.option_b);
                 optC = itemView.findViewById(R.id.option_c);
                 optD = itemView.findViewById(R.id.option_d);
+                more_op = itemView.findViewById(R.id.more_op);
             }
         }
     }
@@ -265,6 +280,58 @@ public class FragmentInsQues extends Fragment {
         rv_ques.setAdapter(new QuesAdapter());
         acc_text.setText("正确率：" + accuracy);
         acc_text.setVisibility(View.VISIBLE);
+    }
+
+    public class CustomPopWindow extends PopupWindow {
+        private final View view;
+
+        public CustomPopWindow() {
+            super();
+            LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(getContext().LAYOUT_INFLATER_SERVICE);
+            view = inflater.inflate(R.layout.widget_popupwindow, null);
+            initView();
+            initPopWindow();
+        }
+
+        private void initView() {
+            ImageButton shareBtn = view.findViewById(R.id.button_share);
+            ImageButton likeBtn = view.findViewById(R.id.button_like);
+            TextView cancelTv = view.findViewById(R.id.share_cancel);
+
+            shareBtn.setOnClickListener(v -> {
+
+            });
+            likeBtn.setOnClickListener(v -> {
+                likeBtn.setImageResource(R.mipmap.like_yes);
+            });
+
+            cancelTv.setOnClickListener(v -> dismiss());
+
+        }
+
+        private void initPopWindow() {
+            this.setContentView(view);
+            // 设置弹出窗体的宽
+            this.setWidth(ViewGroup.LayoutParams.MATCH_PARENT);
+            // 设置弹出窗体的高
+            this.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
+            // 设置弹出窗体可点击()
+            this.setFocusable(true);
+            this.setOutsideTouchable(true);
+            //设置SelectPicPopupWindow弹出窗体动画效果
+            this.setAnimationStyle(R.style.mypopwindow_anim_style);
+            ColorDrawable dw = new ColorDrawable(0x00FFFFFF);
+            //设置弹出窗体的背景
+            this.setBackgroundDrawable(dw);
+            backgroundAlpha(0.5f); //0.0-1.0
+        }
+
+        public void backgroundAlpha(float bgAlpha) {
+            WindowManager.LayoutParams lp = getActivity().getWindow().getAttributes();
+            lp.alpha = bgAlpha;
+            getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+            getActivity().getWindow().setAttributes(lp);
+        }
     }
 
 }
