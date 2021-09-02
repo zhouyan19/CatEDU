@@ -2,11 +2,15 @@ package com.example.catedu;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -14,6 +18,8 @@ import android.view.ViewGroup;
  * create an instance of this fragment.
  */
 public class FragmentQuesQa extends Fragment {
+
+    ImageButton back_home;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -60,5 +66,45 @@ public class FragmentQuesQa extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_ques_qa, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        back_home = view.findViewById(R.id.detail_back_home);
+        back_home.setOnClickListener(v -> {
+            try {
+                backSwitchFragment();
+            } catch (Throwable throwable) {
+                throwable.printStackTrace();
+            }
+        });
+    }
+
+    protected void forwardSwitchFragment() {
+        int from = MainActivity.last_fragment, to = MainActivity.fragments.size() - 1;
+        FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
+        transaction.hide(MainActivity.fragments.get(from));
+        if (!MainActivity.fragments.get(to).isAdded())
+            transaction.add(R.id.nav_host_fragment, MainActivity.fragments.get(to));
+        transaction.show(MainActivity.fragments.get(to)).commitAllowingStateLoss();
+        MainActivity.last_fragment = to; // 更新
+    }
+
+
+    protected void backSwitchFragment() throws Throwable {
+        int from = MainActivity.last_fragment, to;
+        FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
+        transaction.hide(MainActivity.fragments.get(from));
+        if (MainActivity.last_fragment == 3) { //次级页面
+            to = MainActivity.major_fragment;
+        } else { //多级页面
+            to = MainActivity.last_fragment - 1;
+        }
+        if (!MainActivity.fragments.get(to).isAdded())
+            transaction.add(R.id.nav_host_fragment, MainActivity.fragments.get(to));
+        transaction.show(MainActivity.fragments.get(to)).commitAllowingStateLoss();
+        MainActivity.last_fragment = to; //更新
+        MainActivity.fragments.removeElementAt(from); //删多余的页面
+        finalize();
     }
 }

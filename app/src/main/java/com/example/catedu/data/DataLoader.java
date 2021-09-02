@@ -332,6 +332,61 @@ public class DataLoader {
         return vector;
     }
 
+    public Vector<InstanceWithUri> getLinkInstanceList(String course, String queryText) throws IOException, JSONException {
+        URL ins_url = new URL("http://open.edukg.cn/opedukg/api/typeOpen/open/linkInstance");
+        HttpURLConnection conn = (HttpURLConnection) ins_url.openConnection(); // 创建HttpURLConnection对象
+        conn.setRequestMethod("POST"); // 请求方式为 POST
+        conn.setConnectTimeout(5000); // 设置超时
+        conn.setReadTimeout(5000);
+        conn.setDoOutput(true);
+        conn.setDoInput(true);
+        conn.setUseCaches(false); // Post方式不能缓存,需手动设置为false
+        conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8"); // 设置请求头
+        conn.connect();
+
+        // 写入参数
+        HashMap<String, String> map = new HashMap<String, String>();
+        map.put("course", course);
+        map.put("context", queryText);
+        map.put("id", id);
+        String params = new Gson().toJson(map);
+
+        // 获取输出流，写入参数
+        OutputStream out = conn.getOutputStream();
+        out.write(params.getBytes());
+        out.flush();
+        out.close();
+
+        // 取得输入流，并使用Reader读取
+        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+        StringBuilder result = new StringBuilder();
+        String line;
+        while ((line = in.readLine()) != null) {
+            result.append(line);
+        }
+        in.close();
+        JSONObject json = new JSONObject(result.toString());
+        json = json.getJSONObject("data");
+
+        Vector<InstanceWithUri> vector = new Vector<InstanceWithUri>();
+        Gson gson = new Gson(); // 使用 Gson 工具
+        JSONArray data = json.getJSONArray("results");
+        if (data.length() != 0) {
+            for (int i = 0; i < data.length(); ++i) {
+                JSONObject item = data.getJSONObject(i);
+//                String name = "无名称";
+//                String type = "无类别";
+//                name = item.getString("label");
+//                type = item.getString("category");
+                InstanceWithUri ins = new InstanceWithUri(item.getString("entity"), item.getString("entity_type"), item.getString("entity_url"));
+
+//                Log.i("instance with uri", ins.getName() + " " +ins.getType()+" "+ins.getUri());
+                vector.add(ins);
+            }
+        }
+        return vector;
+    }
+
     /**
      * Get 请求根据实体名称获取相关试题
      */
