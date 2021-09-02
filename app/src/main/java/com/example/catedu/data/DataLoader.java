@@ -301,7 +301,7 @@ public class DataLoader {
         conn.setDoOutput(true);
         conn.setDoInput(true);
 //        conn.setUseCaches(false);
-        conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8"); // 设置请求头
+//        conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8"); // 设置请求头
         conn.connect();
 
         // 写入参数

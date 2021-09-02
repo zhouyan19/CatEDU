@@ -11,15 +11,21 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import androidx.appcompat.widget.SearchView;
+import androidx.fragment.app.FragmentTransaction;
+
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.AdapterView;
 
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.Vector;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -30,10 +36,12 @@ public class FragmentQuesRetrieval extends Fragment {
     private DataLoader dataLoader;
     private final String[] mStrs = {"aaa", "bbb", "ccc", "airsaid"};
     private final String[] courses = {"语文", "数学", "英语", "物理", "化学", "生物", "历史", "地理", "政治"};
-    int course_id = 0;
+    int courseId = 0;
+    String queryWord = "";
     SearchView mSearchView;
     ListView mListView;
     Spinner mSpinner;
+    ImageButton back_home;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -84,6 +92,16 @@ public class FragmentQuesRetrieval extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        back_home = view.findViewById(R.id.detail_back_home);
+        back_home.setOnClickListener(v -> {
+            try {
+                backSwitchFragment();
+            } catch (Throwable throwable) {
+                throwable.printStackTrace();
+            }
+        });
+
+
         mSearchView = view.findViewById(R.id.sv_retrieval);
         mListView = view.findViewById(R.id.lv);
         mListView.setAdapter(new ArrayAdapter<String>(this.getContext(), android.R.layout.simple_list_item_1, mStrs));
@@ -98,7 +116,7 @@ public class FragmentQuesRetrieval extends Fragment {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                 Log.i("spinner", courses[pos]);
-                course_id = pos;
+                courseId = pos;
             }
 
             @Override
@@ -114,26 +132,87 @@ public class FragmentQuesRetrieval extends Fragment {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 Log.i("String query", query);
-                try{
-                    dataLoader.getInstanceListByString(Utils.English(courses[course_id]), query);
-                }catch(JSONException|IOException e){}
+                queryWord = query;
+
+                getRetrievalResults();
+
                 return false;
             }
 
             // 当搜索内容改变时触发该方法
             @Override
             public boolean onQueryTextChange(String newText) {
-                if (!TextUtils.isEmpty(newText)){
+                if (!TextUtils.isEmpty(newText)) {
                     mListView.setFilterText(newText);
-                }else{
+                } else {
                     mListView.clearTextFilter();
                 }
                 return false;
             }
         });
-
-
-
-
     }
+
+
+    //load info
+    public void getRetrievalResults() {
+        new Thread(() -> {
+            try {
+                new Response().handle(res -> {
+                    for(Triple tri : res){
+                        Log.i("Result", tri.getS() + "  " + tri.getS() + "  " + tri.getS());
+                    }
+//                    instance = ins;
+//                    Log.e("getInstanceDetail", instance.getEntity_name());
+//                    String name = "实体名称：" + ((instance.getEntity_name().equals("")) ? "无" : instance.getEntity_name());
+//                    String type = "实体类别：" + ((instance.getEntity_type().equals("")) ? "无" : instance.getEntity_type());
+//                    requireActivity().runOnUiThread(() -> {
+//                        detail_name.setText(name);
+//                        detail_type.setText(type);
+//                        JSONArray features = ins.getEntity_features();
+//                        try {
+//                            for (int i = 0; i < features.length(); ++i) {
+//                                JSONObject feature = features.getJSONObject(i);
+//                                feature_list.add(feature);
+//                            }
+//                        } catch (Exception e) {
+//                            e.printStackTrace();
+//                        }
+//                        detail_feature.setAdapter(new FeatureAdapter());
+//                        requireActivity().runOnUiThread(() -> skv.setVisibility(View.INVISIBLE));
+//                        Log.e("getInstanceDetail", "FeatureAdapter");
+//                    });
+                });
+            } catch (JSONException | IOException | InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+    public class Response {
+        public void handle (FragmentQuesRetrieval.CallBack callBack) throws IOException, JSONException, InterruptedException {
+            Vector<Triple> res = dataLoader.getInstanceListByString(Utils.English(courses[courseId]), queryWord);
+            callBack.onResponse(res);
+        }
+    }
+    interface CallBack  {
+        void onResponse(Vector<Triple> res) throws IOException;
+    }
+    // end fetching thread
+
+    protected void backSwitchFragment() throws Throwable {
+        int from = MainActivity.last_fragment, to;
+        FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
+        transaction.hide(MainActivity.fragments.get(from));
+        if (MainActivity.last_fragment == 3) { //次级页面
+            to = MainActivity.major_fragment;
+        } else { //多级页面
+            to = MainActivity.last_fragment - 1;
+        }
+        if (!MainActivity.fragments.get(to).isAdded())
+            transaction.add(R.id.nav_host_fragment, MainActivity.fragments.get(to));
+        transaction.show(MainActivity.fragments.get(to)).commitAllowingStateLoss();
+        MainActivity.last_fragment = to; //更新
+        MainActivity.fragments.removeElementAt(from); //删多余的页面
+        finalize();
+    }
+
 }
