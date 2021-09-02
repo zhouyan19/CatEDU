@@ -26,10 +26,15 @@ import android.widget.Spinner;
 import android.widget.AdapterView;
 import android.widget.TextView;
 
+import org.angmarch.views.NiceSpinner;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -39,6 +44,7 @@ import java.util.Vector;
  */
 public class FragmentQuesLink extends Fragment {
     private final String[] historyStrs = { };
+
     private final String[] courses = {"语文", "数学", "英语", "物理", "化学", "生物", "历史", "地理", "政治"};
     private static Vector<InstanceWithUri> resultList;
     int courseId = 0;
@@ -118,9 +124,11 @@ public class FragmentQuesLink extends Fragment {
 //        mListView.setTextFilterEnabled(true);
 
         mSpinner = view.findViewById(R.id.sp_course);
-        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(this.getContext(), android.R.layout.simple_list_item_1, courses);
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(this.getContext(), R.layout.nav_spinner_item, courses);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mSpinner.setAdapter(spinnerAdapter);
+//        List<String> courseList = new LinkedList<String>(Arrays.asList(courses));
+//        mSpinner.attachDataSource(courseList);
 
         mSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
