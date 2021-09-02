@@ -157,8 +157,8 @@ public class FragmentQuesRetrieval extends Fragment {
         new Thread(() -> {
             try {
                 new Response().handle(res -> {
-                    for(Triple tri : res){
-                        Log.i("Result", tri.getS() + "  " + tri.getS() + "  " + tri.getS());
+                    for(InstanceWithUri ins : res){
+                        Log.i("Result", ins.getName() + "  " + ins.getType() + "  " + ins.getUri());
                     }
 //                    instance = ins;
 //                    Log.e("getInstanceDetail", instance.getEntity_name());
@@ -188,12 +188,12 @@ public class FragmentQuesRetrieval extends Fragment {
     }
     public class Response {
         public void handle (FragmentQuesRetrieval.CallBack callBack) throws IOException, JSONException, InterruptedException {
-            Vector<Triple> res = MainActivity.dataLoader.getInstanceListByString(Utils.English(courses[courseId]), queryWord);
+            Vector<InstanceWithUri> res = MainActivity.dataLoader.getInstanceListByString(Utils.English(courses[courseId]), queryWord);
             callBack.onResponse(res);
         }
     }
     interface CallBack  {
-        void onResponse(Vector<Triple> res) throws IOException;
+        void onResponse(Vector<InstanceWithUri> res) throws IOException;
     }
     // end fetching thread
 
