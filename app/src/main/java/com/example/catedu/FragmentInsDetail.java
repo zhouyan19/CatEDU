@@ -7,14 +7,20 @@
 package com.example.catedu;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;

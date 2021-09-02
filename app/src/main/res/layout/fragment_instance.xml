@@ -33,6 +33,21 @@
             android:layout_marginStart="-8dp"
             android:text="@string/back" />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <ImageButton
+                android:id="@+id/more_op"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_gravity="right|center_vertical"
+                android:src="@mipmap/more_vert" />
+
+        </LinearLayout>
+
     </LinearLayout>
 
     <com.androidkun.xtablayout.XTabLayout
