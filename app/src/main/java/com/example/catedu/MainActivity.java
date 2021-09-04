@@ -6,11 +6,6 @@
 
 package com.example.catedu;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentTransaction;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -19,6 +14,11 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.alibaba.fastjson.JSONObject;
 import com.example.catedu.data.DataLoader;
@@ -227,7 +227,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public JSONObject readCache () {
+    public JSONObject readCache() {
         String name = "DetailCache.dat";
         FileInputStream inStream = null;
         try {
@@ -258,7 +258,7 @@ public class MainActivity extends AppCompatActivity {
             Log.e("closeExc", e.toString());
         }
         String res = new String(b);
-        seenList = com.alibaba.fastjson.JSONObject.parseObject(res);
-        return seenList;
+        seenLists = JSONObject.parseObject(res);
+        return seenLists;
     }
 }

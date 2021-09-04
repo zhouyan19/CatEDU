@@ -2,33 +2,25 @@ package com.example.catedu;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.catedu.widget.RoundImageView;
-import com.google.gson.internal.LinkedTreeMap;
-
-import org.w3c.dom.Text;
+import com.alibaba.fastjson.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class FragmentHistory extends Fragment {
 
@@ -36,6 +28,7 @@ public class FragmentHistory extends Fragment {
     HistoryAdapter myAdapter;
     ArrayList<String> historyData;
     private ImageButton backButton;
+    MainActivity main;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -44,6 +37,7 @@ public class FragmentHistory extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        main=(MainActivity) getActivity();
         initdata();
         initview(view);
         backButton = view.findViewById(R.id.detail_back);
@@ -56,11 +50,16 @@ public class FragmentHistory extends Fragment {
     }
 
     private void initdata() {
+        JSONObject jsonObject=main.readCache();
         historyData = new ArrayList<String>();
-        for (int i = 0; i < 12; i++) {
-            String history=String.valueOf(i);
-            historyData.add(history);
+        for (String str :
+                jsonObject.keySet()) {
+            historyData.add(str);
         }
+//        for (int i = 0; i < 12; i++) {
+//            String history=String.valueOf(i);
+//            historyData.add(history);
+//        }
     }
 
     void initview(View view) {
