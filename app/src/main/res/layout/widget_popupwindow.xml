@@ -65,6 +65,7 @@
                 android:src="@mipmap/like_no" />
 
             <TextView
+                android:id="@+id/like_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"

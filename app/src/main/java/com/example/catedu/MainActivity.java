@@ -25,7 +25,6 @@ import com.example.catedu.data.DataLoader;
 import com.example.catedu.data.InstanceDetail;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import org.json.JSONException;
 import org.scilab.forge.jlatexmath.core.AjLatexMath;
 
 import java.io.File;
@@ -45,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static DataLoader dataLoader;
 
-    public static com.alibaba.fastjson.JSONObject seenList; // 每个学科已看过的实体
+    public static JSONObject seenList; // 每个学科已看过的实体
 
     @SuppressLint("StaticFieldLeak")
     public static FragmentHome fragment_home;
@@ -71,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
         }
         setContentView(R.layout.activity_main);
         seenList = new com.alibaba.fastjson.JSONObject();
+        seenList = readCache();
         initView();
     }
 
@@ -200,10 +200,10 @@ public class MainActivity extends AppCompatActivity {
         seenList.put(uri, ins.toString());
         Log.e("addSeen", uri);
         fragment_home.update();
-        refreshCache(ins);
+        refreshCache();
     }
 
-    protected void refreshCache(InstanceDetail ins) {
+    protected void refreshCache() {
         String name = "DetailCache.dat";
         FileOutputStream outputStream;
         try {
@@ -258,7 +258,7 @@ public class MainActivity extends AppCompatActivity {
             Log.e("closeExc", e.toString());
         }
         String res = new String(b);
-        seenLists = JSONObject.parseObject(res);
-        return seenLists;
+        seenList = JSONObject.parseObject(res);
+        return seenList;
     }
 }

@@ -20,7 +20,7 @@
             android:id="@+id/detail_back"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:background="#FF7d30"
+            android:background="@color/main"
             android:contentDescription="@string/back"
             android:paddingStart="0dp"
             android:src="@drawable/back_home_foreground"

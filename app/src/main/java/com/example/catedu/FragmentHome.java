@@ -292,7 +292,6 @@ public class FragmentHome extends Fragment {
             holder.ins_name.setText(ins.getName());
 //            Boolean seen = (Boolean) seenLists[course_id].get(position);
             String u = ((Triple) triLists[course_id].get(position)).getS();
-            Log.e("Contain?", u);
             if (MainActivity.seenList.containsKey(u)) {
                 Log.e("Gray", ins.getName());
                 holder.ins_number.setTextColor(Color.LTGRAY);

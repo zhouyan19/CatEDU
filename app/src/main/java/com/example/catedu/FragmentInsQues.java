@@ -297,13 +297,14 @@ public class FragmentInsQues extends Fragment {
             ImageButton shareBtn = view.findViewById(R.id.button_share);
             ImageButton likeBtn = view.findViewById(R.id.button_like);
             TextView cancelTv = view.findViewById(R.id.share_cancel);
+            TextView likeText = view.findViewById(R.id.like_text);
 
             shareBtn.setOnClickListener(v -> {
 
             });
-            likeBtn.setOnClickListener(v -> {
-                likeBtn.setImageResource(R.mipmap.like_yes);
-            });
+
+            likeBtn.setVisibility(View.GONE);
+            likeText.setVisibility(View.GONE);
 
             cancelTv.setOnClickListener(v -> dismiss());
 
