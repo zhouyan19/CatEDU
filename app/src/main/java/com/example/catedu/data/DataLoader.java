@@ -363,7 +363,7 @@ public class DataLoader {
         return vector;
     }
 
-    public Vector<InstanceWithUri> getLinkInstanceList(String course, String queryText) throws IOException, JSONException {
+    public Vector<InstanceEnbedding> getLinkInstanceList(String course, String queryText) throws IOException, JSONException {
         URL ins_url = new URL("http://open.edukg.cn/opedukg/api/typeOpen/open/linkInstance");
         HttpURLConnection conn = (HttpURLConnection) ins_url.openConnection(); // 创建HttpURLConnection对象
         conn.setRequestMethod("POST"); // 请求方式为 POST
@@ -399,7 +399,7 @@ public class DataLoader {
         JSONObject json = new JSONObject(result.toString());
         json = json.getJSONObject("data");
 
-        Vector<InstanceWithUri> vector = new Vector<InstanceWithUri>();
+        Vector<InstanceEnbedding> vector = new Vector<InstanceEnbedding>();
         Gson gson = new Gson(); // 使用 Gson 工具
         JSONArray data = json.getJSONArray("results");
         if (data.length() != 0) {
@@ -409,10 +409,10 @@ public class DataLoader {
 //                String type = "无类别";
 //                name = item.getString("label");
 //                type = item.getString("category");
-                InstanceWithUri ins = new InstanceWithUri(item.getString("entity"), item.getString("entity_type"), item.getString("entity_url"));
-
+                InstanceWithUri insWU = new InstanceWithUri(item.getString("entity"), item.getString("entity_type"), item.getString("entity_url"));
+                InstanceEnbedding insEnb = new InstanceEnbedding(insWU, item.getInt("start_index"), item.getInt("end_index"));
 //                Log.i("instance with uri", ins.getName() + " " +ins.getType()+" "+ins.getUri());
-                vector.add(ins);
+                vector.add(insEnb);
             }
         }
         return vector;
