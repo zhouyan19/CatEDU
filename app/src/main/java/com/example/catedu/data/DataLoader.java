@@ -223,8 +223,8 @@ public class DataLoader {
             return new Instance();
         }
         Log.e("Res", res.toString());
-        String entity_type = "无类别";
-        String entity_name = "无名称";
+        String entity_type;
+        String entity_name;
         JSONObject res_json = new JSONObject(res.toString());
         JSONObject data_json = res_json.getJSONObject("data");
         entity_type = data_json.getString("entity_type");
@@ -233,61 +233,92 @@ public class DataLoader {
     }
 
     /**
-     * Post 请求根据 uri 获取实体详情
+     * Post 请求根据 name 获取实体详情
      */
-    public InstanceDetail getDetailByUri (String course, String uri) throws IOException, JSONException, InterruptedException {
-        URL ins_url = new URL("http://open.edukg.cn/opedukg/api/typeOpen/open/getKnowledgeCard");
-        HttpURLConnection conn = (HttpURLConnection) ins_url.openConnection(); // 创建HttpURLConnection对象
-        conn.setRequestMethod("POST"); // 请求方式为 POST
-        conn.setConnectTimeout(8000); // 设置超时
-        conn.setReadTimeout(8000);
-        conn.setDoOutput(true);
+    public InstanceDetail getDetailByName (String course, String name) throws IOException, JSONException, InterruptedException {
+//        URL ins_url = new URL("http://open.edukg.cn/opedukg/api/typeOpen/open/getKnowledgeCard");
+//        HttpURLConnection conn = (HttpURLConnection) ins_url.openConnection(); // 创建HttpURLConnection对象
+//        conn.setRequestMethod("POST"); // 请求方式为 POST
+//        conn.setConnectTimeout(8000); // 设置超时
+//        conn.setReadTimeout(8000);
+//        conn.setDoOutput(true);
+//        conn.setDoInput(true);
+//        conn.setUseCaches(false); // Post方式不能缓存,需手动设置为false
+//        conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8"); // 设置请求头
+//        conn.connect();
+//
+//        // 写入参数
+//        HashMap map = new HashMap<String, String>();
+//        map.put("course", course);
+//        map.put("uri", uri);
+//        map.put("id", id);
+//        String params = new Gson().toJson(map);
+//
+//        // 获取输出流，写入参数
+//        OutputStream out = conn.getOutputStream();
+//        out.write(params.getBytes());
+//        out.flush();
+//        out.close();
+//
+//        // 读取响应
+//        StringBuilder res = new StringBuilder();
+//        int code = conn.getResponseCode();
+//        if (code == 200) {
+//            InputStreamReader in = new InputStreamReader(conn.getInputStream());
+//            BufferedReader bf = new BufferedReader(in);
+//            String line;
+//            // 一行一行读取
+//            while ((line = bf.readLine()) != null){
+//                res.append(line);
+//            }
+//            in.close();
+//            conn.disconnect();
+//        }
+//        if (res.toString().equals("")) {
+//            Log.e("Entity", "Empty!");
+//            return new InstanceDetail();
+//        }
+//        Log.e("Res(Detail)", res.toString());
+//        String entity_type;
+//        String entity_name;
+//        JSONArray entity_features;
+//        JSONObject res_json = new JSONObject(res.toString());
+//        JSONObject data_json = res_json.getJSONObject("data");
+//        entity_type = data_json.getString("entity_type");
+//        entity_name = data_json.getString("entity_name");
+//        entity_features = data_json.getJSONArray("entity_features");
+//        return new InstanceDetail(uri, course, entity_name, entity_features);
+
+        String root = "http://open.edukg.cn/opedukg/api/typeOpen/open/infoByInstanceName?name=";
+        String middle = "&course=" + course;
+        String tail = "&id=" + id;
+        URL url = new URL(root + name + middle + tail);
+        Log.e("infoByInstanceName", root + name + middle + tail);
+        HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+        conn.setRequestMethod("GET");
+        //Get请求不需要DoOutPut
+        conn.setDoOutput(false);
         conn.setDoInput(true);
-        conn.setUseCaches(false); // Post方式不能缓存,需手动设置为false
-        conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8"); // 设置请求头
+        //设置连接超时时间和读取超时时间
+        conn.setConnectTimeout(8000);
+        conn.setReadTimeout(8000);
+        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+        //连接服务器
         conn.connect();
-
-        // 写入参数
-        HashMap map = new HashMap<String, String>();
-        map.put("course", course);
-        map.put("uri", uri);
-        map.put("id", id);
-        String params = new Gson().toJson(map);
-
-        // 获取输出流，写入参数
-        OutputStream out = conn.getOutputStream();
-        out.write(params.getBytes());
-        out.flush();
-        out.close();
-
-        // 读取响应
-        StringBuilder res = new StringBuilder();
-        int code = conn.getResponseCode();
-        if (code == 200) {
-            InputStreamReader in = new InputStreamReader(conn.getInputStream());
-            BufferedReader bf = new BufferedReader(in);
-            String line;
-            // 一行一行读取
-            while ((line = bf.readLine()) != null){
-                res.append(line);
-            }
-            in.close();
-            conn.disconnect();
+        // 取得输入流，并使用Reader读取
+        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+        StringBuilder result = new StringBuilder();
+        String line;
+        while ((line = in.readLine()) != null) {
+            result.append(line);
         }
-        if (res.toString().equals("")) {
-            Log.e("Entity", "Empty!");
-            return new InstanceDetail();
-        }
-        Log.e("Res(Detail)", res.toString());
-        String entity_type;
-        String entity_name;
-        JSONArray entity_features;
-        JSONObject res_json = new JSONObject(res.toString());
-        JSONObject data_json = res_json.getJSONObject("data");
-        entity_type = data_json.getString("entity_type");
-        entity_name = data_json.getString("entity_name");
-        entity_features = data_json.getJSONArray("entity_features");
-        return new InstanceDetail(entity_type, entity_name, entity_features);
+        in.close();
+        JSONObject json = new JSONObject(result.toString());
+        Log.e("DetailByName", result.toString());
+        JSONObject data = json.getJSONObject("data");
+        JSONArray property = data.getJSONArray("property");
+        String uri = data.getString("uri");
+        return new InstanceDetail(uri, course, name, property);
     }
 
     public Vector<InstanceWithUri> getInstanceListByString(String course, String keyword) throws IOException, JSONException {
