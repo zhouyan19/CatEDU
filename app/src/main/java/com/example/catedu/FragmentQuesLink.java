@@ -1,17 +1,25 @@
 package com.example.catedu;
 
 import android.annotation.SuppressLint;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import com.example.catedu.data.*;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import android.text.Editable;
+import android.text.Spannable;
+import android.text.TextWatcher;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -26,10 +34,19 @@ import android.widget.Spinner;
 import android.widget.AdapterView;
 import android.widget.TextView;
 
+import org.angmarch.views.NiceSpinner;
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.Vector;
 
 /**
@@ -39,16 +56,19 @@ import java.util.Vector;
  */
 public class FragmentQuesLink extends Fragment {
     private final String[] historyStrs = { };
+
     private final String[] courses = {"语文", "数学", "英语", "物理", "化学", "生物", "历史", "地理", "政治"};
     private static Vector<InstanceWithUri> resultList;
     int courseId = 0;
     String queryText = "";
-    SearchView mSearchView;
+//    SearchView mSearchView;
+    private EditText input;
     ListView mListView;
     RecyclerView mRecyclerView;
 
     Spinner mSpinner;
     ImageButton back_home;
+    Button mBtn;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -112,15 +132,19 @@ public class FragmentQuesLink extends Fragment {
         mRecyclerView.addItemDecoration(new DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL));
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        mSearchView = view.findViewById(R.id.sv_retrieval);
+        input = view.findViewById(R.id.edittext);
+
+//        mSearchView = view.findViewById(R.id.sv_retrieval);
 //        mListView = view.findViewById(R.id.lv);
 //        mListView.setAdapter(new ArrayAdapter<String>(this.getContext(), android.R.layout.simple_list_item_1, historyStrs));
 //        mListView.setTextFilterEnabled(true);
 
         mSpinner = view.findViewById(R.id.sp_course);
-        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(this.getContext(), android.R.layout.simple_list_item_1, courses);
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(this.getContext(), R.layout.nav_spinner_item, courses);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mSpinner.setAdapter(spinnerAdapter);
+//        List<String> courseList = new LinkedList<String>(Arrays.asList(courses));
+//        mSpinner.attachDataSource(courseList);
 
         mSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -136,69 +160,87 @@ public class FragmentQuesLink extends Fragment {
             }
         });
 
-        //设置搜索文本监听
-        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            // 当点击搜索按钮时触发该方法
+        mBtn = view.findViewById(R.id.btn_search);
+        mBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onQueryTextSubmit(String query) {
-                Log.i("String query", query);
-                queryText = query;
-
+            public void onClick(View view) {
+                queryText = input.getText().toString();
+                Log.i("String query", queryText);
+                clearTextSpan();
                 getRetrievalResults();
-
-                return false;
             }
+        });
 
-            // 当搜索内容改变时触发该方法
+
+//        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+//            // 当点击搜索按钮时触发该方法
+//            @Override
+//            public boolean onQueryTextSubmit(String query) {
+//                Log.i("String query", query);
+//                queryText = query;
+//                getRetrievalResults();
+//                return false;
+//            }
+//            // 当搜索内容改变时触发该方法
+//            @Override
+//            public boolean onQueryTextChange(String newText) {
+////                if (!TextUtils.isEmpty(newText)) {
+////                    mListView.setFilterText(newText);
+////                } else {
+////                    mListView.clearTextFilter();
+////                }
+//                return false;
+//            }
+//        });
+        input.addTextChangedListener(new TextWatcher() {
             @Override
-            public boolean onQueryTextChange(String newText) {
-//                if (!TextUtils.isEmpty(newText)) {
-//                    mListView.setFilterText(newText);
-//                } else {
-//                    mListView.clearTextFilter();
-//                }
-                return false;
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) { }
+            @Override
+            public void afterTextChanged(Editable editable) {
+                clearTextSpan();
             }
         });
     }
 
+    private void clearTextSpan(){
+        Editable et = input.getText();
+        ForegroundColorSpan[] toRemoveSpans = et.getSpans(0, et.length(), ForegroundColorSpan.class);
+        for (int i = 0; i < toRemoveSpans.length; i++)
+            et.removeSpan(toRemoveSpans[i]);
+    }
 
     //load info
     public void getRetrievalResults() {
         new Thread(() -> {
             try {
                 new Response().handle(res -> {
+                    // remove duplicate
+                    Set<InstanceWithUri> set = new TreeSet<>(new Comparator<InstanceWithUri>() {
+                        @Override
+                        public int compare(InstanceWithUri insA, InstanceWithUri insB) {
+                            return insA.getName().hashCode() - insB.getName().hashCode(); //要实现两个对象大小可比
+                        }
+                    });
+                    for(InstanceEnbedding insEnb : res)
+                        set.add(insEnb.getInstanceWithUri());
+                    resultList.clear();
+                    resultList.addAll(set);
 
-
-//                    instance = ins;
-//                    Log.e("getInstanceDetail", instance.getEntity_name());
-//                    String name = "实体名称：" + ((instance.getEntity_name().equals("")) ? "无" : instance.getEntity_name());
-//                    String type = "实体类别：" + ((instance.getEntity_type().equals("")) ? "无" : instance.getEntity_type());
                     requireActivity().runOnUiThread(() -> {
-
-                        for(InstanceWithUri ins : res){
-                            Log.i("Result", ins.getName() + "  " + ins.getType() + "  " + ins.getUri());
+                        // set highlight span
+                        Editable editable = input.getText();
+                        for(InstanceEnbedding insEnb : res) {
+                            Log.i("Enbed", insEnb.getInstanceWithUri().getName() + "  " + insEnb.getStart() + "  " + insEnb.getEnd());
+                            editable.setSpan(
+                                    new ForegroundColorSpan(ContextCompat.getColor(requireContext(),R.color.main_highlight)),
+                                    insEnb.getStart(), insEnb.getEnd() + 1,
+                                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                         }
-                        resultList.clear();
-                        resultList.addAll(res);
-                        for(InstanceWithUri ins : resultList){
+                        for(InstanceWithUri ins : resultList)
                             Log.i("Result", ins.getName() + "  " + ins.getType() + "  " + ins.getUri());
-                        }
                         mRecyclerView.setAdapter(new InsAdapter());
-//                        detail_name.setText(name);
-//                        detail_type.setText(type);
-//                        JSONArray features = ins.getEntity_features();
-//                        try {
-//                            for (int i = 0; i < features.length(); ++i) {
-//                                JSONObject feature = features.getJSONObject(i);
-//                                feature_list.add(feature);
-//                            }
-//                        } catch (Exception e) {
-//                            e.printStackTrace();
-//                        }
-//                        detail_feature.setAdapter(new InsAdapter());
-////                        requireActivity().runOnUiThread(() -> skv.setVisibility(View.INVISIBLE));?
-//                        Log.i("getResultList", "Adapter");
                     });
                 });
             } catch (JSONException | IOException | InterruptedException e) {
@@ -208,12 +250,12 @@ public class FragmentQuesLink extends Fragment {
     }
     public class Response {
         public void handle (FragmentQuesLink.CallBack callBack) throws IOException, JSONException, InterruptedException {
-            Vector<InstanceWithUri> res = MainActivity.dataLoader.getLinkInstanceList(Utils.English(courses[courseId]), queryText);
+            Vector<InstanceEnbedding> res = MainActivity.dataLoader.getLinkInstanceList(Utils.English(courses[courseId]), queryText);
             callBack.onResponse(res);
         }
     }
     interface CallBack  {
-        void onResponse(Vector<InstanceWithUri> res) throws IOException;
+        void onResponse(Vector<InstanceEnbedding> res) throws IOException;
     }
     // end fetching thread
 

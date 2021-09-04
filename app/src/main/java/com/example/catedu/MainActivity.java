@@ -19,17 +19,22 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 
+import com.alibaba.fastjson.JSONObject;
 import com.example.catedu.data.DataLoader;
+import com.example.catedu.data.InstanceDetail;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import org.json.JSONException;
 import org.scilab.forge.jlatexmath.core.AjLatexMath;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Objects;
 import java.util.Vector;
-
-import javax.sql.DataSource;
 
 import io.github.kbiakov.codeview.classifier.CodeProcessor;
 
@@ -39,6 +44,8 @@ public class MainActivity extends AppCompatActivity {
     public static int major_fragment = 0;
 
     public static DataLoader dataLoader;
+
+    public com.alibaba.fastjson.JSONObject seenLists; // 每个学科已看过的实体
 
     /**
      * MainActivity 创建时的操作
@@ -55,6 +62,7 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         setContentView(R.layout.activity_main);
+        seenLists = new com.alibaba.fastjson.JSONObject();
         initView();
     }
 
@@ -176,4 +184,72 @@ public class MainActivity extends AppCompatActivity {
         return null;
     }
 
+    /**
+     * 加入一个看过的
+     * @param course 课程名
+     * @param ins 实体详情
+     */
+    public void addSeen (String course, InstanceDetail ins) throws JSONException {
+        seenLists.put(ins.getUri(), ins.toString());
+        refreshCache(course, ins);
+    }
+
+    protected void refreshCache (String course, InstanceDetail ins) throws JSONException {
+        String name = "DetailCache.dat";
+        FileOutputStream outputStream;
+        try {
+            outputStream = openFileOutput(name, Context.MODE_PRIVATE);
+            outputStream.write(seenLists.toString().getBytes());
+            outputStream.close();
+        } catch (Exception e) {
+            Log.e("RefreshCache", e.toString());
+        }
+    }
+
+    public void clearCache () {
+        String name = "DetailCache.dat";
+        FileOutputStream outputStream;
+        try {
+            outputStream = openFileOutput(name, Context.MODE_PRIVATE);
+            outputStream.write("".getBytes());
+            outputStream.close();
+        } catch (Exception e) {
+            Log.e("ClearCache", e.toString());
+        }
+    }
+
+    public JSONObject readCache () {
+        String name = "DetailCache.dat";
+        FileInputStream inStream = null;
+        try {
+            inStream = openFileInput(name);
+        } catch (FileNotFoundException e) { //若不存在文件则创建一个
+            FileOutputStream out;
+            try {
+                out = openFileOutput(name, Context.MODE_APPEND);
+                out.write("".getBytes());
+                out.close();
+            } catch (Exception ignored) {
+            }
+        }
+        try {
+            inStream = openFileInput(name);
+        } catch (FileNotFoundException e) {
+            Log.e("ReadCache", e.toString());
+        }
+        byte[] b = new byte[(int) new File(getFilesDir().toString() + "/" + name).length()]; //恰好文件大小的字节数组
+        try {
+            Log.e("readBytes" + name + ":", String.valueOf(inStream.read(b)));
+        } catch (IOException e) {
+            Log.e("readStorageExc", e.toString());
+        }
+        try {
+            inStream.close();
+        } catch (IOException e) {
+            Log.e("closeExc", e.toString());
+        }
+        String res = new String(b);
+        seenLists = com.alibaba.fastjson.JSONObject.parseObject(res);
+        return seenLists;
+    }
 }

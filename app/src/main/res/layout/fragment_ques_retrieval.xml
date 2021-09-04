@@ -32,32 +32,21 @@
             android:layout_gravity="center"
             android:layout_marginStart="-8dp"
             android:text="@string/back" />
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="@color/white"
-            android:layout_gravity="center"
-            android:layout_marginStart="80dp"
-            android:text="@string/ques_retrieval"
-            android:textSize="20sp"/>
 
     </LinearLayout>
 
-<!--    <LinearLayout-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="match_parent"-->
-<!--        android:layout_marginTop="132dp"-->
-<!--        android:orientation="horizontal"-->
-<!--        tools:layout_editor_absoluteX="16dp">-->
-        <!--定义一个SearchView-->
-        <!--        <SearchView-->
-        <!--            android:id="@+id/sv"-->
-        <!--            android:layout_width="match_parent"-->
-        <!--            android:layout_height="wrap_content"/>-->
-
-        <!--        <SearchView style="@style/CardView"-->
-
-        <!--            />-->
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:gravity="center"
+        android:text="@string/ques_retrieval"
+        android:textColor="@color/white"
+        android:textSize="22sp"
+        app:layout_constraintTop_toTopOf="@+id/nav"
+        app:layout_constraintBottom_toBottomOf="@+id/nav"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
     <Spinner
         android:id="@+id/sp_course"
         app:layout_constraintTop_toBottomOf="@id/nav"
@@ -80,8 +69,8 @@
         app:queryHint="请输入要查找的实体"
         android:background="#F0E0D0"
         android:inputType="text"
+        app:iconifiedByDefault="false"
         />
-<!--    </LinearLayout>-->
 <!--    <ListView-->
 <!--        android:id="@+id/lv"-->
 <!--        app:layout_constraintLeft_toLeftOf="parent"-->
