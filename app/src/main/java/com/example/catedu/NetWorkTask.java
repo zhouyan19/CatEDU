@@ -39,7 +39,29 @@ public class NetWorkTask implements Runnable {
 
     @Override
     public void run() {
+        String servlet_ip="http://82.156.215.178:8080";
         switch (taskno) {
+            case 4:{
+                //注册
+
+                String url=servlet_ip+"/user/register";
+                Document doc = null;
+                HashMap<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                try {
+                    doc = Jsoup.connect(url).headers(headers).ignoreContentType(true).requestBody(requestParam).post();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if(doc!=null){
+                    Element body = doc.body();
+                    String str = body.text();
+                    Gson gson = new Gson();
+                    map=new HashMap<>();
+                    map = gson.fromJson(str, map.getClass());
+                }
+                break;
+            }
             case 3:{
                 JSONObject jsonObject = new JSONObject();
                 try {
@@ -50,7 +72,7 @@ public class NetWorkTask implements Runnable {
                     e.printStackTrace();
                 }
                 Document doc = null;
-                url="http://183.173.179.9:8080/user/modify/selfie";
+                url=servlet_ip+"/user/modify/selfie";
                 try {
                     HashMap<String, String> headers = new HashMap<>();
                     headers.put("Content-Type", "application/json");
@@ -78,7 +100,7 @@ public class NetWorkTask implements Runnable {
                     e.printStackTrace();
                 }
                 Document doc = null;
-                url="http://183.173.179.9:8080/user/modify/email";
+                url=servlet_ip+"/user/modify/email";
                 try {
                     HashMap<String, String> headers = new HashMap<>();
                     headers.put("Content-Type", "application/json");
@@ -106,7 +128,9 @@ public class NetWorkTask implements Runnable {
                     e.printStackTrace();
                 }
                 Document doc = null;
-                url="http://183.173.179.9:8080/user/modify/nickname";
+
+
+                url=servlet_ip+"/user/modify/nickname";
                 try {
                     HashMap<String, String> headers = new HashMap<>();
                     headers.put("Content-Type", "application/json");

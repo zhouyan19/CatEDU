@@ -24,29 +24,20 @@
             android:src="@drawable/back_home_foreground"
             tools:ignore="RtlSymmetry" />
 
-    <TextView
-        android:id="@+id/title_text"
-        android:layout_width="0dp"
-        android:layout_weight="3"
-        android:gravity="center"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginStart="10dp"
-        android:text="修改头像"
-        android:textColor="@color/white"
-        android:textSize="20sp" />
+        <TextView
+            android:id="@+id/title_text"
+            android:layout_width="0dp"
+            android:layout_weight="3"
+            android:gravity="center"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="10dp"
+            android:paddingRight="60dp"
+            android:text="历史记录"
+            android:textColor="@color/white"
+            android:textSize="20sp" />
 
-    <Button
-        android:id="@+id/submit_avatar"
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:layout_height="50dp"
-        android:layout_marginHorizontal="10dp"
-        android:layout_gravity="center"
-        android:backgroundTint="@color/white"
-        android:textColor="@color/main"
-        android:text="提交"
-        ></Button>
+
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView

@@ -157,7 +157,11 @@ public class FragmentRegister extends Fragment {
                 }
                 if(submit_valid)
                 {
-                    submit();
+                    try {
+                        submit();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                 }
                 else
                 {
@@ -169,8 +173,7 @@ public class FragmentRegister extends Fragment {
     }
 
 
-    void submit()
-    {
+    void submit() throws InterruptedException {
         Logger.d("DEBUG","submitting...");
         String raw_username=username.getText().toString().trim();
         String raw_password=password.getText().toString().trim();
@@ -180,32 +183,29 @@ public class FragmentRegister extends Fragment {
             jsonObject.put("username",raw_username);
             jsonObject.put("password",raw_password);
             jsonObject.put("email",raw_email);
+            jsonObject.put("selfie",1);
+            jsonObject.put("nickname","我");
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        String url="http://183.173.179.9:8080/user/register";
-        Document doc = null;
-        HashMap<String, String> headers = new HashMap<>();
-        headers.put("Content-Type", "application/json");
-        try {
-            doc = Jsoup.connect(url).headers(headers).ignoreContentType(true).requestBody(jsonObject.toString()).post();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        Element body = doc.body();
-        String str = body.text();
-        Gson gson = new Gson();
+        String url=getActivity().getString(R.string.ip)+"/user/register";
+        NetWorkTask netWorkTask=new NetWorkTask(4,null,jsonObject.toString());
         Map<String, Object> map = new HashMap<String, Object>();
-        map = gson.fromJson(str, map.getClass());
-        boolean suc = (boolean) map.get("success");
-        String msg = (String) map.get("message");
-        Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
-        if (suc) {
-            if(msg.equals("注册成功")){
+        Thread newThread= new Thread(netWorkTask);
+        newThread.start();
+        newThread.join();
+        map=netWorkTask.getMap();
+        if(map!=null){
+            boolean suc = (boolean) map.get("success");
+            String msg = (String) map.get("msg");
+            Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
+            if (suc) {
                 backSwitchFragment();
             }
         }
-//        Toast.makeText(getActivity(),"网络出错",Toast.LENGTH_LONG).show();
+        else{
+           Toast.makeText(getActivity(),"网络出错",Toast.LENGTH_LONG).show();
+        }
     }
     void setImage(ImageView image,boolean isMatch)
     {

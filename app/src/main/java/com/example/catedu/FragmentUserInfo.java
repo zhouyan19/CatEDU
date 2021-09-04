@@ -24,6 +24,7 @@ import java.util.Map;
 public class FragmentUserInfo extends Fragment {
     ImageView selfie_to_change;
     ImageButton backButton;
+    Button exitLogin;
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_userinfo, container, false);
     }
@@ -43,6 +44,18 @@ public class FragmentUserInfo extends Fragment {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        exitLogin=(Button) view.findViewById(R.id.exit_login);
+        exitLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SharedPreferences sharedPreferences= getActivity().getSharedPreferences("user", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.clear();
+                editor.apply();
+                backSwitchFragment();
+            }
+        });
+
     }
 
     void refreshView(View view) throws InterruptedException {

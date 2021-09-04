@@ -68,7 +68,7 @@ public class FragmentLogin extends Fragment {
                     }
                     HashMap<String, String> headers = new HashMap<>();
                     headers.put("Content-Type", "application/json");
-                    String url = "http://183.172.166.145:8080/user/login";
+                    String url = getActivity().getString(R.string.ip)+"/user/login";
                     final Document[] doc = {null};
                     Runnable networkTask=new Runnable() {
                         @Override

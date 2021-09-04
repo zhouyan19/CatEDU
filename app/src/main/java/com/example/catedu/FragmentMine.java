@@ -1,8 +1,8 @@
 /**
  * @filename FragmentMine
- * @description  我的组件 (3)
+ * @description 我的组件 (3)
  * @author ZhouYan
- * */
+ */
 
 package com.example.catedu;
 
@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,50 +44,93 @@ public class FragmentMine extends Fragment {
     /**
      * FragmentMine 创建时的操作
      */
-    String token=null;
+    String token = null;
     boolean logined;
     RoundImageView selfie;
     TextView nickname_view;
     SharedPreferences sharedPreferences;
+    LinearLayout info;
+    LinearLayout history;
+
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         return inflater.inflate(R.layout.fragment_mine, container, false);
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+
+        logined = false;
+        selfie = (RoundImageView) view.findViewById(R.id.selfie);
+        nickname_view = (TextView) view.findViewById(R.id.login_textView);
+        info=(LinearLayout) view.findViewById(R.id.info);
+        history=(LinearLayout) view.findViewById(R.id.history);
+
+
+        try {
+            refreshView(view);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        Button clear_backup = (Button) view.findViewById(R.id.clear_backup);
+        clear_backup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                MainActivity.fragments.add(new FragmentAvatar());
+//                forwardSwitchFragment();
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.clear();
+                editor.apply();
+                Toast.makeText(getActivity(), "缓存清除成功", Toast.LENGTH_LONG).show();
+            }
+        });
+
+        history.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MainActivity.fragments.add(new FragmentHistory());
+                forwardSwitchFragment();
+            }
+        });
+        super.onViewCreated(view, savedInstanceState);
+    }
+
+
     public void refreshView(View view) throws InterruptedException {
-        sharedPreferences= getActivity().getSharedPreferences("user", Context.MODE_PRIVATE);
-        this.token=sharedPreferences.getString("token",null);
+
+        sharedPreferences = getActivity().getSharedPreferences("user", Context.MODE_PRIVATE);
+        this.token = sharedPreferences.getString("token", null);
         Runnable networkTask = new Runnable() {
             @Override
             public void run() {
                 if (token != null) {
-                    String url = "http://183.172.166.145:8080/user/info";
+                    String url = getActivity().getString(R.string.ip) + "/user/info";
                     HashMap<String, String> headers = new HashMap<>();
                     headers.put("Content-Type", "application/json");
                     Document doc = null;
                     try {
-                        doc = Jsoup.connect(url).ignoreContentType(true).data("token",token).post();
-                        if(doc!=null){
+                        doc = Jsoup.connect(url).ignoreContentType(true).data("token", token).post();
+                        if (doc != null) {
                             Element body = doc.body();
                             String str = body.text();
                             Gson gson = new Gson();
                             Map<String, Object> map = new HashMap<String, Object>();
                             map = gson.fromJson(str, map.getClass());
                             boolean suc = (boolean) map.get("success");
-                            LinkedTreeMap linkedTreeMap=(LinkedTreeMap) map.get("detail");
+                            LinkedTreeMap linkedTreeMap = (LinkedTreeMap) map.get("detail");
                             if (suc) {
-                                logined=true;
-                                String nickname=(String) linkedTreeMap.get("nickname");
+                                logined = true;
+                                String nickname = (String) linkedTreeMap.get("nickname");
                                 Double selfie_num = (Double) linkedTreeMap.get("selfie");
-                                String image_name = "avatar_icon_" + String.valueOf(selfie_num.intValue()) ;
+                                String image_name = "avatar_icon_" + String.valueOf(selfie_num.intValue());
                                 int src = getActivity().getResources().getIdentifier(image_name, "drawable", getActivity().getPackageName());
-                                getActivity().runOnUiThread(()->{
+                                getActivity().runOnUiThread(() -> {
                                     selfie.setImageResource(src);
                                     nickname_view.setText(nickname);
                                 });
                             }
-                        }
-                        else {
+                        } else {
                             Looper.prepare();
                             Toast.makeText(getActivity(), "网络出错", Toast.LENGTH_SHORT).show();
                             Looper.loop();
@@ -96,64 +140,43 @@ public class FragmentMine extends Fragment {
                         e.printStackTrace();
                     }
                 }
+                else{
+                    logined=false;
+                    getActivity().runOnUiThread(() -> {
+                        selfie.setImageResource(R.drawable.cat_edu);
+                        nickname_view.setText("我");
+                    });
+                }
             }
         };
-        Thread newThread= new Thread(networkTask);
+        Thread newThread = new Thread(networkTask);
         newThread.start();
         newThread.join();
-        int refIds[] ={R.id.selfie,R.id.login_textView};
-        for (int id : refIds) {
-            if(!logined){
-                view.findViewById(id).setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        // your code here.
-                        MainActivity.fragments.add(new FragmentLogin());
-                        forwardSwitchFragment();
-                    }
-                });
-            }
-            else{
-                view.findViewById(id).setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        MainActivity.fragments.add(new FragmentUserInfo());
-                        forwardSwitchFragment();
-                    }
-                });
-            }}
-    }
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-
-        logined=false;
-        selfie = (RoundImageView) view.findViewById(R.id.selfie);
-        nickname_view = (TextView) view.findViewById(R.id.login_textView);
-
-
-        try {
-            refreshView(view);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        if (!logined) {
+            info.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    // your code here.
+                    MainActivity.fragments.add(new FragmentLogin());
+                    forwardSwitchFragment();
+                }
+            });
+        } else {
+            info.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    MainActivity.fragments.add(new FragmentUserInfo());
+                    forwardSwitchFragment();
+                }
+            });
         }
-
-        Button clear_backup=(Button) view.findViewById(R.id.clear_backup);
-        clear_backup.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-//                MainActivity.fragments.add(new FragmentAvatar());
-//                forwardSwitchFragment();
-                sharedPreferences.edit().clear();
-                sharedPreferences.edit().apply();
-                Toast.makeText(getActivity(),"缓存清除成功",Toast.LENGTH_LONG).show();
-            }
-        });
-        super.onViewCreated(view, savedInstanceState);
     }
+
+
     @Override
     public void onHiddenChanged(boolean hidden) {
-        super.onHiddenChanged( hidden );
+        super.onHiddenChanged(hidden);
         if (hidden) {// 不在最前端界面显示
         } else {// 重新显示到最前端中
             try {
