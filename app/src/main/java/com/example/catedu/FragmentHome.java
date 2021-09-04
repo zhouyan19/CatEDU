@@ -22,6 +22,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -59,7 +60,7 @@ public class FragmentHome extends Fragment {
     public Vector []triNow = new Vector[9]; // 学科当前显示数据
     public int []cntList = {0, 0, 0, 0, 0, 0, 0, 0, 0}; // 每个学科当前数据数量
     public Vector []insLists = new Vector[9]; // 每个学科当前获取的实体
-    public Vector []seenLists = new Vector[9];
+//    public Vector []seenLists = new Vector[9]; // 每个学科已看过的实体
     public int ins_cnt = 0;
 
     SpinKitView skv;
@@ -105,7 +106,7 @@ public class FragmentHome extends Fragment {
             triLists[i] = new Vector<Triple>();
             triNow[i] = new Vector<Triple>();
             insLists[i] = new Vector<Instance>();
-            seenLists[i] = new Vector<Boolean>();
+//            seenLists[i] = new Vector<Boolean>();
         }
     }
 
@@ -167,7 +168,12 @@ public class FragmentHome extends Fragment {
                 Log.e("OnTabSelected", (String) tab.getText());
                 String course = (String) tab.getText();
                 course_id = indexOfCourse(course);
-                rv_list.setAdapter(new MyAdapter());
+                if (insLists[course_id].size() == 0) {
+                    Toast.makeText(getContext(), "网络请求错误", Toast.LENGTH_SHORT).show();
+                    rv_list.setVisibility(View.GONE);
+                } else {
+                    rv_list.setAdapter(new MyAdapter());
+                }
             }
 
             @Override
@@ -193,7 +199,12 @@ public class FragmentHome extends Fragment {
             if (ins_cnt == (NUM_PER_PAGE * tmp_cnt)) break;
         }
         skv.setVisibility(View.INVISIBLE);
-        rv_list.setAdapter(new MyAdapter());
+        if (insLists[course_id].size() == 0) {
+            Toast.makeText(getContext(), "网络请求错误", Toast.LENGTH_SHORT).show();
+            rv_list.setVisibility(View.GONE);
+        } else {
+            rv_list.setAdapter(new MyAdapter());
+        }
 
         builder = new AlertDialog.Builder(getContext());
         builder.setTitle("选择科目");
@@ -230,7 +241,12 @@ public class FragmentHome extends Fragment {
                     if (ins_cnt == (NUM_PER_PAGE * tmp_cnt)) break;
                 }
                 Log.e("ins_cnt", String.valueOf(ins_cnt));
-                rv_list.setAdapter(new MyAdapter());
+                if (insLists[course_id].size() == 0) {
+                    Toast.makeText(getContext(), "网络请求错误", Toast.LENGTH_SHORT).show();
+                    rv_list.setVisibility(View.GONE);
+                } else {
+                    rv_list.setAdapter(new MyAdapter());
+                }
 
                 for (int i = 0; i < 9; ++i) {
                     if (courses_now[i]) {
@@ -282,16 +298,16 @@ public class FragmentHome extends Fragment {
             String number = String.valueOf(position + 1);
             holder.ins_number.setText(number);
             holder.ins_name.setText(ins.getName());
-            Boolean seen = (Boolean) seenLists[course_id].get(position);
-            if (seen) {
-                holder.ins_number.setTextColor(Color.LTGRAY);
-                holder.ins_name.setTextColor(Color.LTGRAY);
-            }
+//            Boolean seen = (Boolean) seenLists[course_id].get(position);
+//            if (seen) {
+//                holder.ins_number.setTextColor(Color.LTGRAY);
+//                holder.ins_name.setTextColor(Color.LTGRAY);
+//            }
         }
 
         @Override
         public int getItemCount() {
-            return triNow[course_id].size();
+            return insLists[course_id].size();
         }
 
         public class ViewHolder extends RecyclerView.ViewHolder {
@@ -322,7 +338,7 @@ public class FragmentHome extends Fragment {
                 e.printStackTrace();
             }
             insLists[course_id].add(ins);
-            seenLists[course_id].add(new Boolean(false));
+//            seenLists[course_id].add(new Boolean(false));
         }
         cntList[course_id] += NUM_PER_PAGE;
     }
@@ -335,7 +351,7 @@ public class FragmentHome extends Fragment {
         for (int i = 0; i < 9; ++i) {
             triNow[i].clear();
             insLists[i].clear();
-            seenLists[i].clear();
+//            seenLists[i].clear();
             cntList[i] = 0;
             for (int j = 0; j < NUM_PER_PAGE; ++j) {
                 Triple tri = (Triple) triLists[i].get(j);
@@ -360,7 +376,7 @@ public class FragmentHome extends Fragment {
                 new Response().handle(tris, _id, inss -> {
                     for (Instance ins : inss) {
                         insLists[_id].add(ins);
-                        seenLists[_id].add(new Boolean(false));
+//                        seenLists[_id].add(new Boolean(false));
                         ins_cnt++;
                     }
                     Log.e("initIns", "InsLists set");
@@ -398,9 +414,14 @@ public class FragmentHome extends Fragment {
         Triple tri = (Triple) triNow[course_id].get(pos);
         String uri = tri.getS();
         String name = ((Instance) insLists[course_id].get(pos)).getName();
-        seenLists[course_id].removeElementAt(pos);
-        seenLists[course_id].insertElementAt(new Boolean(true), pos);
-        rv_list.setAdapter(new MyAdapter());
+//        seenLists[course_id].removeElementAt(pos);
+//        seenLists[course_id].insertElementAt(new Boolean(true), pos);
+        if (insLists[course_id].size() == 0) {
+            Toast.makeText(getContext(), "网络请求错误", Toast.LENGTH_SHORT).show();
+            rv_list.setVisibility(View.GONE);
+        } else {
+            rv_list.setAdapter(new MyAdapter());
+        }
 
         FragmentInstance fi = new FragmentInstance(uri, name, course_name());
         MainActivity.fragments.add(fi);

@@ -47,6 +47,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.Vector;
 
 
@@ -60,7 +61,6 @@ public class FragmentInsDetail extends Fragment {
     private static Vector<JSONObject> feature_list;
 
     FlexibleRichTextView detail_name;
-    TextView detail_type;
     RecyclerView detail_feature;
     ImageView entity_pic;
 
@@ -86,7 +86,6 @@ public class FragmentInsDetail extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
         detail_name = view.findViewById(R.id.detail_name);
-        detail_type = view.findViewById(R.id.detail_type);
         detail_feature = view.findViewById(R.id.detail_feature);
         detail_feature.addItemDecoration(new DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL));
         detail_feature.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -110,10 +109,8 @@ public class FragmentInsDetail extends Fragment {
                     instance = ins;
                     Log.e("getInstanceDetail", instance.getEntity_name());
                     String name = "实体名称：" + ((instance.getEntity_name().equals("")) ? "无" : instance.getEntity_name());
-                    String type = "实体类别：" + ((instance.getEntity_type().equals("")) ? "无" : instance.getEntity_type());
                     requireActivity().runOnUiThread(() -> {
                         detail_name.setText(name);
-                        detail_type.setText(type);
                         JSONArray features = ins.getEntity_features();
                         try {
                             for (int i = 0; i < features.length(); ++i) {
@@ -136,7 +133,8 @@ public class FragmentInsDetail extends Fragment {
     }
     public class Response {
         public void handle (CallBack callBack) throws IOException, JSONException, InterruptedException {
-            InstanceDetail ins =  MainActivity.dataLoader.getDetailByUri(Utils.English(course), uri);
+            Log.e("FragmentInsDetail(course)", course);
+            InstanceDetail ins =  MainActivity.dataLoader.getDetailByName(course, name);
             callBack.onResponse(ins);
         }
     }
@@ -162,10 +160,17 @@ public class FragmentInsDetail extends Fragment {
         public void onBindViewHolder(@NonNull @NotNull FragmentInsDetail.FeatureAdapter.ViewHolder holder, int position) {
             JSONObject feature = feature_list.get(position);
             try {
-                holder.feature_key.setText(feature.getString("feature_key"));
-                String value = feature.getString("feature_value");
+                holder.feature_key.setText(feature.getString("predicateLabel"));
+                String value = null;
+                if (feature.has("object")) {
+                    value = feature.getString("object");
+                } else if (feature.has("subject")) {
+                    value = feature.getString("subject");
+                } else {
+                    value = "";
+                }
                 if (value.contains("http://kb.cs.tsinghua.edu.cn/apihtml/getjpg") || value.contains("http://kb.cs.tsinghua.edu.cn/apihtml/getpng")) {
-                    Glide.with(getContext())
+                    Glide.with(requireContext())
                             .load(value)
                             .centerCrop()
                             .dontTransform()

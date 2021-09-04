@@ -6,28 +6,36 @@
 
 package com.example.catedu.data;
 
+import android.util.Log;
+
+import com.google.gson.Gson;
+
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 
 public class InstanceDetail {
-    String entity_type;
+    String uri;
+    String course;
     String entity_name;
     JSONArray entity_features;
 
     public InstanceDetail() {
-        entity_type = "";
+        uri = "";
+        course = "";
         entity_name = "";
         entity_features = new JSONArray();
     }
 
-    InstanceDetail (String _t, String _n, JSONArray _f) {
-        entity_type = _t;
+    InstanceDetail (String _u, String _c, String _n, JSONArray _f) {
+        uri = _u;
+        course = _c;
         entity_name = _n;
         entity_features = _f;
     }
 
-    public String getEntity_type() {
-        return entity_type;
-    }
+    public String getUri() { return uri; }
+
+    public String getCourse() { return course; }
 
     public String getEntity_name() {
         return entity_name;
@@ -37,15 +45,22 @@ public class InstanceDetail {
         return entity_features;
     }
 
-    public void setEntity_type(String entity_type) {
-        this.entity_type = entity_type;
-    }
+    public void setUri(String uri) { this.uri = uri; }
+
+    public void setCourse(String course) { this.course = course; }
 
     public void setEntity_name(String entity_name) {
         this.entity_name = entity_name;
     }
 
-    public void setEntity_features(JSONArray entity_features) {
-        this.entity_features = entity_features;
+    public void setEntity_features(JSONArray entity_features) { this.entity_features = entity_features; }
+
+    @NotNull
+    @Override
+    public String toString() {
+        Gson gson = new Gson();
+        String res = gson.toJson(this);
+        Log.e("toString", res);
+        return res;
     }
 }

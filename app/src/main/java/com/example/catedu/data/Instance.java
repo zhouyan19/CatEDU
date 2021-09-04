@@ -16,8 +16,8 @@ public class Instance {
     }
 
     public Instance() {
-        name = "无名称";
-        type = "无类别";
+        name = "";
+        type = "";
     }
 
     // getters
