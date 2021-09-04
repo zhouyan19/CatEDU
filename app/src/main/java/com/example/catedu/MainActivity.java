@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static DataLoader dataLoader;
 
-    public com.alibaba.fastjson.JSONObject seenLists; // 每个学科已看过的实体
+    public static com.alibaba.fastjson.JSONObject seenLists; // 每个学科已看过的实体
 
     /**
      * MainActivity 创建时的操作
@@ -186,15 +186,14 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * 加入一个看过的
-     * @param course 课程名
      * @param ins 实体详情
      */
-    public void addSeen (String course, InstanceDetail ins) throws JSONException {
+    public void addSeen(InstanceDetail ins) {
         seenLists.put(ins.getUri(), ins.toString());
-        refreshCache(course, ins);
+        refreshCache(ins);
     }
 
-    protected void refreshCache (String course, InstanceDetail ins) throws JSONException {
+    protected void refreshCache(InstanceDetail ins) {
         String name = "DetailCache.dat";
         FileOutputStream outputStream;
         try {

@@ -36,6 +36,7 @@ import com.bumptech.glide.load.DecodeFormat;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.target.Target;
 import com.daquexian.flexiblerichtextview.FlexibleRichTextView;
+import com.example.catedu.data.Instance;
 import com.example.catedu.data.PicSpider;
 import com.example.catedu.data.DataLoader;
 import com.example.catedu.data.InstanceDetail;
@@ -107,6 +108,9 @@ public class FragmentInsDetail extends Fragment {
             try {
                 new Response().handle(ins -> {
                     instance = ins;
+                    MainActivity main = (MainActivity) getActivity();
+                    assert main != null;
+                    main.addSeen(ins);
                     Log.e("getInstanceDetail", instance.getEntity_name());
                     String name = "实体名称：" + ((instance.getEntity_name().equals("")) ? "无" : instance.getEntity_name());
                     requireActivity().runOnUiThread(() -> {
@@ -139,7 +143,7 @@ public class FragmentInsDetail extends Fragment {
         }
     }
     interface CallBack  {
-        void onResponse(InstanceDetail ins) throws IOException;
+        void onResponse(InstanceDetail ins) throws IOException, JSONException;
     }
 
     /**
