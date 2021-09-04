@@ -60,7 +60,6 @@ public class InstanceDetail {
     public String toString() {
         Gson gson = new Gson();
         String res = gson.toJson(this);
-        Log.e("toString", res);
         return res;
     }
 }
