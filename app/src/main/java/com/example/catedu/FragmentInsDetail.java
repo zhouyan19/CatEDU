@@ -7,26 +7,18 @@
 package com.example.catedu;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -37,9 +29,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.target.Target;
 import com.daquexian.flexiblerichtextview.FlexibleRichTextView;
 import com.example.catedu.data.PicSpider;
-import com.example.catedu.data.DataLoader;
 import com.example.catedu.data.InstanceDetail;
-import com.github.ybq.android.spinkit.SpinKitView;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
@@ -47,7 +37,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.Objects;
 import java.util.Vector;
 
 
@@ -107,6 +96,10 @@ public class FragmentInsDetail extends Fragment {
             try {
                 new Response().handle(ins -> {
                     instance = ins;
+                    MainActivity main = (MainActivity) getActivity();
+                    assert main != null;
+                    main.addSeen(uri, ins);
+                    Log.e("InsDetail", "Add Seen");
                     Log.e("getInstanceDetail", instance.getEntity_name());
                     String name = "实体名称：" + ((instance.getEntity_name().equals("")) ? "无" : instance.getEntity_name());
                     requireActivity().runOnUiThread(() -> {
@@ -115,6 +108,21 @@ public class FragmentInsDetail extends Fragment {
                         try {
                             for (int i = 0; i < features.length(); ++i) {
                                 JSONObject feature = features.getJSONObject(i);
+                                String value = null;
+                                if (feature.has("object")) {
+                                    value = feature.getString("object");
+                                } else if (feature.has("subject")) {
+                                    value = feature.getString("subject");
+                                } else {
+                                    value = "";
+                                }
+                                if (value.contains("http://www.w3")
+                                        || value.contains("http://webprotege")
+                                        || value.contains("http://kb.cs.tsinghua.edu.cn/apibztask")
+                                        || value.contains("http://edukg.")
+                                        || value.contains("http://edukb.")) {
+                                    continue;
+                                }
                                 feature_list.add(feature);
                             }
                         } catch (Exception e) {
@@ -139,7 +147,7 @@ public class FragmentInsDetail extends Fragment {
         }
     }
     interface CallBack  {
-        void onResponse(InstanceDetail ins) throws IOException;
+        void onResponse(InstanceDetail ins) throws IOException, JSONException;
     }
 
     /**

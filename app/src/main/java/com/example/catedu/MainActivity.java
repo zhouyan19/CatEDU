@@ -45,7 +45,15 @@ public class MainActivity extends AppCompatActivity {
 
     public static DataLoader dataLoader;
 
-    public com.alibaba.fastjson.JSONObject seenLists; // 每个学科已看过的实体
+    public static com.alibaba.fastjson.JSONObject seenList; // 每个学科已看过的实体
+
+    @SuppressLint("StaticFieldLeak")
+    public static FragmentHome fragment_home;
+
+    public static FragmentQuestion fragment_search;
+
+    @SuppressLint("StaticFieldLeak")
+    public static FragmentMine fragment_mine;
 
     /**
      * MainActivity 创建时的操作
@@ -62,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         setContentView(R.layout.activity_main);
-        seenLists = new com.alibaba.fastjson.JSONObject();
+        seenList = new com.alibaba.fastjson.JSONObject();
         initView();
     }
 
@@ -71,9 +79,9 @@ public class MainActivity extends AppCompatActivity {
      * 为 BottomNavigationView 绑定 Fragment
      */
     private void initView () {
-        FragmentHome fragment_home = new FragmentHome();
-        FragmentQuestion fragment_search = new FragmentQuestion();
-        FragmentMine fragment_mine = new FragmentMine();
+        fragment_home = new FragmentHome();
+        fragment_search = new FragmentQuestion();
+        fragment_mine = new FragmentMine();
 
         fragments = new Vector<>();
         fragments.add(fragment_home);
@@ -186,20 +194,21 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * 加入一个看过的
-     * @param course 课程名
      * @param ins 实体详情
      */
-    public void addSeen (String course, InstanceDetail ins) throws JSONException {
-        seenLists.put(ins.getUri(), ins.toString());
-        refreshCache(course, ins);
+    public void addSeen(String uri, InstanceDetail ins) {
+        seenList.put(uri, ins.toString());
+        Log.e("addSeen", uri);
+        fragment_home.update();
+        refreshCache(ins);
     }
 
-    protected void refreshCache (String course, InstanceDetail ins) throws JSONException {
+    protected void refreshCache(InstanceDetail ins) {
         String name = "DetailCache.dat";
         FileOutputStream outputStream;
         try {
             outputStream = openFileOutput(name, Context.MODE_PRIVATE);
-            outputStream.write(seenLists.toString().getBytes());
+            outputStream.write(seenList.toString().getBytes());
             outputStream.close();
         } catch (Exception e) {
             Log.e("RefreshCache", e.toString());

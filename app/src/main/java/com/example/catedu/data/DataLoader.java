@@ -64,8 +64,8 @@ public class DataLoader {
         URL login_url = new URL("http://open.edukg.cn/opedukg/api/typeAuth/user/login");
         HttpURLConnection conn = (HttpURLConnection) login_url.openConnection(); // 创建HttpURLConnection对象
         conn.setRequestMethod("POST"); // 请求方式为 POST
-        conn.setConnectTimeout(8000); // 设置超时
-        conn.setReadTimeout(8000);
+        conn.setConnectTimeout(12000); // 设置超时
+        conn.setReadTimeout(12000);
         conn.setDoOutput(true);
         conn.setDoInput(true);
         conn.setUseCaches(false); // Post方式不能缓存,需手动设置为false
@@ -183,8 +183,8 @@ public class DataLoader {
         URL ins_url = new URL("http://open.edukg.cn/opedukg/api/typeOpen/open/getKnowledgeCard");
         HttpURLConnection conn = (HttpURLConnection) ins_url.openConnection(); // 创建HttpURLConnection对象
         conn.setRequestMethod("POST"); // 请求方式为 POST
-        conn.setConnectTimeout(8000); // 设置超时
-        conn.setReadTimeout(8000);
+        conn.setConnectTimeout(12000); // 设置超时
+        conn.setReadTimeout(12000);
         conn.setDoOutput(true);
         conn.setDoInput(true);
         conn.setUseCaches(false); // Post方式不能缓存,需手动设置为false
@@ -239,8 +239,8 @@ public class DataLoader {
 //        URL ins_url = new URL("http://open.edukg.cn/opedukg/api/typeOpen/open/getKnowledgeCard");
 //        HttpURLConnection conn = (HttpURLConnection) ins_url.openConnection(); // 创建HttpURLConnection对象
 //        conn.setRequestMethod("POST"); // 请求方式为 POST
-//        conn.setConnectTimeout(8000); // 设置超时
-//        conn.setReadTimeout(8000);
+//        conn.setConnectTimeout(12000); // 设置超时
+//        conn.setReadTimeout(12000);
 //        conn.setDoOutput(true);
 //        conn.setDoInput(true);
 //        conn.setUseCaches(false); // Post方式不能缓存,需手动设置为false
@@ -300,8 +300,8 @@ public class DataLoader {
         conn.setDoOutput(false);
         conn.setDoInput(true);
         //设置连接超时时间和读取超时时间
-        conn.setConnectTimeout(8000);
-        conn.setReadTimeout(8000);
+        conn.setConnectTimeout(12000);
+        conn.setReadTimeout(12000);
         conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
         //连接服务器
         conn.connect();
@@ -329,8 +329,8 @@ public class DataLoader {
         URL url = new URL(root + keyword + "&course=" + course + "&id=" + id);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection(); // 创建HttpURLConnection对象
         conn.setRequestMethod("GET"); // 请求方式为 GET
-        conn.setConnectTimeout(3000); // 设置超时
-        conn.setReadTimeout(3000);
+        conn.setConnectTimeout(12000); // 设置超时
+        conn.setReadTimeout(12000);
         //Get请求不需要DoOutPut
         conn.setDoOutput(false);
         conn.setDoInput(true);
@@ -373,8 +373,8 @@ public class DataLoader {
         URL ins_url = new URL("http://open.edukg.cn/opedukg/api/typeOpen/open/linkInstance");
         HttpURLConnection conn = (HttpURLConnection) ins_url.openConnection(); // 创建HttpURLConnection对象
         conn.setRequestMethod("POST"); // 请求方式为 POST
-        conn.setConnectTimeout(5000); // 设置超时
-        conn.setReadTimeout(5000);
+        conn.setConnectTimeout(12000); // 设置超时
+        conn.setReadTimeout(12000);
         conn.setDoOutput(true);
         conn.setDoInput(true);
         conn.setUseCaches(false); // Post方式不能缓存,需手动设置为false
@@ -438,8 +438,8 @@ public class DataLoader {
         conn.setDoInput(true);
         //设置连接超时时间和读取超时时间
 
-        conn.setConnectTimeout(8000);
-        conn.setReadTimeout(8000);
+        conn.setConnectTimeout(12000);
+        conn.setReadTimeout(12000);
       
         conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
         //连接服务器
@@ -489,8 +489,8 @@ public class DataLoader {
         conn.setDoOutput(false);
         conn.setDoInput(true);
         //设置连接超时时间和读取超时时间
-        conn.setConnectTimeout(8000);
-        conn.setReadTimeout(8000);
+        conn.setConnectTimeout(12000);
+        conn.setReadTimeout(12000);
         conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
         //连接服务器
         conn.connect();

@@ -22,7 +22,6 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -148,6 +147,7 @@ public class FragmentHome extends Fragment {
         rv_list = view.findViewById(R.id.rv_list);
         rv_list.addItemDecoration(new DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL));
         rv_list.setLayoutManager(new LinearLayoutManager(getContext()));
+        rv_list.setVisibility(View.INVISIBLE);
 
         srl.setOnRefreshListener(refreshLayout -> {
             Log.e("Refresh", course_name());
@@ -168,12 +168,9 @@ public class FragmentHome extends Fragment {
                 Log.e("OnTabSelected", (String) tab.getText());
                 String course = (String) tab.getText();
                 course_id = indexOfCourse(course);
-                if (insLists[course_id].size() == 0) {
-                    Toast.makeText(getContext(), "网络请求错误", Toast.LENGTH_SHORT).show();
-                    rv_list.setVisibility(View.GONE);
-                } else {
-                    rv_list.setAdapter(new MyAdapter());
-                }
+                rv_list.setAdapter(new MyAdapter());
+                rv_list.setVisibility(View.VISIBLE);
+                Log.e("FragmentHome", "Adapter Set");
             }
 
             @Override
@@ -199,12 +196,10 @@ public class FragmentHome extends Fragment {
             if (ins_cnt == (NUM_PER_PAGE * tmp_cnt)) break;
         }
         skv.setVisibility(View.INVISIBLE);
-        if (insLists[course_id].size() == 0) {
-            Toast.makeText(getContext(), "网络请求错误", Toast.LENGTH_SHORT).show();
-            rv_list.setVisibility(View.GONE);
-        } else {
-            rv_list.setAdapter(new MyAdapter());
-        }
+
+        rv_list.setAdapter(new MyAdapter());
+        rv_list.setVisibility(View.VISIBLE);
+        Log.e("FragmentHome", "Adapter Set");
 
         builder = new AlertDialog.Builder(getContext());
         builder.setTitle("选择科目");
@@ -241,12 +236,9 @@ public class FragmentHome extends Fragment {
                     if (ins_cnt == (NUM_PER_PAGE * tmp_cnt)) break;
                 }
                 Log.e("ins_cnt", String.valueOf(ins_cnt));
-                if (insLists[course_id].size() == 0) {
-                    Toast.makeText(getContext(), "网络请求错误", Toast.LENGTH_SHORT).show();
-                    rv_list.setVisibility(View.GONE);
-                } else {
-                    rv_list.setAdapter(new MyAdapter());
-                }
+                rv_list.setAdapter(new MyAdapter());
+                rv_list.setVisibility(View.VISIBLE);
+                Log.e("FragmentHome", "Adapter Set");
 
                 for (int i = 0; i < 9; ++i) {
                     if (courses_now[i]) {
@@ -299,10 +291,13 @@ public class FragmentHome extends Fragment {
             holder.ins_number.setText(number);
             holder.ins_name.setText(ins.getName());
 //            Boolean seen = (Boolean) seenLists[course_id].get(position);
-//            if (seen) {
-//                holder.ins_number.setTextColor(Color.LTGRAY);
-//                holder.ins_name.setTextColor(Color.LTGRAY);
-//            }
+            String u = ((Triple) triLists[course_id].get(position)).getS();
+            Log.e("Contain?", u);
+            if (MainActivity.seenList.containsKey(u)) {
+                Log.e("Gray", ins.getName());
+                holder.ins_number.setTextColor(Color.LTGRAY);
+                holder.ins_name.setTextColor(Color.LTGRAY);
+            }
         }
 
         @Override
@@ -373,7 +368,7 @@ public class FragmentHome extends Fragment {
                 tris.add(tri);
             }
             try {
-                new Response().handle(tris, _id, inss -> {
+                new Response().handle(tris, inss -> {
                     for (Instance ins : inss) {
                         insLists[_id].add(ins);
 //                        seenLists[_id].add(new Boolean(false));
@@ -388,14 +383,14 @@ public class FragmentHome extends Fragment {
     }
 
     public class Response {
-        public void handle(Vector<Triple> tris, int _id, CallBack callBack) throws InterruptedException {
+        public void handle(Vector<Triple> tris, CallBack callBack) throws InterruptedException {
             Vector<Instance> inss = new Vector<>();
             for (int i = 0; i < tris.size(); ++i) inss.add(new Instance());
             for (int i = 0; i < tris.size(); ++i) {
                 Triple tri = tris.get(i);
-                Log.e("Response", tri.getS());
+                Log.e("Response(uri)", tri.getS());
                 Instance ins = MainActivity.dataLoader.getInstance(Utils.English(courses_all[course_id]), tri.getS());
-                Log.e("Response", ins.getName());
+                Log.e("Response(name)", ins.getName());
                 inss.set(i, ins);
             }
             callBack.onResponse(inss);
@@ -414,14 +409,9 @@ public class FragmentHome extends Fragment {
         Triple tri = (Triple) triNow[course_id].get(pos);
         String uri = tri.getS();
         String name = ((Instance) insLists[course_id].get(pos)).getName();
+
 //        seenLists[course_id].removeElementAt(pos);
 //        seenLists[course_id].insertElementAt(new Boolean(true), pos);
-        if (insLists[course_id].size() == 0) {
-            Toast.makeText(getContext(), "网络请求错误", Toast.LENGTH_SHORT).show();
-            rv_list.setVisibility(View.GONE);
-        } else {
-            rv_list.setAdapter(new MyAdapter());
-        }
 
         FragmentInstance fi = new FragmentInstance(uri, name, course_name());
         MainActivity.fragments.add(fi);
@@ -439,4 +429,9 @@ public class FragmentHome extends Fragment {
         MainActivity.last_fragment = to; // 更新
     }
 
+    public void update () {
+        Log.e("Update!", "FragmentHome");
+        Log.e("seenList", MainActivity.seenList.toJSONString());
+        rv_list.setAdapter(new MyAdapter());
+    }
 }
