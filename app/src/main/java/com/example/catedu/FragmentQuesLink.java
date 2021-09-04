@@ -203,7 +203,7 @@ public class FragmentQuesLink extends Fragment {
             }
         });
     }
-
+    // 去除高亮效果
     private void clearTextSpan(){
         Editable et = input.getText();
         ForegroundColorSpan[] toRemoveSpans = et.getSpans(0, et.length(), ForegroundColorSpan.class);
@@ -301,11 +301,7 @@ public class FragmentQuesLink extends Fragment {
             }
         }
     }
-
-    /**
-     * 查看实体详情
-     * @param pos 实体的序号
-     */
+    
     public void showDetail (int pos) {
         InstanceWithUri ins = resultList.get(pos);
         Log.i("showDetail", String.valueOf(pos + 1));

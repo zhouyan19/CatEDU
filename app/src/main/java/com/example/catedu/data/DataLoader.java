@@ -320,7 +320,10 @@ public class DataLoader {
         String uri = data.getString("uri");
         return new InstanceDetail(uri, course, name, property);
     }
-
+    /**
+     * GET 请求根据 keyword 进行模糊搜索实体名称
+     * 返回InstanceWithUri的Vector，元素包含name, type, uri
+     */
     public Vector<InstanceWithUri> getInstanceListByString(String course, String keyword) throws IOException, JSONException {
         String root = "http://open.edukg.cn/opedukg/api/typeOpen/open/instanceList?searchKey=";
         URL url = new URL(root + keyword + "&course=" + course + "&id=" + id);
@@ -362,7 +365,10 @@ public class DataLoader {
         }
         return vector;
     }
-
+    /**
+     * POST 请求根据一段文本queryText 通过linkInstance接口获得匹配的实体
+     * 返回InstanceEnbedding包含实体在文本中的位置信息，以便高亮处理
+     */
     public Vector<InstanceEnbedding> getLinkInstanceList(String course, String queryText) throws IOException, JSONException {
         URL ins_url = new URL("http://open.edukg.cn/opedukg/api/typeOpen/open/linkInstance");
         HttpURLConnection conn = (HttpURLConnection) ins_url.openConnection(); // 创建HttpURLConnection对象
