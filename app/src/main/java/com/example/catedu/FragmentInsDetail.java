@@ -39,6 +39,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Vector;
 
 
@@ -269,6 +270,10 @@ public class FragmentInsDetail extends Fragment {
 
     public String getPicUrl () {
         return picUrl;
+    }
+
+    public String getInsString () {
+        return instance.toString();
     }
 
 }

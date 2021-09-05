@@ -2,6 +2,8 @@ package com.example.catedu;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,19 +22,24 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.alibaba.fastjson.JSONObject;
 import com.androidkun.xtablayout.XTabLayout;
 import com.github.ybq.android.spinkit.SpinKitView;
 
 import org.json.JSONException;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import java.io.IOException;
-import java.util.Map;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.Vector;
 
@@ -43,6 +50,8 @@ public class FragmentInstance extends Fragment {
     public static Vector<Fragment> fragments;
     public static int last_fragment;
     public static int loaded;
+    public static boolean liked;
+
     FragmentInsDetail fragment_ins_detail;
     FragmentInsQues fragment_ins_ques;
     FragmentInsRelated fragment_ins_related;
@@ -57,6 +66,10 @@ public class FragmentInstance extends Fragment {
     AlertDialog alert;
     AlertDialog.Builder builder;
 
+    ImageButton shareBtn;
+    ImageButton likeBtn;
+    TextView cancelTv;
+
     public FragmentInstance (String _u, String _n, String _c) {
         Log.e("FragmentInstance", "New!");
         uri = _u;
@@ -64,6 +77,7 @@ public class FragmentInstance extends Fragment {
         course = _c;
         loaded = 0;
         last_fragment = 0;
+        liked = false;
     }
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -182,9 +196,9 @@ public class FragmentInstance extends Fragment {
         }
 
         private void initView() {
-            ImageButton shareBtn = view.findViewById(R.id.button_share);
-            ImageButton likeBtn = view.findViewById(R.id.button_like);
-            TextView cancelTv = view.findViewById(R.id.share_cancel);
+            shareBtn = view.findViewById(R.id.button_share);
+            likeBtn = view.findViewById(R.id.button_like);
+            cancelTv = view.findViewById(R.id.share_cancel);
 
             shareBtn.setOnClickListener(v -> {
                 try {
@@ -195,7 +209,17 @@ public class FragmentInstance extends Fragment {
             });
 
             likeBtn.setOnClickListener(v -> {
-                likeBtn.setImageResource(R.mipmap.like_yes);
+                SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("user", Context.MODE_PRIVATE);
+                String token = sharedPreferences.getString("token",null);
+                if (token == null) { // 未登录
+                    Toast.makeText(getActivity(), "请先登录！", Toast.LENGTH_SHORT).show();
+                } else {
+                    if (liked) { // 取消收藏
+                        removeLike(token);
+                    } else { // 添加收藏
+                        addToLike(token);
+                    }
+                }
             });
 
             cancelTv.setOnClickListener(v -> dismiss());
@@ -258,6 +282,68 @@ public class FragmentInstance extends Fragment {
 
         alert.show();
 
+    }
+
+    public void addToLike (String token) {
+        JSONObject body = new JSONObject();
+        body.put("token", token);
+        body.put("insUri", uri);
+        body.put("detail", fragment_ins_detail.getInsString());
+        String request_url = "http://82.156.215.178:8080/user/addStars";
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put("Content-Type", "application/json");
+        new Thread (() -> {
+            Document doc = null;
+            try {
+                doc = Jsoup.connect(request_url).headers(headers).requestBody(body.toString()).ignoreContentType(true).post();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (doc != null) {
+                Element content = doc.body();
+                String str = content.text();
+                JSONObject res = JSONObject.parseObject(str);
+                Log.e("addToLike", res.toString());
+                if (res.containsKey("success") || res.getString("success").equals("true")) {
+                    liked = true;
+                    likeBtn.setImageResource(R.mipmap.like_yes);
+                    requireActivity().runOnUiThread(() -> Toast.makeText(getActivity(), "添加收藏成功", Toast.LENGTH_SHORT).show());
+                } else {
+                    requireActivity().runOnUiThread(() -> Toast.makeText(getActivity(), "网络请求错误", Toast.LENGTH_SHORT).show());
+                }
+            }
+        }).start();
+    }
+
+    public void removeLike (String token) {
+        JSONObject body = new JSONObject();
+        body.put("token", token);
+        body.put("insUri", uri);
+        body.put("detail", fragment_ins_detail.getInsString());
+        String request_url = "http://82.156.215.178:8080/user/rmStars";
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put("Content-Type", "application/json");
+        new Thread (() -> {
+            Document doc = null;
+            try {
+                doc = Jsoup.connect(request_url).headers(headers).requestBody(body.toString()).ignoreContentType(true).post();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (doc != null) {
+                Element content = doc.body();
+                String str = content.text();
+                JSONObject res = JSONObject.parseObject(str);
+                Log.e("removeLike", res.toString());
+                if (res.containsKey("success") || res.getString("success").equals("true")) {
+                    liked = false;
+                    likeBtn.setImageResource(R.mipmap.like_no);
+                    requireActivity().runOnUiThread(() -> Toast.makeText(getActivity(), "取消收藏成功", Toast.LENGTH_SHORT).show());
+                } else {
+                    requireActivity().runOnUiThread(() -> Toast.makeText(getActivity(), "网络请求错误", Toast.LENGTH_SHORT).show());
+                }
+            }
+        }).start();
     }
 
 }
