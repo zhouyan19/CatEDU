@@ -9,5 +9,6 @@
     <color name="qa_card">#FF7F28</color>
     <color name="main_highlight">#EC881D</color>
     <color name="text_grey">#FF333333</color>
->>>>>>> main
+    <color name="chat_background">#FDFAFB</color>
+    <color name="chat_bottom_bar">#F8F0F0</color>
 </resources>

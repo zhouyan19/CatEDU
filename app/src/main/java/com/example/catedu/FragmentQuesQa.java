@@ -1,22 +1,42 @@
 package com.example.catedu;
 
+import static com.google.android.material.resources.MaterialResources.getDrawable;
 import static cn.jiguang.imui.commons.models.IMessage.MessageType.RECEIVE_TEXT;
 import static cn.jiguang.imui.commons.models.IMessage.MessageType.SEND_TEXT;
 
+import android.annotation.SuppressLint;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.os.Message;
+import android.text.Editable;
+import android.text.Spannable;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.Spinner;
+
+import com.example.catedu.data.InstanceDetail;
+import com.example.catedu.data.InstanceEnbedding;
+import com.example.catedu.data.InstanceWithUri;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import cn.jiguang.imui.commons.ImageLoader;
 import cn.jiguang.imui.commons.models.IMessage;
@@ -24,20 +44,30 @@ import cn.jiguang.imui.commons.models.IUser;
 import cn.jiguang.imui.messages.MessageList;
 import cn.jiguang.imui.messages.MsgListAdapter;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Comparator;
+import java.util.Random;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
+import java.util.Vector;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link FragmentQuesQa#newInstance} factory method to
- * create an instance of this fragment.
- */
+
 public class FragmentQuesQa extends Fragment {
-
+    private final String[] courses = {"语文", "数学", "英语", "物理", "化学", "生物", "历史", "地理", "政治"};
+    private int courseId = 0;
+    private String question = "";
     ImageButton back_home;
+    Spinner spinner;
     MessageList messageList;
     ImageLoader imageLoader;
+    MsgListAdapter adapter;
+    int selfie_num = (int)(Math.random() * 11) + 1;
+
 
     Button testBtn;
+    EditText editText;
 
 
 
@@ -61,9 +91,7 @@ public class FragmentQuesQa extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_ques_qa, container, false);
     }
 
@@ -77,28 +105,81 @@ public class FragmentQuesQa extends Fragment {
                 throwable.printStackTrace();
             }
         });
+        editText = view.findViewById(R.id.edittext);
+        spinner = view.findViewById(R.id.sp_course);
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(this.getContext(), R.layout.nav_spinner_item, courses);
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(spinnerAdapter);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) { courseId = pos; }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+        imageLoader = new ImageLoader() {
+            @Override
+            public void loadImage(ImageView imageView, String user) {
+                if(user=="receive")
+                    imageView.setImageResource(R.drawable.robot);
+                else{
+                    String image_name = "avatar_icon_" + selfie_num;
+                    int src = getActivity().getResources().getIdentifier(image_name, "drawable", getActivity().getPackageName());
+                    imageView.setImageResource(src);
+                }
+
+            }
+        };
+
         messageList = view.findViewById(R.id.msg_list);
 //        MsgListAdapter adapter = new MsgListAdapter<>("0", holdersConfig, imageLoader);
-        MsgListAdapter adapter = new MsgListAdapter<>("0", imageLoader);
+        adapter = new MsgListAdapter<>("0", imageLoader);
         messageList.setAdapter(adapter);
 
 
-        testBtn = view.findViewById(R.id.btn_test);
+
+
+        testBtn = view.findViewById(R.id.btn_send);
         testBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                adapter.addToStart(new MyMessage("测试提问", SEND_TEXT), true);
+                MyMessage myMessage = new MyMessage(editText.getText().toString(), SEND_TEXT);
+                myMessage.setUserInfo(new DefaultUser("00", "Admin", "send"));
+                adapter.addToStart(myMessage, true);
+                editText.setText("");
                 messageList.setAdapter(adapter);
-                try{
-                    Thread.sleep(1000);
-                }catch (Throwable e){}
-
-                adapter.addToStart(new MyMessage("测试回答", RECEIVE_TEXT), true);
-                messageList.setAdapter(adapter);
-
+                fetchAnswer();
             }
         });
+    }
 
+    @SuppressLint("Get Answer from dataloader")
+    //load info
+    public void fetchAnswer() {
+        new Thread(() -> {
+            try {
+                new FragmentQuesQa.Response().handle(answer -> {
+
+
+                    requireActivity().runOnUiThread(() -> {
+                        MyMessage myMessage = new MyMessage(answer, RECEIVE_TEXT);
+                        myMessage.setUserInfo(new DefaultUser("00", "Robot", "receive"));
+                        adapter.addToStart(myMessage, true);
+                        messageList.setAdapter(adapter);
+                    });
+                });
+            } catch (JSONException | IOException | InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+    public class Response {
+        public void handle (FragmentQuesQa.CallBack callBack) throws IOException, JSONException, InterruptedException {
+            String answer = MainActivity.dataLoader.getAnswer(Utils.English(courses[courseId]), question);
+            callBack.onResponse(answer);
+        }
+    }
+    interface CallBack  {
+        void onResponse(String answer) throws IOException;
     }
 
     public class MyMessage implements IMessage {
