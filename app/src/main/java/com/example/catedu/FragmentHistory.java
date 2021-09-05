@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -68,7 +69,7 @@ public class FragmentHistory extends Fragment {
         mRecycleView.setAdapter(myAdapter);//设置适配器
 
         mRecycleView.setLayoutManager(new LinearLayoutManager(getActivity()));
-
+        mRecycleView.addItemDecoration(new DividerItemDecoration(getActivity(),DividerItemDecoration.VERTICAL));
         mRecycleView.setItemAnimator(new DefaultItemAnimator());
 
     }
