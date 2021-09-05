@@ -29,7 +29,6 @@
     <string name="submit">提交</string>
     <string name="back">返回</string>
     <string name="search">搜索</string>
-    <string name="detail_name" />
     <string name="detail_type" />
     <string name="text_ins_ques">试题</string>
     <string name="text_ins_related">相关实体</string>
@@ -40,7 +39,10 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="cancel">取消</string>
+    <string name="confirm">确认</string>
     <string name="weibo_share">微博分享</string>
     <string name="like_text">加入收藏</string>
     <string name="more_text">更多操作</string>
+    <string name="share_text">分享至微博：</string>
+    <string name="share_summary">我在猫辅导里发现了有趣的知识！快来一起看看吧！</string>
 </resources>

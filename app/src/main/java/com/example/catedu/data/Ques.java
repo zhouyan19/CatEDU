@@ -27,11 +27,9 @@ public class Ques {
 
     @Override
     public String toString() {
-        return "Ques{" +
-                "qAnswer='" + qAnswer + '\'' +
-                ", id='" + id + '\'' +
-                ", qBody='" + qBody + '\'' +
-                '}';
+        String text = "答案：" + qAnswer + "\n";
+        text += ("题目：" + qBody);
+        return text;
     }
 
     public void print () {

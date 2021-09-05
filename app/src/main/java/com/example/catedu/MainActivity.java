@@ -10,20 +10,40 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.alibaba.fastjson.JSONObject;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DecodeFormat;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.request.target.Target;
 import com.example.catedu.data.DataLoader;
 import com.example.catedu.data.InstanceDetail;
+import com.example.catedu.data.PicSpider;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.sina.weibo.sdk.api.ImageObject;
+import com.sina.weibo.sdk.api.TextObject;
+import com.sina.weibo.sdk.api.WeiboMultiMessage;
+import com.sina.weibo.sdk.auth.AuthInfo;
+import com.sina.weibo.sdk.auth.Oauth2AccessToken;
+import com.sina.weibo.sdk.auth.WbAuthListener;
+import com.sina.weibo.sdk.common.UiError;
+import com.sina.weibo.sdk.openapi.IWBAPI;
+import com.sina.weibo.sdk.openapi.WBAPIFactory;
+import com.sina.weibo.sdk.share.WbShareCallback;
 
 import org.scilab.forge.jlatexmath.core.AjLatexMath;
 
@@ -32,6 +52,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Objects;
 import java.util.Vector;
 
@@ -54,6 +77,13 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("StaticFieldLeak")
     public static FragmentMine fragment_mine;
 
+    IWBAPI mWBAPI;
+    private static final String APP_KY = "3099333889";
+    private static final String REDIRECT_URL = "https://api.weibo.com/oauth2/default.html";
+    private static final String SCOPE = "";
+
+    public static WeiboSDK weibo;
+
     /**
      * MainActivity 创建时的操作
      */
@@ -63,13 +93,15 @@ public class MainActivity extends AppCompatActivity {
         Objects.requireNonNull(getSupportActionBar()).hide();
         AjLatexMath.init(this);
         CodeProcessor.init(this);
+        weibo = new WeiboSDK();
+        weibo.initSdk();
         try {
             dataLoader = new DataLoader();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         setContentView(R.layout.activity_main);
-        seenList = new com.alibaba.fastjson.JSONObject();
+        seenList = null;
         seenList = readCache();
         initView();
     }
@@ -197,6 +229,7 @@ public class MainActivity extends AppCompatActivity {
      * @param ins 实体详情
      */
     public void addSeen(String uri, InstanceDetail ins) {
+        if (seenList == null) seenList = new JSONObject();
         seenList.put(uri, ins.toString());
         Log.e("addSeen", uri);
         fragment_home.update();
@@ -258,7 +291,66 @@ public class MainActivity extends AppCompatActivity {
             Log.e("closeExc", e.toString());
         }
         String res = new String(b);
+        if (res.equals("")) {
+            seenList = null;
+            return null;
+        }
         seenList = JSONObject.parseObject(res);
         return seenList;
     }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable
+            Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (mWBAPI != null) {
+            mWBAPI.authorizeCallback(requestCode, resultCode, data);
+        }
+    }
+
+
+    public class WeiboSDK {
+        public void initSdk() {
+            AuthInfo authInfo = new AuthInfo(MainActivity.this, APP_KY, REDIRECT_URL, SCOPE);
+            mWBAPI = WBAPIFactory.createWBAPI(MainActivity.this);
+            mWBAPI.registerApp(MainActivity.this, authInfo);
+        }
+    }
+
+    public void doWeiboShare(String text, String picUrl) {
+        WeiboMultiMessage message = new WeiboMultiMessage();
+        TextObject textObject = new TextObject();
+        // 分享⽂字
+        textObject.text = text;
+        message.textObject = textObject;
+
+        if (!picUrl.equals("")) {
+            ImageObject imageObject = new ImageObject();
+            new Thread(() -> {
+                try {
+                    new Response().handle(picUrl, bitmap -> {
+                        imageObject.setImageData(bitmap);
+                        message.imageObject = imageObject;
+                        mWBAPI.shareMessage(message, true);
+                    });
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }).start();
+        } else {
+            mWBAPI.shareMessage(message, true);
+        }
+    }
+
+    public class Response {
+        public void handle (String pu, CallBack callBack) throws IOException {
+            Bitmap bitmap = BitmapFactory.decodeStream(new URL(pu).openStream());
+            callBack.onResponse(bitmap);
+        }
+    }
+    interface CallBack  {
+        void onResponse(Bitmap bitmap) throws IOException;
+    }
+
 }

@@ -7,6 +7,7 @@
 package com.example.catedu;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Message;
 import android.util.Log;
@@ -15,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -246,4 +248,28 @@ public class FragmentInsDetail extends Fragment {
         void onResponse(String res) throws IOException;
     }
 
+    public String getText () throws JSONException {
+        String res = "";
+        res += ("实体名称：" + name + "\n");
+        res += ("所属学科：" + Utils.Chinese(course) + "\n");
+        for (int i = 0; i < feature_list.size(); ++i) {
+            JSONObject feature = feature_list.get(i);
+            String key = feature.getString("predicateLabel");
+            String value = "";
+            if (feature.has("object")) {
+                value = feature.getString("object");
+            } else if (feature.has("subject")) {
+                value = feature.getString("subject");
+            }
+            res += (key + "：" + value + "\n");
+        }
+        res = res.substring(0, res.length() - 1);
+        return res;
+    }
+
+    public String getPicUrl () {
+        return picUrl;
+    }
+
 }
+

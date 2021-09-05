@@ -292,10 +292,12 @@ public class FragmentHome extends Fragment {
             holder.ins_name.setText(ins.getName());
 //            Boolean seen = (Boolean) seenLists[course_id].get(position);
             String u = ((Triple) triLists[course_id].get(position)).getS();
-            if (MainActivity.seenList.containsKey(u)) {
-                Log.e("Gray", ins.getName());
-                holder.ins_number.setTextColor(Color.LTGRAY);
-                holder.ins_name.setTextColor(Color.LTGRAY);
+            if (MainActivity.seenList != null) {
+                if (MainActivity.seenList.containsKey(u)) {
+                    Log.e("Gray", ins.getName());
+                    holder.ins_number.setTextColor(Color.LTGRAY);
+                    holder.ins_name.setTextColor(Color.LTGRAY);
+                }
             }
         }
 
