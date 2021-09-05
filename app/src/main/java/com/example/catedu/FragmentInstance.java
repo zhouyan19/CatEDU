@@ -1,6 +1,7 @@
 package com.example.catedu;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -12,8 +13,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -26,7 +29,11 @@ import androidx.fragment.app.FragmentTransaction;
 import com.androidkun.xtablayout.XTabLayout;
 import com.github.ybq.android.spinkit.SpinKitView;
 
+import org.json.JSONException;
+
+import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Vector;
 
 public class FragmentInstance extends Fragment {
@@ -46,6 +53,9 @@ public class FragmentInstance extends Fragment {
 
     ImageButton more_op;
     CustomPopWindow pop_window;
+
+    AlertDialog alert;
+    AlertDialog.Builder builder;
 
     public FragmentInstance (String _u, String _n, String _c) {
         Log.e("FragmentInstance", "New!");
@@ -162,14 +172,14 @@ public class FragmentInstance extends Fragment {
     public class CustomPopWindow extends PopupWindow {
         private final View view;
 
+        @SuppressLint("InflateParams")
         public CustomPopWindow() {
             super();
-            LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(getContext().LAYOUT_INFLATER_SERVICE);
+            LayoutInflater inflater = (LayoutInflater) requireContext().getSystemService(getContext().LAYOUT_INFLATER_SERVICE);
             view = inflater.inflate(R.layout.widget_popupwindow, null);
             initView();
             initPopWindow();
         }
-
 
         private void initView() {
             ImageButton shareBtn = view.findViewById(R.id.button_share);
@@ -177,8 +187,13 @@ public class FragmentInstance extends Fragment {
             TextView cancelTv = view.findViewById(R.id.share_cancel);
 
             shareBtn.setOnClickListener(v -> {
-
+                try {
+                    doShareDetail();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             });
+
             likeBtn.setOnClickListener(v -> {
                 likeBtn.setImageResource(R.mipmap.like_yes);
             });
@@ -205,11 +220,44 @@ public class FragmentInstance extends Fragment {
         }
 
         public void backgroundAlpha(float bgAlpha) {
-            WindowManager.LayoutParams lp = getActivity().getWindow().getAttributes();
+            WindowManager.LayoutParams lp = requireActivity().getWindow().getAttributes();
             lp.alpha = bgAlpha;
-            getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
-            getActivity().getWindow().setAttributes(lp);
+            requireActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+            requireActivity().getWindow().setAttributes(lp);
         }
+    }
+
+    public void doShareDetail () throws JSONException {
+        String text = fragment_ins_detail.getText();
+        String picUrl = fragment_ins_detail.getPicUrl();
+        MainActivity main = (MainActivity) getActivity();
+        assert main != null;
+        LinearLayout share_pop = (LinearLayout) getLayoutInflater().inflate(R.layout.share_popupwindow, null);
+        share_pop.setBackgroundResource(R.drawable.pop_border);
+        TextView share_summary = share_pop.findViewById(R.id.share_summary);
+        TextView cancel = share_pop.findViewById(R.id.share_cancel);
+        TextView confirm = share_pop.findViewById(R.id.share_confirm);
+
+        String summary;
+        if (text.length() > 100) summary = text.substring(0, 50) + "......";
+        else summary = text;
+        share_summary.setText(summary);
+        alert = null;
+        builder = new AlertDialog.Builder(getContext());;
+        builder.setView(share_pop);
+        alert = builder.create();
+
+        cancel.setOnClickListener(v -> {
+            alert.dismiss();
+        });
+        confirm.setOnClickListener(v -> {
+            main.doWeiboShare(text, picUrl);
+            alert.dismiss();
+            pop_window.dismiss();
+        });
+
+        alert.show();
+
     }
 
 }

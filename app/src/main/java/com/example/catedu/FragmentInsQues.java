@@ -1,6 +1,7 @@
 package com.example.catedu;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Message;
@@ -13,6 +14,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
@@ -61,6 +63,9 @@ public class FragmentInsQues extends Fragment {
     NestedScrollView nested_scroll;
 
     CustomPopWindow pop_window;
+
+    AlertDialog alert;
+    AlertDialog.Builder builder;
 
     FragmentInsQues (String _n) {
         Log.e("FragmentInsQues", "New!");
@@ -233,7 +238,7 @@ public class FragmentInsQues extends Fragment {
             }
 
             holder.more_op.setOnClickListener(v -> {
-                pop_window = new CustomPopWindow();
+                pop_window = new CustomPopWindow(position);
                 pop_window.showAtLocation(v,
                         Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
                 pop_window.setOnDismissListener(() -> pop_window.backgroundAlpha(1f));
@@ -284,9 +289,11 @@ public class FragmentInsQues extends Fragment {
 
     public class CustomPopWindow extends PopupWindow {
         private final View view;
+        private int position;
 
-        public CustomPopWindow() {
+        public CustomPopWindow(int pos) {
             super();
+            position = pos;
             LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(getContext().LAYOUT_INFLATER_SERVICE);
             view = inflater.inflate(R.layout.widget_popupwindow, null);
             initView();
@@ -300,7 +307,7 @@ public class FragmentInsQues extends Fragment {
             TextView likeText = view.findViewById(R.id.like_text);
 
             shareBtn.setOnClickListener(v -> {
-
+                doShareQues(position);
             });
 
             likeBtn.setVisibility(View.GONE);
@@ -335,4 +342,36 @@ public class FragmentInsQues extends Fragment {
         }
     }
 
+    public void doShareQues (int pos) {
+        Ques ques = ques_vec.get(pos);
+        String text = ques.toString();
+        MainActivity main = (MainActivity) getActivity();
+        assert main != null;
+
+        LinearLayout share_pop = (LinearLayout) getLayoutInflater().inflate(R.layout.share_popupwindow, null);
+        share_pop.setBackgroundResource(R.drawable.pop_border);
+        TextView share_summary = share_pop.findViewById(R.id.share_summary);
+        TextView cancel = share_pop.findViewById(R.id.share_cancel);
+        TextView confirm = share_pop.findViewById(R.id.share_confirm);
+
+        String summary;
+        if (text.length() > 100) summary = text.substring(0, 50) + "......";
+        else summary = text;
+        share_summary.setText(summary);
+        alert = null;
+        builder = new AlertDialog.Builder(getContext());;
+        builder.setView(share_pop);
+        alert = builder.create();
+
+        cancel.setOnClickListener(v -> {
+            alert.dismiss();
+        });
+        confirm.setOnClickListener(v -> {
+            main.doWeiboShare(text, "");
+            alert.dismiss();
+            pop_window.dismiss();
+        });
+
+        alert.show();
+    }
 }
