@@ -23,17 +23,17 @@ import com.alibaba.fastjson.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FragmentHistory extends Fragment {
+public class FragmentStars extends Fragment {
 
     RecyclerView mRecycleView;
-    HistoryAdapter myAdapter;
-    ArrayList<String> historyData;
+    StarsAdapter myAdapter;
+    ArrayList<String> StarsData;
     private ImageButton backButton;
     MainActivity main;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_history, container, false);
+        return inflater.inflate(R.layout.fragment_stars, container, false);
     }
 
     @Override
@@ -52,20 +52,20 @@ public class FragmentHistory extends Fragment {
 
     private void initdata() {
         JSONObject jsonObject=main.readCache();
-        historyData = new ArrayList<String>();
+        StarsData = new ArrayList<String>();
         for (String str :
                 jsonObject.keySet()) {
-            historyData.add(str);
+            StarsData.add(str);
         }
 //        for (int i = 0; i < 12; i++) {
-//            String history=String.valueOf(i);
-//            historyData.add(history);
+//            String Stars=String.valueOf(i);
+//            StarsData.add(Stars);
 //        }
     }
 
     void initview(View view) {
         mRecycleView = (RecyclerView) view.findViewById(R.id.recycleview);
-        myAdapter = new HistoryAdapter(getActivity(), historyData);
+        myAdapter = new StarsAdapter(getActivity(), StarsData);
         mRecycleView.setAdapter(myAdapter);//设置适配器
 
         mRecycleView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -91,27 +91,27 @@ public class FragmentHistory extends Fragment {
     }
 }
 
-class HistoryViewHolder extends RecyclerView.ViewHolder {
+class StarsViewHolder extends RecyclerView.ViewHolder {
 
     TextView textView;
     RelativeLayout relativeLayout;
 
-    public HistoryViewHolder(View itemView) {
+    public StarsViewHolder(View itemView) {
         super(itemView);
         relativeLayout = (RelativeLayout) itemView;
-        textView = (TextView) itemView.findViewById(R.id.history_item);
+        textView = (TextView) itemView.findViewById(R.id.stars_item);
     }
 
 }
 
-class HistoryAdapter extends RecyclerView.Adapter<HistoryViewHolder> {
+class StarsAdapter extends RecyclerView.Adapter<StarsViewHolder> {
     private LayoutInflater inflater;
     private Context mContext;
     private List<String> mDatas;
     // add click callback
 
     //创建构造参数
-    public HistoryAdapter(Context context, List<String> datas) {
+    public StarsAdapter(Context context, List<String> datas) {
         this.mContext = context;
         this.mDatas = datas;
         inflater = LayoutInflater.from(context);
@@ -119,15 +119,15 @@ class HistoryAdapter extends RecyclerView.Adapter<HistoryViewHolder> {
 
     //创建ViewHolder
     @Override
-    public HistoryViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = inflater.inflate(R.layout.history_item, parent, false);
-        HistoryViewHolder viewHolder = new HistoryViewHolder(view);
+    public StarsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = inflater.inflate(R.layout.stars_item, parent, false);
+        StarsViewHolder viewHolder = new StarsViewHolder(view);
         return viewHolder;
     }
 
     //绑定ViewHolder
     @Override
-    public void onBindViewHolder(HistoryViewHolder holder, int position) {
+    public void onBindViewHolder(StarsViewHolder holder, int position) {
         holder.textView.setText(mDatas.get(position));
     }
 
