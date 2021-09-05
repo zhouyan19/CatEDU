@@ -13,7 +13,7 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:theme="@style/Theme.CatEDU"
         xmlns:tools="http://schemas.android.com/tools"
-        tools:replace="label">
+        tools:replace="label, android:icon">
         <activity android:name=".MainActivity" />
         <activity android:name=".StartActivity">
             <intent-filter>
