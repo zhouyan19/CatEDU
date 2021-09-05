@@ -191,16 +191,21 @@ public class FragmentQuesLink extends Fragment {
             try {
                 new Response().handle(res -> {
                     // remove duplicate
-                    Set<InstanceWithUri> set = new TreeSet<>(new Comparator<InstanceWithUri>() {
-                        @Override
-                        public int compare(InstanceWithUri insA, InstanceWithUri insB) {
-                            return insA.getName().hashCode() - insB.getName().hashCode(); //要实现两个对象大小可比
-                        }
-                    });
+//                    Set<InstanceWithUri> set = new TreeSet<>(new Comparator<InstanceWithUri>() {
+//                        @Override
+//                        public int compare(InstanceWithUri insA, InstanceWithUri insB) {
+//                            return insA.getName().hashCode() - insB.getName().hashCode(); //要实现两个对象大小可比
+//                        }
+//                    });
+//                    for(InstanceEnbedding insEnb : res)
+//                        set.add(insEnb.getInstanceWithUri());
+//                    resultList.clear();
+//                    resultList.addAll(set);
+                    // remove duplicate while keeping order
                     for(InstanceEnbedding insEnb : res)
-                        set.add(insEnb.getInstanceWithUri());
-                    resultList.clear();
-                    resultList.addAll(set);
+                        if(!resultList.contains(insEnb.getInstanceWithUri()))
+                            resultList.add(insEnb.getInstanceWithUri());
+
 
                     requireActivity().runOnUiThread(() -> {
                         // set highlight span
