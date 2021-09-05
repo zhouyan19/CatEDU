@@ -7,7 +7,8 @@
 package com.example.catedu;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Message;
 import android.util.Log;
@@ -16,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -36,9 +38,13 @@ import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import java.io.IOException;
-import java.time.Instant;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Vector;
 
 
@@ -85,11 +91,7 @@ public class FragmentInsDetail extends Fragment {
 
         getInstanceDetail();
 
-        try {
-            setPic(name);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        setPic();
     }
 
     @SuppressLint("SetTextI18n")
@@ -102,7 +104,9 @@ public class FragmentInsDetail extends Fragment {
                     assert main != null;
                     main.addSeen(uri, ins);
                     Log.e("InsDetail", "Add Seen");
-                    Log.e("getInstanceDetail", instance.getEntity_name());
+
+                    addHistory();
+
                     String name = "实体名称：" + ((instance.getEntity_name().equals("")) ? "无" : instance.getEntity_name());
                     requireActivity().runOnUiThread(() -> {
                         detail_name.setText(name);
@@ -215,7 +219,7 @@ public class FragmentInsDetail extends Fragment {
         }
     }
 
-    public void setPic(String name) throws IOException {
+    public void setPic() {
         new Thread(() -> {
             try {
                 new Response2().handle(res -> {
@@ -273,6 +277,38 @@ public class FragmentInsDetail extends Fragment {
 
     public String getInsString () {
         return instance.toString();
+    }
+
+    public void addHistory () {
+        SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("user", Context.MODE_PRIVATE);
+        String token = sharedPreferences.getString("token",null);
+        if (token == null) return;
+        com.alibaba.fastjson.JSONObject body = new com.alibaba.fastjson.JSONObject();
+        body.put("token", token);
+        body.put("insUri", uri);
+        body.put("detail", getInsString());
+        body.put("time", new Date().getTime());
+        String request_url = "http://82.156.215.178:8080/user/addHistory";
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put("Content-Type", "application/json");
+        new Thread (() -> {
+            Document doc = null;
+            try {
+                doc = Jsoup.connect(request_url).headers(headers).requestBody(body.toString()).ignoreContentType(true).post();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (doc != null) {
+                Element content = doc.body();
+                String str = content.text();
+                com.alibaba.fastjson.JSONObject res = com.alibaba.fastjson.JSONObject.parseObject(str);
+                Log.e("addHistory", res.toString());
+                if (res.containsKey("success") || res.getString("success").equals("true")) {
+                } else {
+                    requireActivity().runOnUiThread(() -> Toast.makeText(getActivity(), "网络请求错误", Toast.LENGTH_SHORT).show());
+                }
+            }
+        }).start();
     }
 
 }
