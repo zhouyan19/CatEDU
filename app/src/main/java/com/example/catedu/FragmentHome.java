@@ -22,6 +22,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -60,14 +61,15 @@ public class FragmentHome extends Fragment {
     public int []cntList = {0, 0, 0, 0, 0, 0, 0, 0, 0}; // 每个学科当前数据数量
     public Vector []insLists = new Vector[9]; // 每个学科当前获取的实体
 //    public Vector []seenLists = new Vector[9]; // 每个学科已看过的实体
-    public int ins_cnt = 0;
+//    public int ins_cnt = 0;
 
-    SpinKitView skv;
     RefreshLayout srl;
     RecyclerView rv_list;
     XTabLayout tl;
     AlertDialog.Builder builder;
     ImageButton addButton;
+
+    SpinKitView skv;
 
     /**
      * @return 当前学科的名字
@@ -123,9 +125,6 @@ public class FragmentHome extends Fragment {
      */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        skv = view.findViewById(R.id.spin_kit);
-        skv.setVisibility(View.VISIBLE);
-
         for (int i = 0; i < 9; ++i) {
             int finalI = i;
             Thread local_data_thread = new Thread(() -> {
@@ -143,22 +142,37 @@ public class FragmentHome extends Fragment {
             }
         }
 
+        skv = view.findViewById(R.id.spin_kit);
+        skv.setVisibility(View.VISIBLE);
+
         srl = view.findViewById(R.id.smart_refresh);
         rv_list = view.findViewById(R.id.rv_list);
         rv_list.addItemDecoration(new DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL));
         rv_list.setLayoutManager(new LinearLayoutManager(getContext()));
-        rv_list.setVisibility(View.INVISIBLE);
 
         srl.setOnRefreshListener(refreshLayout -> {
             Log.e("Refresh", course_name());
             cntList[course_id] = 0;
-            renewData();
-            refreshLayout.finishRefresh(2000);
+            renewAllData();
+            for (int i = 0; i < 9; ++i) {
+                if (courses_now[i]) initIns(i);
+            }
+//            int tmp_cnt = course_count();
+//            Log.e("tmp_cnt", String.valueOf(tmp_cnt));
+//            while (true) {
+//                Log.e("ins_cnt", String.valueOf(ins_cnt));
+//                if (ins_cnt == (NUM_PER_PAGE * tmp_cnt)) break;
+//            }
+//            Log.e("ins_cnt", String.valueOf(ins_cnt));
+//            rv_list.setAdapter(new MyAdapter());
+//            rv_list.setVisibility(View.VISIBLE);
+//            Log.e("FragmentHome", "Adapter Set");
+            srl.finishRefresh(5000);
         });
         srl.setOnLoadMoreListener(refreshLayout -> {
             Log.e("LoadMore", course_name());
             renewData();
-            refreshLayout.finishLoadMore(2000);
+            srl.finishLoadMore(5000);
         });
 
         tl = view.findViewById(R.id.tab_layout);
@@ -186,20 +200,17 @@ public class FragmentHome extends Fragment {
                 Log.e("AddTab", c);
             }
         }
+        rv_list.setVisibility(View.INVISIBLE);
 
         renewAllData();
         for (int i = 0; i < 9; ++i) {
             if (courses_now[i]) initIns(i);
         }
-        int tmp_cnt = course_count();
-        while (true) {
-            if (ins_cnt == (NUM_PER_PAGE * tmp_cnt)) break;
-        }
-        skv.setVisibility(View.INVISIBLE);
-
-        rv_list.setAdapter(new MyAdapter());
-        rv_list.setVisibility(View.VISIBLE);
-        Log.e("FragmentHome", "Adapter Set");
+//        int tmp_cnt = course_count();
+//        while (true) {
+//            Log.e("ins_cnt", String.valueOf(ins_cnt));
+//            if (ins_cnt == (NUM_PER_PAGE * tmp_cnt)) break;
+//        }
 
         builder = new AlertDialog.Builder(getContext());
         builder.setTitle("选择科目");
@@ -229,16 +240,16 @@ public class FragmentHome extends Fragment {
                 for (int i = 0; i < 9; ++i) {
                     if (courses_now[i]) initIns(i);
                 }
-                int tmp_cnt = course_count();
-                Log.e("tmp_cnt", String.valueOf(tmp_cnt));
-                while (true) {
-                    Log.e("ins_cnt", String.valueOf(ins_cnt));
-                    if (ins_cnt == (NUM_PER_PAGE * tmp_cnt)) break;
-                }
-                Log.e("ins_cnt", String.valueOf(ins_cnt));
-                rv_list.setAdapter(new MyAdapter());
-                rv_list.setVisibility(View.VISIBLE);
-                Log.e("FragmentHome", "Adapter Set");
+//                int tmp_cnt = course_count();
+//                Log.e("tmp_cnt", String.valueOf(tmp_cnt));
+//                while (true) {
+//                    Log.e("ins_cnt", String.valueOf(ins_cnt));
+//                    if (ins_cnt == (NUM_PER_PAGE * tmp_cnt)) break;
+//                }
+//                Log.e("ins_cnt", String.valueOf(ins_cnt));
+//                rv_list.setAdapter(new MyAdapter());
+//                rv_list.setVisibility(View.VISIBLE);
+//                Log.e("FragmentHome", "Adapter Set");
 
                 for (int i = 0; i < 9; ++i) {
                     if (courses_now[i]) {
@@ -343,7 +354,7 @@ public class FragmentHome extends Fragment {
      * 清空情空并初始化 NUM_PER_PAGE 条所有学科的知识
      */
     public void renewAllData() {
-        ins_cnt = 0;
+//        ins_cnt = 0;
         for (int i = 0; i < 9; ++i) {
             triNow[i].clear();
             insLists[i].clear();
@@ -371,9 +382,28 @@ public class FragmentHome extends Fragment {
             try {
                 new Response().handle(tris, inss -> {
                     for (Instance ins : inss) {
-                        insLists[_id].add(ins);
+                        if (!ins.getName().equals("")) insLists[_id].add(ins);
 //                        seenLists[_id].add(new Boolean(false));
-                        ins_cnt++;
+//                        ins_cnt++;
+                    }
+                    if (_id == course_id) {
+                        new Thread(() -> {
+                            Log.e("学科" + _id, String.valueOf(inss.size()));
+                            if (!inss.get(0).getName().equals("")) {
+                                requireActivity().runOnUiThread(() -> {
+                                    skv.setVisibility(View.INVISIBLE);
+                                    rv_list.setAdapter(new MyAdapter());
+                                    rv_list.setVisibility(View.VISIBLE);
+                                });
+                                Log.e("FragmentHome", "Adapter Set");
+                            } else  {
+                                requireActivity().runOnUiThread(() -> {
+                                    skv.setVisibility(View.INVISIBLE);
+                                    rv_list.setVisibility(View.GONE);
+                                    Toast.makeText(getActivity(), "网络请求错误", Toast.LENGTH_SHORT).show();
+                                });
+                            }
+                        }).start();
                     }
                     Log.e("initIns", "InsLists set");
                 });
