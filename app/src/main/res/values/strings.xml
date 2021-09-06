@@ -45,4 +45,5 @@
     <string name="more_text">更多操作</string>
     <string name="share_text">分享至微博：</string>
     <string name="share_summary">我在猫辅导里发现了有趣的知识！快来一起看看吧！</string>
+    <string name="send">发送</string>
 </resources>

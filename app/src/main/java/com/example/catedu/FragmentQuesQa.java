@@ -1,53 +1,86 @@
 package com.example.catedu;
 
+import static com.google.android.material.resources.MaterialResources.getDrawable;
+import static cn.jiguang.imui.commons.models.IMessage.MessageType.RECEIVE_TEXT;
+import static cn.jiguang.imui.commons.models.IMessage.MessageType.SEND_TEXT;
+
+import android.annotation.SuppressLint;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.os.Message;
+import android.text.Editable;
+import android.text.Spannable;
+import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.Spinner;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link FragmentQuesQa#newInstance} factory method to
- * create an instance of this fragment.
- */
+import com.example.catedu.data.InstanceDetail;
+import com.example.catedu.data.InstanceEnbedding;
+import com.example.catedu.data.InstanceWithUri;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import cn.jiguang.imui.commons.ImageLoader;
+import cn.jiguang.imui.commons.models.IMessage;
+import cn.jiguang.imui.commons.models.IUser;
+import cn.jiguang.imui.messages.MessageList;
+import cn.jiguang.imui.messages.MsgListAdapter;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Comparator;
+import java.util.Random;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.UUID;
+import java.util.Vector;
+
+
 public class FragmentQuesQa extends Fragment {
-
+    private final String[] courses = {"语文", "数学", "英语", "物理", "化学", "生物", "历史", "地理", "政治"};
+    private int courseId = 0;
+    private String question = "";
     ImageButton back_home;
+    Spinner spinner;
+    MessageList messageList;
+    ImageLoader imageLoader;
+    MsgListAdapter adapter;
+    int selfie_num = (int)(Math.random() * 11) + 1;
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    Button testBtn;
+    EditText editText;
+
+
 
     public FragmentQuesQa() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment FragmentQa.
-     */
+
     // TODO: Rename and change types and number of parameters
     public static FragmentQuesQa newInstance(String param1, String param2) {
         FragmentQuesQa fragment = new FragmentQuesQa();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+
         fragment.setArguments(args);
         return fragment;
     }
@@ -55,16 +88,10 @@ public class FragmentQuesQa extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_ques_qa, container, false);
     }
 
@@ -78,7 +105,184 @@ public class FragmentQuesQa extends Fragment {
                 throwable.printStackTrace();
             }
         });
+        editText = view.findViewById(R.id.edittext);
+        spinner = view.findViewById(R.id.sp_course);
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(this.getContext(), R.layout.nav_spinner_item, courses);
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(spinnerAdapter);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) { courseId = pos; }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+        imageLoader = new ImageLoader() {
+            @Override
+            public void loadImage(ImageView imageView, String user) {
+                if(user=="receive")
+                    imageView.setImageResource(R.drawable.robot);
+                else{
+                    String image_name = "avatar_icon_" + selfie_num;
+                    int src = getActivity().getResources().getIdentifier(image_name, "drawable", getActivity().getPackageName());
+                    imageView.setImageResource(src);
+                }
+
+            }
+        };
+
+        messageList = view.findViewById(R.id.msg_list);
+//        MsgListAdapter adapter = new MsgListAdapter<>("0", holdersConfig, imageLoader);
+        adapter = new MsgListAdapter<>("0", imageLoader);
+        messageList.setAdapter(adapter);
+
+
+
+
+        testBtn = view.findViewById(R.id.btn_send);
+        testBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MyMessage myMessage = new MyMessage(editText.getText().toString(), SEND_TEXT);
+                myMessage.setUserInfo(new DefaultUser("00", "Admin", "send"));
+                adapter.addToStart(myMessage, true);
+                editText.setText("");
+                messageList.setAdapter(adapter);
+                fetchAnswer();
+            }
+        });
     }
+
+    @SuppressLint("Get Answer from dataloader")
+    //load info
+    public void fetchAnswer() {
+        new Thread(() -> {
+            try {
+                new FragmentQuesQa.Response().handle(answer -> {
+
+
+                    requireActivity().runOnUiThread(() -> {
+                        MyMessage myMessage = new MyMessage(answer, RECEIVE_TEXT);
+                        myMessage.setUserInfo(new DefaultUser("00", "Robot", "receive"));
+                        adapter.addToStart(myMessage, true);
+                        messageList.setAdapter(adapter);
+                    });
+                });
+            } catch (JSONException | IOException | InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+    public class Response {
+        public void handle (FragmentQuesQa.CallBack callBack) throws IOException, JSONException, InterruptedException {
+            String answer = MainActivity.dataLoader.getAnswer(Utils.English(courses[courseId]), question);
+            callBack.onResponse(answer);
+        }
+    }
+    interface CallBack  {
+        void onResponse(String answer) throws IOException;
+    }
+
+    public class MyMessage implements IMessage {
+
+        private long id;
+        private String text;
+        private String timeString;
+        private MessageType type;
+        private IUser user;
+        private String contentFile;
+        private long duration;
+
+        public MyMessage(String text, MessageType type) {
+            this.text = text;
+            this.type = type;
+            this.id = UUID.randomUUID().getLeastSignificantBits();
+        }
+
+        @Override
+        public String getMsgId() {
+            return String.valueOf(id);
+        }
+
+        @Override
+        public IUser getFromUser() {
+            if (user == null) {
+                return new DefaultUser("0", "user1", null);
+            }
+            return user;
+        }
+
+        public void setUserInfo(IUser user) {
+            this.user = user;
+        }
+
+        public void setMediaFilePath(String path) {
+            this.contentFile = path;
+        }
+
+        public void setDuration(long duration) {
+            this.duration = duration;
+        }
+
+        @Override
+        public long getDuration() {
+            return duration;
+        }
+
+        public void setTimeString(String timeString) {
+            this.timeString = timeString;
+        }
+
+        @Override
+        public String getTimeString() {
+            return timeString;
+        }
+
+        @Override
+        public MessageType getType() {
+            return type;
+        }
+
+        @Override
+        public String getText() {
+            return text;
+        }
+
+        @Override
+        public String getMediaFilePath() {
+            return contentFile;
+        }
+    }
+
+
+
+    public class DefaultUser implements IUser {
+
+        private String id;
+        private String displayName;
+        private String avatar;
+
+        public DefaultUser(String id, String displayName, String avatar) {
+            this.id = id;
+            this.displayName = displayName;
+            this.avatar = avatar;
+        }
+
+        @Override
+        public String getId() {
+            return id;
+        }
+
+        @Override
+        public String getDisplayName() {
+            return displayName;
+        }
+
+        @Override
+        public String getAvatarFilePath() {
+            return avatar;
+        }
+    }
+
 
     protected void forwardSwitchFragment() {
         int from = MainActivity.last_fragment, to = MainActivity.fragments.size() - 1;

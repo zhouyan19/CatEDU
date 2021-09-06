@@ -10,4 +10,6 @@
     <color name="main_highlight">#EC881D</color>
     <color name="text_grey">#FF333333</color>
     <color name="divider_grey">#FF888888</color>
+    <color name="chat_background">#FDFAFB</color>
+    <color name="chat_bottom_bar">#F8F0F0</color>
 </resources>
