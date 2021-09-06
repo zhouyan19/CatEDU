@@ -5,6 +5,7 @@ import static cn.jiguang.imui.commons.models.IMessage.MessageType.RECEIVE_TEXT;
 import static cn.jiguang.imui.commons.models.IMessage.MessageType.SEND_TEXT;
 
 import android.annotation.SuppressLint;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -22,6 +23,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -64,6 +66,7 @@ public class FragmentQuesQa extends Fragment {
     ImageLoader imageLoader;
     MsgListAdapter adapter;
     int selfie_num = (int)(Math.random() * 11) + 1;
+    private static int inputDownHeightDiff;
 
 
     Button testBtn;
@@ -150,6 +153,32 @@ public class FragmentQuesQa extends Fragment {
                 fetchAnswer();
             }
         });
+        final View rootView = getActivity().getWindow().getDecorView();
+//        final View rootView = getActivity().getWindow().getDecorView().findViewById(android.R.id.content);
+        rootView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                if (inputDownHeightDiff < getHeightDiff()) {
+                    MainActivity.nav_view.setVisibility(View.GONE);
+                    Log.i("KeyboardChange", "Up");
+                } else {
+                    MainActivity.nav_view.setVisibility(View.VISIBLE);
+                    Log.i("KeyboardChange", "Down");
+                }
+                //如果只想检测一次，需要注销
+                //rootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+            }
+        });
+        inputDownHeightDiff = getHeightDiff();
+    }
+    public int getHeightDiff() {
+        final View rootView = getActivity().getWindow().getDecorView();
+        Rect r = new Rect();
+        rootView.getWindowVisibleDisplayFrame(r);
+        Log.i("height", r.bottom + "   " + rootView.getRootView().getHeight());
+
+//        DisplayMetrics dm = rootView.getResources().getDisplayMetrics();
+        return rootView.getRootView().getHeight() - r.bottom;
     }
 
     @SuppressLint("Get Answer from dataloader")
