@@ -16,6 +16,7 @@
     <string name="ques_retrieval">实体检索</string>
     <string name="ques_link">实体链接</string>
     <string name="ques_qa">知识问答</string>
+    <string name="ques_camera">拍照搜索</string>
     <string name="name">请输入名字</string>
     <string name="password">请输入密码</string>
     <string name="login">登录</string>
@@ -46,4 +47,5 @@
     <string name="share_text">分享至微博：</string>
     <string name="share_summary">我在猫辅导里发现了有趣的知识！快来一起看看吧！</string>
     <string name="send">发送</string>
+    <string name="camera_do">点此拍照搜索知识点</string>
 </resources>
