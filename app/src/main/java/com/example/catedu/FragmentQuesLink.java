@@ -202,6 +202,7 @@ public class FragmentQuesLink extends Fragment {
                 clearTextSpan();
             }
         });
+
     }
     // 去除高亮效果
     private void clearTextSpan(){

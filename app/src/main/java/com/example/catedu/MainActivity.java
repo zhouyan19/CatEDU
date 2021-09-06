@@ -84,6 +84,8 @@ public class MainActivity extends AppCompatActivity {
 
     public static WeiboSDK weibo;
 
+    public static BottomNavigationView nav_view;
+
     /**
      * MainActivity 创建时的操作
      */
@@ -121,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
         fragments.add(fragment_mine);
 
         getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, fragment_home).show(fragment_home).commit();
-        BottomNavigationView nav_view = findViewById(R.id.nav_view);
+        nav_view = findViewById(R.id.nav_view);
         nav_view.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
     }
 
