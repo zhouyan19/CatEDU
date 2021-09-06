@@ -138,6 +138,8 @@ public class FragmentInstance extends Fragment {
             public void onTabReselected(XTabLayout.Tab tab) {}
         });
 
+        checkLike();
+
         getChildFragmentManager()
                 .beginTransaction()
                 .replace(R.id.detail_fragment_container, fragment_ins_detail)
@@ -207,6 +209,9 @@ public class FragmentInstance extends Fragment {
                     e.printStackTrace();
                 }
             });
+
+            if (liked) likeBtn.setImageResource(R.mipmap.like_yes);
+            else likeBtn.setImageResource(R.mipmap.like_no);
 
             likeBtn.setOnClickListener(v -> {
                 SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("user", Context.MODE_PRIVATE);
@@ -344,6 +349,40 @@ public class FragmentInstance extends Fragment {
                 }
             }
         }).start();
+    }
+
+    public void checkLike () {
+        SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("user", Context.MODE_PRIVATE);
+        String token = sharedPreferences.getString("token",null);
+        if (token != null) {
+            JSONObject body = new JSONObject();
+            body.put("token", token);
+            body.put("insUri", uri);
+            String request_url = "http://82.156.215.178:8080/user/searchStars";
+            HashMap<String, String> headers = new HashMap<>();
+            headers.put("Content-Type", "application/json");
+            new Thread (() -> {
+                Document doc = null;
+                try {
+                    doc = Jsoup.connect(request_url).headers(headers).requestBody(body.toString()).ignoreContentType(true).post();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if (doc != null) {
+                    Element content = doc.body();
+                    String str = content.text();
+                    JSONObject res = JSONObject.parseObject(str);
+                    Log.e("checkLike", res.toString());
+                    if (res.containsKey("success")) {
+                        if (res.getString("success").equals("true")) {
+                            liked = true;
+                        } else {
+                            liked = false;
+                        }
+                    }
+                }
+            }).start();
+        }
     }
 
 }
