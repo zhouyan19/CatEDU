@@ -26,4 +26,11 @@ public class InstanceWithUri {
     public void setName (String _n) { name = _n; }
     public void setType (String _t) { type = _t; }
     public void setUri (String _t) { type = _t; }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof InstanceWithUri)
+            return name.equals(((InstanceWithUri) obj).name);
+        return super.equals(obj);
+    }
 }

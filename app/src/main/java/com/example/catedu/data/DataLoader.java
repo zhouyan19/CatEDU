@@ -13,6 +13,7 @@ import android.util.Log;
 
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,6 +26,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -304,10 +306,6 @@ public class DataLoader {
         if (data.length() != 0) {
             for (int i = 0; i < data.length(); ++i) {
                 JSONObject item = data.getJSONObject(i);
-//                String name = "无名称";
-//                String type = "无类别";
-//                name = item.getString("label");
-//                type = item.getString("category");
                 InstanceWithUri ins = new InstanceWithUri(item.getString("label"), item.getString("category"), item.getString("uri"));
 
 //                Log.i("instance with uri", ins.getName() + " " +ins.getType()+" "+ins.getUri());
@@ -358,7 +356,6 @@ public class DataLoader {
         json = json.getJSONObject("data");
 
         Vector<InstanceEnbedding> vector = new Vector<InstanceEnbedding>();
-        Gson gson = new Gson(); // 使用 Gson 工具
         JSONArray data = json.getJSONArray("results");
         if (data.length() != 0) {
             for (int i = 0; i < data.length(); ++i) {
@@ -374,6 +371,58 @@ public class DataLoader {
             }
         }
         return vector;
+    }
+    /**
+     * POST 请求根据一段文本queryText 通过linkInstance接口获得匹配的实体
+     * 返回InstanceEnbedding包含实体在文本中的位置信息，以便高亮处理
+     */
+    public String getAnswer(String course, String question) throws IOException{
+
+        try {
+            URL ins_url = new URL("http://open.edukg.cn/opedukg/api/typeOpen/open/linkInstance");
+            HttpURLConnection conn = (HttpURLConnection) ins_url.openConnection(); // 创建HttpURLConnection对象
+            conn.setRequestMethod("POST"); // 请求方式为 POST
+            conn.setConnectTimeout(8000); // 设置超时
+            conn.setReadTimeout(8000);
+            conn.setDoOutput(true);
+            conn.setDoInput(true);
+            conn.setUseCaches(false); // Post方式不能缓存,需手动设置为false
+            conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8"); // 设置请求头
+            conn.connect();
+
+            // 写入参数
+            HashMap<String, String> map = new HashMap<String, String>();
+            map.put("course", course);
+            map.put("inputQuestion", question);
+            map.put("id", id);
+            String params = new Gson().toJson(map);
+
+            // 获取输出流，写入参数
+            OutputStream out = conn.getOutputStream();
+            out.write(params.getBytes());
+            out.flush();
+            out.close();
+
+            // 取得输入流，并使用Reader读取
+            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
+            StringBuilder result = new StringBuilder();
+            String line;
+            while ((line = in.readLine()) != null)
+                result.append(line);
+            in.close();
+            // 获得答案
+            JSONObject json = new JSONObject(result.toString());
+            JSONArray data = json.getJSONArray("data");
+            if(data == null)
+                return "抱歉，机器人好像睡着了。";
+            return data.getJSONObject(0).getString("value");
+        }catch(SocketTimeoutException e){
+            e.printStackTrace();
+            return "抱歉，机器人好像睡着了。";
+        }catch (JSONException e){
+            e.printStackTrace();
+            return "哎呀，我好像不明白你的问题。";
+        }
     }
 
     /**
@@ -460,6 +509,8 @@ public class DataLoader {
         Log.e("LinkSubjects", result.toString());
         return getSubjectsFromJson(json);
     }
+
+
 
     public Vector<Subject> getSubjectsFromJson (JSONObject json) throws JSONException {
         Vector<Subject> vector = new Vector<>();
