@@ -12,8 +12,10 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -77,12 +79,15 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("StaticFieldLeak")
     public static FragmentMine fragment_mine;
 
+    public static BottomNavigationView nav_view;
+
     IWBAPI mWBAPI;
     private static final String APP_KY = "3099333889";
     private static final String REDIRECT_URL = "https://api.weibo.com/oauth2/default.html";
     private static final String SCOPE = "";
 
     public static WeiboSDK weibo;
+
 
     /**
      * MainActivity 创建时的操作
@@ -104,6 +109,7 @@ public class MainActivity extends AppCompatActivity {
         seenList = null;
         seenList = readCache();
         initView();
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
 
@@ -121,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
         fragments.add(fragment_mine);
 
         getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment, fragment_home).show(fragment_home).commit();
-        BottomNavigationView nav_view = findViewById(R.id.nav_view);
+        nav_view = findViewById(R.id.nav_view);
         nav_view.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
     }
 
@@ -352,5 +358,7 @@ public class MainActivity extends AppCompatActivity {
     interface CallBack  {
         void onResponse(Bitmap bitmap) throws IOException;
     }
+
+
 
 }

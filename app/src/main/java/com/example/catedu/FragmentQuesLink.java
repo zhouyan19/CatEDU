@@ -1,7 +1,11 @@
 package com.example.catedu;
 
+import static androidx.core.content.ContextCompat.getSystemService;
+
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.os.Bundle;
 
 import com.example.catedu.data.*;
@@ -14,10 +18,13 @@ import android.text.Editable;
 import android.text.Spannable;
 import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -69,7 +76,7 @@ public class FragmentQuesLink extends Fragment {
     Spinner mSpinner;
     ImageButton back_home;
     Button mBtn;
-
+    private static int inputDownHeightDiff;
 
     public FragmentQuesLink() {
         resultList = new Vector<>();
@@ -141,9 +148,15 @@ public class FragmentQuesLink extends Fragment {
                 queryText = input.getText().toString();
                 Log.i("String query", queryText);
                 clearTextSpan();
+//                input.clearFocus();
                 getRetrievalResults();
+                //hide input method
+                InputMethodManager im =(InputMethodManager)getActivity().getApplicationContext().
+                        getSystemService(Context.INPUT_METHOD_SERVICE);
+                im.hideSoftInputFromWindow(view.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
             }
         });
+
 
 
 //        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -176,7 +189,49 @@ public class FragmentQuesLink extends Fragment {
                 clearTextSpan();
             }
         });
+
+        input.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    mBtn.setVisibility(View.VISIBLE);
+                } else {
+                    // 此处为失去焦点时的处理内容
+                    mBtn.setVisibility(View.GONE);
+                }
+            }
+        });
+
+
+        final View rootView = getActivity().getWindow().getDecorView();
+//        final View rootView = getActivity().getWindow().getDecorView().findViewById(android.R.id.content);
+        rootView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                if (inputDownHeightDiff < getHeightDiff()) {
+                    MainActivity.nav_view.setVisibility(View.GONE);
+                    Log.i("KeyboardChange", "Up");
+                } else {
+                    MainActivity.nav_view.setVisibility(View.VISIBLE);
+                    Log.i("KeyboardChange", "Down");
+                }
+                //如果只想检测一次，需要注销
+                //rootView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+            }
+        });
+        inputDownHeightDiff = getHeightDiff();
     }
+    public int getHeightDiff() {
+        final View rootView = getActivity().getWindow().getDecorView();
+        Rect r = new Rect();
+        rootView.getWindowVisibleDisplayFrame(r);
+        Log.i("height", r.bottom + "   " + rootView.getRootView().getHeight());
+
+//        DisplayMetrics dm = rootView.getResources().getDisplayMetrics();
+        return rootView.getRootView().getHeight() - r.bottom;
+    }
+
+
     // 去除高亮效果
     private void clearTextSpan(){
         Editable et = input.getText();

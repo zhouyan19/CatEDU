@@ -412,9 +412,10 @@ public class DataLoader {
             in.close();
             // 获得答案
             JSONObject json = new JSONObject(result.toString());
-            JSONArray data = json.getJSONArray("data");
-            if(data == null)
+            if(json.isNull("data"))
                 return "抱歉，机器人好像睡着了。";
+            JSONArray data = json.getJSONArray("data");
+
             return data.getJSONObject(0).getString("value");
         }catch(SocketTimeoutException e){
             e.printStackTrace();
