@@ -114,7 +114,7 @@ public class DataLoader {
      * 从本地 csv 文件加载实体数据
      * @param course 课程英文名
      */
-    public Vector<Triple> getLocalCourseData (Context context, String course) throws IOException {
+    public Vector<Triple> getLocalCourseData (Context context, String course) {
         String file = course + ".json";
         Vector<String> jsons = new Vector<>();
         AssetManager assetManager = context.getAssets(); // assets资源管理器
@@ -161,13 +161,14 @@ public class DataLoader {
      */
     public Instance getInstance (String course, String uri) throws InterruptedException {
         // 网络请求不能在主线程中进行，而是要在一个子线程中
+        if (!logged) logIn();
         Instance ins = new Instance();
         Thread net_conn_thread = new Thread(() -> {
             try {
                 Instance tmp = getKnowledgeByUri(course, uri);
                 ins.setName(tmp.getName());
                 ins.setType(tmp.getType());
-            } catch (IOException | JSONException e) {
+            } catch (IOException | JSONException | InterruptedException e) {
                 e.printStackTrace();
             }
         });
@@ -179,7 +180,8 @@ public class DataLoader {
     /**
      * 根据 uri 来获取实体简略信息
      */
-    public Instance getKnowledgeByUri(String course, String uri) throws IOException, JSONException {
+    public Instance getKnowledgeByUri(String course, String uri) throws IOException, JSONException, InterruptedException {
+        if (!logged) logIn();
         URL ins_url = new URL("http://open.edukg.cn/opedukg/api/typeOpen/open/getKnowledgeCard");
         HttpURLConnection conn = (HttpURLConnection) ins_url.openConnection(); // 创建HttpURLConnection对象
         conn.setRequestMethod("POST"); // 请求方式为 POST
@@ -236,59 +238,7 @@ public class DataLoader {
      * Post 请求根据 name 获取实体详情
      */
     public InstanceDetail getDetailByName (String course, String name) throws IOException, JSONException, InterruptedException {
-//        URL ins_url = new URL("http://open.edukg.cn/opedukg/api/typeOpen/open/getKnowledgeCard");
-//        HttpURLConnection conn = (HttpURLConnection) ins_url.openConnection(); // 创建HttpURLConnection对象
-//        conn.setRequestMethod("POST"); // 请求方式为 POST
-//        conn.setConnectTimeout(12000); // 设置超时
-//        conn.setReadTimeout(12000);
-//        conn.setDoOutput(true);
-//        conn.setDoInput(true);
-//        conn.setUseCaches(false); // Post方式不能缓存,需手动设置为false
-//        conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8"); // 设置请求头
-//        conn.connect();
-//
-//        // 写入参数
-//        HashMap map = new HashMap<String, String>();
-//        map.put("course", course);
-//        map.put("uri", uri);
-//        map.put("id", id);
-//        String params = new Gson().toJson(map);
-//
-//        // 获取输出流，写入参数
-//        OutputStream out = conn.getOutputStream();
-//        out.write(params.getBytes());
-//        out.flush();
-//        out.close();
-//
-//        // 读取响应
-//        StringBuilder res = new StringBuilder();
-//        int code = conn.getResponseCode();
-//        if (code == 200) {
-//            InputStreamReader in = new InputStreamReader(conn.getInputStream());
-//            BufferedReader bf = new BufferedReader(in);
-//            String line;
-//            // 一行一行读取
-//            while ((line = bf.readLine()) != null){
-//                res.append(line);
-//            }
-//            in.close();
-//            conn.disconnect();
-//        }
-//        if (res.toString().equals("")) {
-//            Log.e("Entity", "Empty!");
-//            return new InstanceDetail();
-//        }
-//        Log.e("Res(Detail)", res.toString());
-//        String entity_type;
-//        String entity_name;
-//        JSONArray entity_features;
-//        JSONObject res_json = new JSONObject(res.toString());
-//        JSONObject data_json = res_json.getJSONObject("data");
-//        entity_type = data_json.getString("entity_type");
-//        entity_name = data_json.getString("entity_name");
-//        entity_features = data_json.getJSONArray("entity_features");
-//        return new InstanceDetail(uri, course, entity_name, entity_features);
-
+        if (!logged) logIn();
         String root = "http://open.edukg.cn/opedukg/api/typeOpen/open/infoByInstanceName?name=";
         String middle = "&course=" + course;
         String tail = "&id=" + id;
@@ -324,7 +274,8 @@ public class DataLoader {
      * GET 请求根据 keyword 进行模糊搜索实体名称
      * 返回InstanceWithUri的Vector，元素包含name, type, uri
      */
-    public Vector<InstanceWithUri> getInstanceListByString(String course, String keyword) throws IOException, JSONException {
+    public Vector<InstanceWithUri> getInstanceListByString(String course, String keyword) throws IOException, JSONException, InterruptedException {
+        if (!logged) logIn();
         String root = "http://open.edukg.cn/opedukg/api/typeOpen/open/instanceList?searchKey=";
         URL url = new URL(root + keyword + "&course=" + course + "&id=" + id);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection(); // 创建HttpURLConnection对象
@@ -369,7 +320,8 @@ public class DataLoader {
      * POST 请求根据一段文本queryText 通过linkInstance接口获得匹配的实体
      * 返回InstanceEnbedding包含实体在文本中的位置信息，以便高亮处理
      */
-    public Vector<InstanceEnbedding> getLinkInstanceList(String course, String queryText) throws IOException, JSONException {
+    public Vector<InstanceEnbedding> getLinkInstanceList(String course, String queryText) throws IOException, JSONException, InterruptedException {
+        if (!logged) logIn();
         URL ins_url = new URL("http://open.edukg.cn/opedukg/api/typeOpen/open/linkInstance");
         HttpURLConnection conn = (HttpURLConnection) ins_url.openConnection(); // 创建HttpURLConnection对象
         conn.setRequestMethod("POST"); // 请求方式为 POST
@@ -427,7 +379,8 @@ public class DataLoader {
     /**
      * Get 请求根据实体名称获取相关试题
      */
-    public Vector<Ques> getInstanceQues (String name) throws IOException, JSONException {
+    public Vector<Ques> getInstanceQues (String name) throws IOException, JSONException, InterruptedException {
+        if (!logged) logIn();
         String root = "http://open.edukg.cn/opedukg/api/typeOpen/open/questionListByUriName?uriName=";
         String tail = "&id=" + id;
         URL url = new URL(root + name + tail);
@@ -478,7 +431,8 @@ public class DataLoader {
         return vector;
     }
 
-    public Vector<Subject> getLinkSubjects (String name, String course) throws IOException, JSONException {
+    public Vector<Subject> getLinkSubjects (String name, String course) throws IOException, JSONException, InterruptedException {
+        if (!logged) logIn();
         String root = "http://open.edukg.cn/opedukg/api/typeOpen/open/infoByInstanceName?name=";
         String middle = "&course=" + course;
         String tail = "&id=" + id;
