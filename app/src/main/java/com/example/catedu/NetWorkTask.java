@@ -36,11 +36,54 @@ public class NetWorkTask implements Runnable {
     }
 
     Map<String, Object> map;
+    String res;
+
+    public String getRes() {
+        return res;
+    }
+
+    public void setRes(String res) {
+        this.res = res;
+    }
 
     @Override
     public void run() {
         String servlet_ip="http://82.156.215.178:8080";
         switch (taskno) {
+            case 6:{
+                //获取收藏夹
+                String url=servlet_ip+"/user/getStars";
+                Document doc = null;
+                HashMap<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                try {
+                    doc = Jsoup.connect(url).headers(headers).ignoreContentType(true).requestBody(requestParam).post();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if(doc!=null){
+                    Element body = doc.body();
+                    res = body.text();
+                }
+                break;
+            }
+            case 5:{
+                //用户历史
+                String url=servlet_ip+"/user/getHistory";
+                Document doc = null;
+                HashMap<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                try {
+                    doc = Jsoup.connect(url).headers(headers).ignoreContentType(true).requestBody(requestParam).post();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if(doc!=null){
+                    Element body = doc.body();
+                    res = body.text();
+                }
+                break;
+            }
             case 4:{
                 //注册
 

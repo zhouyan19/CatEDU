@@ -7,7 +7,6 @@
 package com.example.catedu;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Looper;
@@ -15,7 +14,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,8 +27,6 @@ import com.example.catedu.widget.RoundImageView;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -51,6 +47,8 @@ public class FragmentMine extends Fragment {
     SharedPreferences sharedPreferences;
     LinearLayout info;
     LinearLayout history;
+    LinearLayout local_cache;
+    LinearLayout stars;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -65,6 +63,8 @@ public class FragmentMine extends Fragment {
         nickname_view = (TextView) view.findViewById(R.id.login_textView);
         info=(LinearLayout) view.findViewById(R.id.info);
         history=(LinearLayout) view.findViewById(R.id.history);
+        local_cache=(LinearLayout) view.findViewById(R.id.local_cache);
+        stars=(LinearLayout) view.findViewById(R.id.stars);
 
 
         try {
@@ -79,9 +79,7 @@ public class FragmentMine extends Fragment {
             public void onClick(View view) {
 //                MainActivity.fragments.add(new FragmentAvatar());
 //                forwardSwitchFragment();
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.clear();
-                editor.apply();
+                ((MainActivity) getActivity()).clearCache();
                 Toast.makeText(getActivity(), "缓存清除成功", Toast.LENGTH_LONG).show();
             }
         });
@@ -89,7 +87,21 @@ public class FragmentMine extends Fragment {
         history.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                MainActivity.fragments.add(new FragmentUserHistory());
+                forwardSwitchFragment();
+            }
+        });
+        local_cache.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
                 MainActivity.fragments.add(new FragmentHistory());
+                forwardSwitchFragment();
+            }
+        });
+        stars.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MainActivity.fragments.add(new FragmentStars());
                 forwardSwitchFragment();
             }
         });

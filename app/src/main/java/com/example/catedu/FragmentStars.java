@@ -1,6 +1,7 @@
 package com.example.catedu;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +19,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import java.util.ArrayList;
@@ -38,7 +40,7 @@ public class FragmentStars extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        main=(MainActivity) getActivity();
+        main = (MainActivity) getActivity();
         initdata();
         initview(view);
         backButton = view.findViewById(R.id.detail_back);
@@ -51,16 +53,35 @@ public class FragmentStars extends Fragment {
     }
 
     private void initdata() {
-        JSONObject jsonObject=main.readCache();
+
         StarsData = new ArrayList<String>();
-        for (String str :
-                jsonObject.keySet()) {
-            StarsData.add(str);
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("user", Context.MODE_PRIVATE);
+        String token = sharedPreferences.getString("token", null);
+        if (token != null) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("token", token);
+            NetWorkTask netWorkTask = new NetWorkTask(6, token, jsonObject.toString());
+            Thread newThread = new Thread(netWorkTask);
+            newThread.start();
+            try {
+                newThread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            String res = netWorkTask.getRes();
+            JSONObject resJson = JSONObject.parseObject(res);
+            JSONArray jsonArray = (JSONArray) resJson.get("detail");
+            if (jsonArray.size() == 0) {
+                StarsData.add("尚无收藏记录");
+            } else {
+                for (int i = 0; i < jsonArray.size(); i++) {
+                    StarsData.add(jsonArray.get(i).toString());
+                }
+            }
+        } else {
+            StarsData.add("未登录");
         }
-//        for (int i = 0; i < 12; i++) {
-//            String Stars=String.valueOf(i);
-//            StarsData.add(Stars);
-//        }
+
     }
 
     void initview(View view) {
@@ -69,9 +90,36 @@ public class FragmentStars extends Fragment {
         mRecycleView.setAdapter(myAdapter);//设置适配器
 
         mRecycleView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mRecycleView.addItemDecoration(new DividerItemDecoration(getActivity(),DividerItemDecoration.VERTICAL));
+        mRecycleView.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL));
         mRecycleView.setItemAnimator(new DefaultItemAnimator());
 
+        myAdapter.setOnStarsClickListener(new StarsAdapter.OnStarsClickListener() {
+            @Override
+            public void onItemClick(int position) {
+                RelativeLayout relativeLayout = (RelativeLayout) mRecycleView.getChildAt(position);
+                TextView textView = relativeLayout.findViewById(R.id.stars_item);
+                String raw = StarsData.get(position);
+                JSONObject jsonObject = JSONObject.parseObject(raw);
+                String uri = jsonObject.getString("insUri");
+                JSONObject detail = JSONObject.parseObject(jsonObject.get("detail").toString());
+                String name = detail.getString("entity_name");
+                String course = detail.getString("course");
+                Logger.e("FS", "onclick");
+                MainActivity.fragments.add(new FragmentInsDetail(uri, name, course, true));
+                forwardSwitchFragment();
+            }
+        });
+
+    }
+
+    protected void forwardSwitchFragment() {
+        int from = MainActivity.last_fragment, to = MainActivity.fragments.size() - 1;
+        FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
+        transaction.hide(MainActivity.fragments.get(from));
+        if (!MainActivity.fragments.get(to).isAdded())
+            transaction.add(R.id.nav_host_fragment, MainActivity.fragments.get(to));
+        transaction.show(MainActivity.fragments.get(to)).commitAllowingStateLoss();
+        MainActivity.last_fragment = to; // 更新
     }
 
     public void backSwitchFragment() {
@@ -100,6 +148,7 @@ class StarsViewHolder extends RecyclerView.ViewHolder {
         super(itemView);
         relativeLayout = (RelativeLayout) itemView;
         textView = (TextView) itemView.findViewById(R.id.stars_item);
+
     }
 
 }
@@ -109,6 +158,7 @@ class StarsAdapter extends RecyclerView.Adapter<StarsViewHolder> {
     private Context mContext;
     private List<String> mDatas;
     // add click callback
+    OnStarsClickListener onStarsClickListener;
 
     //创建构造参数
     public StarsAdapter(Context context, List<String> datas) {
@@ -128,13 +178,38 @@ class StarsAdapter extends RecyclerView.Adapter<StarsViewHolder> {
     //绑定ViewHolder
     @Override
     public void onBindViewHolder(StarsViewHolder holder, int position) {
-        holder.textView.setText(mDatas.get(position));
+
+        String raw = mDatas.get(position);
+        if (raw.equals("未登录") || raw.equals("尚无收藏记录")) {
+            holder.textView.setText(raw);
+        } else {
+            JSONObject jsonObject = JSONObject.parseObject(raw);
+            JSONObject detail = JSONObject.parseObject(jsonObject.get("detail").toString());
+            String name = detail.getString("entity_name");
+            holder.textView.setText(name);
+            holder.textView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (onStarsClickListener != null)
+                        onStarsClickListener.onItemClick(holder.getAdapterPosition());
+                }
+            });
+        }
+
     }
 
 
     @Override
     public int getItemCount() {
         return mDatas.size();
+    }
+
+    public static interface OnStarsClickListener {
+        public void onItemClick(int position);
+    }
+
+    public void setOnStarsClickListener(StarsAdapter.OnStarsClickListener onStarsClickListener) {
+        this.onStarsClickListener = onStarsClickListener;
     }
 
 }

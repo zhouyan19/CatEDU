@@ -7,7 +7,7 @@
     <LinearLayout
         android:id="@+id/info"
         app:layout_constraintTop_toBottomOf="@id/title_bar"
-        app:layout_constraintBottom_toTopOf="@id/history"
+        app:layout_constraintBottom_toTopOf="@id/local_cache"
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -17,7 +17,7 @@
             android:id="@+id/selfie"
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:layout_marginLeft="50dp"
+            android:layout_marginLeft="20dp"
             android:src="@drawable/cat_edu">
         </com.example.catedu.widget.RoundImageView>
 
@@ -33,22 +33,55 @@
             ></TextView>
     </LinearLayout>
 
-
     <LinearLayout
-        android:id="@+id/history"
+        android:id="@+id/local_cache"
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingLeft="10dp"
         app:layout_constraintTop_toBottomOf="@id/info"
+        app:layout_constraintBottom_toTopOf="@id/history"
+        >
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:src="@mipmap/mine_cache"></ImageView>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical|left"
+            android:text="本地缓存"
+            android:textSize="20sp"></TextView>
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="50dp"
+            android:src="@drawable/right_arrow"
+            ></ImageView>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/history"
+        android:paddingLeft="10dp"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/local_cache"
         app:layout_constraintBottom_toTopOf="@id/stars"
         >
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:src="@mipmap/mine_history"></ImageView>
         <TextView
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="60dp"
             android:text="历史记录"
             android:gravity="center_vertical|left"
-            android:paddingLeft="50dp"
             android:textSize="20sp"
             ></TextView>
         <ImageView
@@ -62,20 +95,82 @@
     <LinearLayout
         android:id="@+id/stars"
         android:orientation="horizontal"
+        android:paddingLeft="10dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/history"
-        app:layout_constraintBottom_toTopOf="@id/clear_backup"
         >
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:src="@mipmap/mine_favorite"></ImageView>
+
         <TextView
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="60dp"
-            android:text="收藏夹"
+            android:layout_weight="1"
             android:gravity="center_vertical|left"
-            android:paddingLeft="50dp"
-            android:textSize="20sp"
-            ></TextView>
+            android:text="收藏夹"
+            android:textSize="20sp"></TextView>
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="50dp"
+            android:src="@drawable/right_arrow"
+            ></ImageView>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/word_cloud"
+        android:orientation="horizontal"
+        android:paddingLeft="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/stars"
+        >
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:src="@mipmap/mine_cloud"></ImageView>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical|left"
+            android:text="词云生成"
+            android:textSize="20sp"></TextView>
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="50dp"
+            android:src="@drawable/right_arrow"
+            ></ImageView>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/recommendation"
+        android:orientation="horizontal"
+        android:paddingLeft="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/word_cloud"
+        >
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:src="@mipmap/mine_ques"></ImageView>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical|left"
+            android:text="试题推荐"
+            android:textSize="20sp"></TextView>
+
         <ImageView
             android:layout_width="20dp"
             android:layout_height="20dp"
@@ -87,7 +182,8 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/stars"
+        android:layout_marginBottom="50dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         android:layout_marginTop="20dp"
         android:layout_marginHorizontal="50dp"
         android:id="@+id/clear_backup"

@@ -1,6 +1,7 @@
 package com.example.catedu;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,16 +19,17 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class FragmentHistory extends Fragment {
+public class FragmentUserHistory extends Fragment {
 
     RecyclerView mRecycleView;
-    HistoryAdapter myAdapter;
-    ArrayList<String> historyData;
+    UserHistoryAdapter myAdapter;
+    ArrayList<String> userHistoryData;
     private ImageButton backButton;
     MainActivity main;
 
@@ -51,38 +53,50 @@ public class FragmentHistory extends Fragment {
     }
 
     private void initdata() {
-        historyData = new ArrayList<String>();
-        JSONObject jsonObject = main.readCache();
-        if (jsonObject != null && jsonObject.size() > 0) {
-
-            for (String str :
-                    jsonObject.keySet()) {
-                JSONObject newJSON = new JSONObject();
-                newJSON.put("insUri", str);
-                newJSON.put("detail", jsonObject.get(str).toString());
-                historyData.add(newJSON.toString());
+        userHistoryData = new ArrayList<String>();
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("user", Context.MODE_PRIVATE);
+        String token = sharedPreferences.getString("token", null);
+        if (token != null) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("token", token);
+            NetWorkTask netWorkTask = new NetWorkTask(5, token, jsonObject.toString());
+            Thread newThread = new Thread(netWorkTask);
+            newThread.start();
+            try {
+                newThread.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            String res = netWorkTask.getRes();
+            JSONObject resJson = JSONObject.parseObject(res);
+            JSONArray jsonArray = (JSONArray) resJson.get("detail");
+            if (jsonArray.size() == 0) {
+                userHistoryData.add("尚无历史记录");
+            } else {
+                for (int i = 0; i < jsonArray.size(); i++) {
+                    userHistoryData.add(jsonArray.get(i).toString());
+                }
             }
         } else {
-            historyData.add("暂无本地缓存");
+            userHistoryData.add("未登录");
         }
-
     }
 
     void initview(View view) {
         mRecycleView = (RecyclerView) view.findViewById(R.id.recycleview);
-        myAdapter = new HistoryAdapter(getActivity(), historyData);
+        myAdapter = new UserHistoryAdapter(getActivity(), userHistoryData);
         mRecycleView.setAdapter(myAdapter);//设置适配器
 
         mRecycleView.setLayoutManager(new LinearLayoutManager(getActivity()));
         mRecycleView.addItemDecoration(new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL));
         mRecycleView.setItemAnimator(new DefaultItemAnimator());
 
-        myAdapter.setOnHistoryClickListener(new HistoryAdapter.OnHistoryClickListener() {
+        myAdapter.setOnHistoryClickListener(new UserHistoryAdapter.OnHistoryClickListener() {
             @Override
             public void onItemClick(int position) {
                 RelativeLayout relativeLayout = (RelativeLayout) mRecycleView.getChildAt(position);
                 TextView textView = relativeLayout.findViewById(R.id.history_item);
-                String raw = historyData.get(position);
+                String raw = userHistoryData.get(position);
                 JSONObject jsonObject = JSONObject.parseObject(raw);
                 String uri = jsonObject.getString("insUri");
                 JSONObject detail = JSONObject.parseObject(jsonObject.get("detail").toString());
@@ -122,12 +136,12 @@ public class FragmentHistory extends Fragment {
     }
 }
 
-class HistoryViewHolder extends RecyclerView.ViewHolder {
+class UserHistoryViewHolder extends RecyclerView.ViewHolder {
 
     TextView textView;
     RelativeLayout relativeLayout;
 
-    public HistoryViewHolder(View itemView) {
+    public UserHistoryViewHolder(View itemView) {
         super(itemView);
         relativeLayout = (RelativeLayout) itemView;
         textView = (TextView) itemView.findViewById(R.id.history_item);
@@ -135,15 +149,15 @@ class HistoryViewHolder extends RecyclerView.ViewHolder {
 
 }
 
-class HistoryAdapter extends RecyclerView.Adapter<HistoryViewHolder> {
+class UserHistoryAdapter extends RecyclerView.Adapter<UserHistoryViewHolder> {
     private LayoutInflater inflater;
     private Context mContext;
     private List<String> mDatas;
     // add click callback
-    OnHistoryClickListener onHistoryClickListener;
+    UserHistoryAdapter.OnHistoryClickListener onHistoryClickListener;
 
     //创建构造参数
-    public HistoryAdapter(Context context, List<String> datas) {
+    public UserHistoryAdapter(Context context, List<String> datas) {
         this.mContext = context;
         this.mDatas = datas;
         inflater = LayoutInflater.from(context);
@@ -151,17 +165,19 @@ class HistoryAdapter extends RecyclerView.Adapter<HistoryViewHolder> {
 
     //创建ViewHolder
     @Override
-    public HistoryViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public UserHistoryViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = inflater.inflate(R.layout.history_item, parent, false);
-        HistoryViewHolder viewHolder = new HistoryViewHolder(view);
+        UserHistoryViewHolder viewHolder = new UserHistoryViewHolder(view);
         return viewHolder;
     }
 
     //绑定ViewHolder
     @Override
-    public void onBindViewHolder(HistoryViewHolder holder, int position) {
+    public void onBindViewHolder(UserHistoryViewHolder holder, int position) {
         String raw = mDatas.get(position);
-        if (raw == "暂无本地缓存") {
+        if (raw == "未登录") {
+            holder.textView.setText(raw);
+        } else if (raw == "尚无历史记录") {
             holder.textView.setText(raw);
         } else {
             JSONObject jsonObject = JSONObject.parseObject(raw);
@@ -188,7 +204,7 @@ class HistoryAdapter extends RecyclerView.Adapter<HistoryViewHolder> {
         public void onItemClick(int position);
     }
 
-    public void setOnHistoryClickListener(HistoryAdapter.OnHistoryClickListener onHistoryClickListener) {
+    public void setOnHistoryClickListener(UserHistoryAdapter.OnHistoryClickListener onHistoryClickListener) {
         this.onHistoryClickListener = onHistoryClickListener;
     }
 
