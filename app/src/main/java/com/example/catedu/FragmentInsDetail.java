@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,6 +23,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -62,6 +64,8 @@ public class FragmentInsDetail extends Fragment {
     RecyclerView detail_feature;
     ImageView entity_pic;
 
+    ImageButton back_home;
+
     FragmentInsDetail (String _u, String _n, String _c, boolean _i) {
         Log.e("FragmentInsDetail", "New!");
         uri = _u;
@@ -78,11 +82,24 @@ public class FragmentInsDetail extends Fragment {
      */
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // 绑定 layout
-        return inflater.inflate(R.layout.fragment_ins_detail, container, false);
+        View view;
+        if (!independence) view = inflater.inflate(R.layout.fragment_ins_detail, container, false);
+        else view = inflater.inflate(R.layout.fragment_head_detail, container, false);
+        return view;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        if (!independence) {
+            back_home = view.findViewById(R.id.detail_back_home);
+            back_home.setOnClickListener(v -> {
+                try {
+                    backSwitchFragment();
+                } catch (Throwable throwable) {
+                    throwable.printStackTrace();
+                }
+            });
+        }
 
         detail_name = view.findViewById(R.id.detail_name);
         detail_feature = view.findViewById(R.id.detail_feature);
@@ -313,6 +330,22 @@ public class FragmentInsDetail extends Fragment {
                 }
             }
         }).start();
+    }
+
+    protected void backSwitchFragment() {
+        int from = MainActivity.last_fragment, to;
+        FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
+        transaction.hide(MainActivity.fragments.get(from));
+        if (MainActivity.last_fragment == 3) { //次级页面
+            to = MainActivity.major_fragment;
+        } else { //多级页面
+            to = MainActivity.last_fragment - 1;
+        }
+        if (!MainActivity.fragments.get(to).isAdded())
+            transaction.add(R.id.nav_host_fragment, MainActivity.fragments.get(to));
+        transaction.show(MainActivity.fragments.get(to)).commitAllowingStateLoss();
+        MainActivity.last_fragment = to; //更新
+        MainActivity.fragments.removeElementAt(from); //删多余的页面
     }
 
 }

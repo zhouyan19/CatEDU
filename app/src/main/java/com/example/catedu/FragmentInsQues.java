@@ -23,6 +23,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -66,6 +67,8 @@ public class FragmentInsQues extends Fragment {
 
     AlertDialog alert;
     AlertDialog.Builder builder;
+
+    ImageButton back_home;
 
     FragmentInsQues (String _n) {
         Log.e("FragmentInsQues", "New!");
@@ -374,4 +377,5 @@ public class FragmentInsQues extends Fragment {
 
         alert.show();
     }
+
 }
