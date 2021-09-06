@@ -54,6 +54,7 @@ public class FragmentInsDetail extends Fragment {
     public static String course; // 学科名称
     private static InstanceDetail instance;
     private static String picUrl;
+    private boolean independence; // true表示不依附FragmentInstance
 
     private static Vector<JSONObject> feature_list;
 
@@ -61,11 +62,12 @@ public class FragmentInsDetail extends Fragment {
     RecyclerView detail_feature;
     ImageView entity_pic;
 
-    FragmentInsDetail (String _u, String _n, String _c) {
+    FragmentInsDetail (String _u, String _n, String _c, boolean _i) {
         Log.e("FragmentInsDetail", "New!");
         uri = _u;
         name = _n;
         course = _c;
+        independence = _i;
         instance = new InstanceDetail();
         feature_list = new Vector<>();
         picUrl = "";
@@ -135,8 +137,10 @@ public class FragmentInsDetail extends Fragment {
                             e.printStackTrace();
                         }
                         detail_feature.setAdapter(new FeatureAdapter());
-                        requireActivity().runOnUiThread(() -> FragmentInstance.skv.setVisibility(View.INVISIBLE));
-                        FragmentInstance.mHandler.sendMessage(new Message());
+                        if (!independence) {
+                            requireActivity().runOnUiThread(() -> FragmentInstance.skv.setVisibility(View.INVISIBLE));
+                            FragmentInstance.mHandler.sendMessage(new Message());
+                        }
                         Log.e("getInstanceDetail", "FeatureAdapter");
                     });
                 });

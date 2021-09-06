@@ -109,7 +109,7 @@ public class FragmentInstance extends Fragment {
             pop_window.setOnDismissListener(() -> pop_window.backgroundAlpha(1f));
         });
 
-        fragment_ins_detail = new FragmentInsDetail(uri, name, course);
+        fragment_ins_detail = new FragmentInsDetail(uri, name, course, false);
         fragment_ins_ques = new FragmentInsQues(name);
         fragment_ins_related = new FragmentInsRelated(name, course);
         fragments = new Vector<>();
