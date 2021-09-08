@@ -92,8 +92,7 @@ public class FragmentCamera extends Fragment {
         copyLanguagePackageToSDCard(); //复制字库
         String lang = "chi_sim"; // 中文简体+英文
         mTess = new TessBaseAPI();
-        mTess.init(Environment.getExternalStorageDirectory().getPath(), lang); // mFilePath不知道？
-        mTess.setPageSegMode(TessBaseAPI.PageSegMode.PSM_AUTO);
+        mTess.init(Environment.getExternalStorageDirectory().getPath(), lang);
     }
 
     // 把字库文件拷贝到SD卡，要求SD卡根目录有tessdata文件夹，字库在该文件夹下
