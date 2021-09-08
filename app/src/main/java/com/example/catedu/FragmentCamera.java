@@ -164,9 +164,12 @@ public class FragmentCamera extends Fragment {
 //            Log.e("sendImage", content);
             requireActivity().runOnUiThread(() -> Toast.makeText(getContext(), "解析中...",Toast.LENGTH_SHORT).show());
             mTess.setImage(bitmap);
+            Log.e("Bitmap set", "Begin parsing...");
             String res = mTess.getUTF8Text();
             Log.e("OCR", res);
-            requireActivity().runOnUiThread(() -> Toast.makeText(getContext(), "解析完毕",Toast.LENGTH_SHORT).show());
+            requireActivity().runOnUiThread(() -> {
+                Toast.makeText(getContext(), "解析完毕",Toast.LENGTH_SHORT).show();
+            });
         }).start();
     }
 
