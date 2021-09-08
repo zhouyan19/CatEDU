@@ -33,6 +33,7 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.github.ybq.android.spinkit.SpinKitView;
 import com.googlecode.tesseract.android.TessBaseAPI;
 
 import java.io.BufferedInputStream;
@@ -50,6 +51,8 @@ public class FragmentCamera extends Fragment {
     ImageButton camera_do;
     ImageButton back_home;
 
+    SpinKitView skv;
+
     private String mDataPath = Environment.getExternalStorageDirectory().getPath() + "/tessdata";
     TessBaseAPI mTess;
 
@@ -60,6 +63,9 @@ public class FragmentCamera extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        skv = view.findViewById(R.id.spin_kit);
+        skv.setVisibility(View.INVISIBLE);
 
         back_home = view.findViewById(R.id.detail_back_home);
         back_home.setOnClickListener(v -> {
@@ -165,10 +171,15 @@ public class FragmentCamera extends Fragment {
             requireActivity().runOnUiThread(() -> Toast.makeText(getContext(), "解析中...",Toast.LENGTH_SHORT).show());
             mTess.setImage(bitmap);
             Log.e("Bitmap set", "Begin parsing...");
-            String res = mTess.getUTF8Text();
+            requireActivity().runOnUiThread(() -> skv.setVisibility(View.VISIBLE));
+            String res = "";
+            res = mTess.getUTF8Text();
             Log.e("OCR", res);
+            String finalRes = res;
             requireActivity().runOnUiThread(() -> {
-                Toast.makeText(getContext(), "解析完毕",Toast.LENGTH_SHORT).show();
+                skv.setVisibility(View.INVISIBLE);
+                if (finalRes.equals("")) Toast.makeText(getContext(), "解析失败",Toast.LENGTH_SHORT).show();
+                else Toast.makeText(getContext(), "解析成功",Toast.LENGTH_SHORT).show();
             });
         }).start();
     }
