@@ -68,5 +68,5 @@ dependencies {
     implementation 'com.github.daquexian:FlexibleRichTextView:0.8.2'
     implementation 'io.github.sinaweibosdk:core:11.8.1@aar'
     implementation 'cn.jiguang.imui:imui:0.1.0'
-    implementation 'com.rmtheis:tess-two:9.1.0'
+    implementation 'com.rmtheis:tess-two:9.0.0'
 }
