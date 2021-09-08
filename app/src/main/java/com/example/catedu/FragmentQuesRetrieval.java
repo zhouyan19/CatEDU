@@ -31,6 +31,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.widget.ArrayAdapter;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.AdapterView;
 import android.widget.TextView;
@@ -53,6 +54,8 @@ public class FragmentQuesRetrieval extends Fragment {
     private final String[] courses = {"语文", "数学", "英语", "物理", "化学", "生物", "历史", "地理", "政治"};
     private static Vector<InstanceWithUri> resultList;
     int courseId = 0;
+    int sortMode = -1; //default
+    int filterMode = -1; //default
     String queryWord = "";
     SearchView mSearchView;
     ListView mListView;
@@ -60,6 +63,8 @@ public class FragmentQuesRetrieval extends Fragment {
 
     Spinner mSpinner;
     ImageButton back_home;
+    RadioGroup sortGroup;
+    RadioGroup filterGroup;
     private static int inputDownHeightDiff;
 
 
@@ -145,6 +150,21 @@ public class FragmentQuesRetrieval extends Fragment {
 //                    mListView.clearTextFilter();
 //                }
                 return false;
+            }
+        });
+
+        sortGroup = view.findViewById(R.id.sort_group);
+        filterGroup = view.findViewById(R.id.filter_group);
+        sortGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener(){
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                sortMode = i;
+            }
+        });
+        filterGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener(){
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                filterMode = i;
             }
         });
 

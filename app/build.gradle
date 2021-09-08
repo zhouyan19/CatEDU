@@ -68,10 +68,5 @@ dependencies {
     implementation 'com.github.daquexian:FlexibleRichTextView:0.8.2'
     implementation 'io.github.sinaweibosdk:core:11.8.1@aar'
     implementation 'cn.jiguang.imui:imui:0.1.0'
-    // https://mvnrepository.com/artifact/com.kennycason/kumo-core
-    implementation 'com.kennycason:kumo-core:1.28'
-    // https://mvnrepository.com/artifact/com.kennycason/kumo-tokenizers
-    implementation 'com.kennycason:kumo-tokenizers:1.28'
-    implementation 'ro.andob.androidawt:androidawt:1.0.4'
 
 }

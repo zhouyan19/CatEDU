@@ -11,36 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.kennycason.kumo.CollisionMode;
-import com.kennycason.kumo.WordCloud;
-import com.kennycason.kumo.WordFrequency;
-import com.kennycason.kumo.bg.CircleBackground;
-import com.kennycason.kumo.font.KumoFont;
-import com.kennycason.kumo.font.scale.SqrtFontScalar;
-import com.kennycason.kumo.nlp.FrequencyAnalyzer;
-import com.kennycason.kumo.palette.ColorPalette;
-import com.kennycason.kumo.CollisionMode;
-import com.kennycason.kumo.WordCloud;
-import com.kennycason.kumo.WordFrequency;
-import com.kennycason.kumo.bg.Background;
-import com.kennycason.kumo.bg.CircleBackground;
-import com.kennycason.kumo.font.scale.SqrtFontScalar;
-import com.kennycason.kumo.nlp.FrequencyAnalyzer;
-import com.kennycason.kumo.nlp.tokenizers.ChineseWordTokenizer;
-import com.kennycason.kumo.palette.ColorPalette;
-import com.kennycason.kumo.palette.LinearGradientColorPalette;
-import com.kennycason.kumo.font.KumoFont;
-import com.kennycason.kumo.font.scale.LinearFontScalar;
-
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.JSONArray;
-
-import java.awt.*;
-import java.io.IOException;
-import java.util.List;
-import java.util.Random;
-import java.io.IOException;
-import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
