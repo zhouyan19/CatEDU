@@ -49,6 +49,7 @@ public class FragmentMine extends Fragment {
     LinearLayout history;
     LinearLayout local_cache;
     LinearLayout stars;
+    LinearLayout word_cloud;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -65,6 +66,7 @@ public class FragmentMine extends Fragment {
         history=(LinearLayout) view.findViewById(R.id.history);
         local_cache=(LinearLayout) view.findViewById(R.id.local_cache);
         stars=(LinearLayout) view.findViewById(R.id.stars);
+        word_cloud=(LinearLayout) view.findViewById(R.id.word_cloud);
 
 
         try {
@@ -102,6 +104,13 @@ public class FragmentMine extends Fragment {
             @Override
             public void onClick(View view) {
                 MainActivity.fragments.add(new FragmentStars());
+                forwardSwitchFragment();
+            }
+        });
+        word_cloud.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MainActivity.fragments.add(new FragmentWordCloud());
                 forwardSwitchFragment();
             }
         });
