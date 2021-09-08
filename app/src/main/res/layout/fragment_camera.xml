@@ -61,7 +61,7 @@
             android:id="@+id/button_camera"
             android:layout_width="200dp"
             android:layout_height="120dp"
-            android:layout_marginTop="120dp"
+            android:layout_marginTop="100dp"
             android:layout_gravity="center"
             android:src="@mipmap/camera_do"
             android:scaleType="centerCrop"
@@ -77,6 +77,15 @@
             android:textColor="@color/black"
             android:textSize="20sp"
             android:text="@string/camera_do"/>
+
+        <com.github.ybq.android.spinkit.SpinKitView
+            android:id="@+id/spin_kit"
+            style="@style/SpinKitView.ThreeBounce"
+            app:SpinKit_Color="@color/main"
+            android:layout_width="70dp"
+            android:layout_height="60dp"
+            android:layout_marginTop="60dp"
+            android:layout_gravity="center" />
 
     </LinearLayout>
 
