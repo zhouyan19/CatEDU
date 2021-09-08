@@ -48,4 +48,6 @@
     <string name="share_summary">我在猫辅导里发现了有趣的知识！快来一起看看吧！</string>
     <string name="send">发送</string>
     <string name="camera_do">点此拍照搜索知识点</string>
+    <string name="order_text">选择学科</string>
+    <string name="course_card">学科</string>
 </resources>

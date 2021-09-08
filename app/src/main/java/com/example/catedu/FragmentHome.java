@@ -19,6 +19,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -47,7 +48,9 @@ import org.json.JSONException;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.Vector;
 
@@ -62,26 +65,24 @@ public class FragmentHome extends Fragment {
     public Vector []insLists = new Vector[9]; // 每个学科当前获取的实体
 //    public Vector []seenLists = new Vector[9]; // 每个学科已看过的实体
 //    public int ins_cnt = 0;
+    public Vector<String> order2 = new Vector();
 
     RefreshLayout srl;
     RecyclerView rv_list;
     XTabLayout tl;
+    AlertDialog alert;
     AlertDialog.Builder builder;
     ImageButton addButton;
 
     SpinKitView skv;
+
+    RecyclerView rv_course;
 
     /**
      * @return 当前学科的名字
      */
     private String course_name () {
         return courses_all[course_id];
-    }
-
-    private int course_count () {
-        int cnt = 0;
-        for (int i = 0; i < 9; ++i) { if (courses_now[i]) cnt++; }
-        return cnt;
     }
 
     private int indexOfCourse (String course) {
@@ -108,6 +109,7 @@ public class FragmentHome extends Fragment {
             triNow[i] = new Vector<Triple>();
             insLists[i] = new Vector<Instance>();
 //            seenLists[i] = new Vector<Boolean>();
+            order2.add(courses_all[i]);
         }
     }
 
@@ -128,11 +130,7 @@ public class FragmentHome extends Fragment {
         for (int i = 0; i < 9; ++i) {
             int finalI = i;
             Thread local_data_thread = new Thread(() -> {
-                try {
-                    getListByCourse(finalI);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                getListByCourse(finalI);
             });
             local_data_thread.start();
             try {
@@ -212,57 +210,61 @@ public class FragmentHome extends Fragment {
 //            if (ins_cnt == (NUM_PER_PAGE * tmp_cnt)) break;
 //        }
 
-        builder = new AlertDialog.Builder(getContext());
-        builder.setTitle("选择科目");
-        builder.setIcon(R.mipmap.cat_icon);
-        builder.setMultiChoiceItems(courses_all, courses_now, (dialog, which, isChecked) -> courses_now[which] = isChecked);
-        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                builder.setMultiChoiceItems(courses_all, courses_now, (_dialog, _which, _isChecked) -> courses_now[_which] = _isChecked);
-                tl.removeAllTabs();
+        addButton = view.findViewById(R.id.add_button);
+        addButton.setOnClickListener(v -> {
+            LinearLayout course_pop = (LinearLayout) getLayoutInflater().inflate(R.layout.course_popupwindow, null);
+            course_pop.setBackgroundResource(R.drawable.pop_border);
+            TextView cancel = course_pop.findViewById(R.id.share_cancel);
+            TextView confirm = course_pop.findViewById(R.id.share_confirm);
+
+            rv_course = course_pop.findViewById(R.id.rv_course);
+            rv_course.setLayoutManager(new LinearLayoutManager(getContext()));
+            rv_course.setAdapter(new CourseAdapter());
+
+            builder = new AlertDialog.Builder(getContext());
+            builder.setView(course_pop);
+            alert = builder.create();
+
+            cancel.setOnClickListener(vv -> {
+                alert.dismiss();
+            });
+            confirm.setOnClickListener(vv -> {
+                alert.dismiss();
                 int tmp_id = -1;
                 for (int i = 0; i < 9; ++i) {
-                    if (courses_now[i]) {
-                        if (tmp_id == -1) tmp_id = i; // 找到目前的第一个学科
+                    String c = order2.get(i);
+                    int org = indexOfCourse(c);
+                    if (courses_now[org]) {
+                        tmp_id = org;
+                        break;
                     }
                 }
                 if (tmp_id == -1) {
                     courses_now = new boolean[]{true, true, true, false, false, false, false, false, false};
                     course_id = 0;
+                    order2 = new Vector<>();
+                    for (int i = 0; i < 9; ++i) {
+                        order2.add(courses_all[i]);
+                    }
                 } else {
                     course_id = tmp_id;
                 }
-
-                Log.e("Builder/id", String.valueOf(course_id));
-
                 renewAllData();
                 for (int i = 0; i < 9; ++i) {
                     if (courses_now[i]) initIns(i);
                 }
-//                int tmp_cnt = course_count();
-//                Log.e("tmp_cnt", String.valueOf(tmp_cnt));
-//                while (true) {
-//                    Log.e("ins_cnt", String.valueOf(ins_cnt));
-//                    if (ins_cnt == (NUM_PER_PAGE * tmp_cnt)) break;
-//                }
-//                Log.e("ins_cnt", String.valueOf(ins_cnt));
-//                rv_list.setAdapter(new MyAdapter());
-//                rv_list.setVisibility(View.VISIBLE);
-//                Log.e("FragmentHome", "Adapter Set");
 
+                tl.removeAllTabs();
                 for (int i = 0; i < 9; ++i) {
-                    if (courses_now[i]) {
-                        String c = courses_all[i];
+                    String c = order2.get(i);
+                    if (courses_now[indexOfCourse(c)]) {
                         tl.addTab(tl.newTab().setText(c));
                     }
                 }
-            }
-        });
-        builder.setNegativeButton("取消", null);
+            });
 
-        addButton = view.findViewById(R.id.add_button);
-        addButton.setOnClickListener(v -> builder.show());
+            alert.show();
+        });
 
         super.onViewCreated(view, savedInstanceState);
     }
@@ -272,7 +274,7 @@ public class FragmentHome extends Fragment {
      * 点击不同学科的按钮后获取数据
      * @param id 学科序号
      */
-    public void getListByCourse(int id) throws IOException {
+    public void getListByCourse(int id) {
         Context context = getContext();
         assert context != null;
         triLists[id] = MainActivity.dataLoader.getLocalCourseData(context, Utils.English(courses_all[id]));
@@ -301,6 +303,13 @@ public class FragmentHome extends Fragment {
             String number = String.valueOf(position + 1);
             holder.ins_number.setText(number);
             holder.ins_name.setText(ins.getName());
+            String type = ins.getType();
+            if (type.equals("")) {
+                holder.ins_type.setVisibility(View.INVISIBLE);
+            } else {
+                holder.ins_type.setText(type);
+                if (position % 2 == 1) holder.ins_type.setBackgroundResource(R.drawable.subject_border);
+            }
 //            Boolean seen = (Boolean) seenLists[course_id].get(position);
             String u = ((Triple) triLists[course_id].get(position)).getS();
             if (MainActivity.seenList != null) {
@@ -308,6 +317,7 @@ public class FragmentHome extends Fragment {
                     Log.e("Gray", ins.getName());
                     holder.ins_number.setTextColor(Color.LTGRAY);
                     holder.ins_name.setTextColor(Color.LTGRAY);
+                    holder.ins_type.setTextColor(Color.LTGRAY);
                 }
             }
         }
@@ -321,11 +331,74 @@ public class FragmentHome extends Fragment {
             LinearLayout ins_item;
             TextView ins_number;
             TextView ins_name;
+            TextView ins_type;
             public ViewHolder(@NonNull @NotNull View itemView) {
                 super(itemView);
                 ins_item = itemView.findViewById(R.id.ins_item);
                 ins_number = itemView.findViewById(R.id.ins_number);
                 ins_name = itemView.findViewById(R.id.ins_name);
+                ins_type = itemView.findViewById(R.id.ins_type);
+            }
+        }
+    }
+
+    class CourseAdapter extends RecyclerView.Adapter<CourseAdapter.ViewHolder> {
+
+        @NonNull
+        @NotNull
+        @Override
+        public ViewHolder onCreateViewHolder(@NonNull @NotNull ViewGroup parent, int viewType) {
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.course_item, parent, false);
+            return new ViewHolder(v);
+        }
+
+        @SuppressLint({"UseCompatLoadingForDrawables", "ResourceAsColor"})
+        @Override
+        public void onBindViewHolder(@NonNull @NotNull ViewHolder holder, int position) {
+            String c = order2.get(position);
+            holder.this_name.setText(c);
+            holder.this_name.setOnClickListener(v -> {
+                if (position == 0) return;
+                String tmp = order2.get(position - 1);
+                order2.removeElementAt(position - 1);
+                order2.insertElementAt(c, position - 1);
+                order2.removeElementAt(position);
+                order2.insertElementAt(tmp, position);
+                rv_course.setAdapter(new CourseAdapter());
+            });
+
+            boolean before = courses_now[indexOfCourse(c)];
+            if (before) {
+                holder.opt.setBackgroundResource(R.drawable.null_content);
+                holder.opt.setImageResource(R.mipmap.course_yes);
+                holder.opt.setOnClickListener(v -> {
+                    courses_now[indexOfCourse(c)] = false;
+                    rv_course.setAdapter(new CourseAdapter());
+                });
+            } else {
+                holder.opt.setBackgroundResource(R.drawable.course_border);
+                holder.opt.setImageResource(R.drawable.null_content);
+                holder.opt.setOnClickListener(v -> {
+                    courses_now[indexOfCourse(c)] = true;
+                    rv_course.setAdapter(new CourseAdapter());
+                });
+            }
+        }
+
+        @Override
+        public int getItemCount() {
+            return 9;
+        }
+
+        public class ViewHolder extends RecyclerView.ViewHolder {
+            LinearLayout course_item;
+            ImageButton opt;
+            TextView this_name;
+            public ViewHolder(@NonNull @NotNull View itemView) {
+                super(itemView);
+                course_item = itemView.findViewById(R.id.course_item);
+                opt = itemView.findViewById(R.id.opt);
+                this_name = itemView.findViewById(R.id.this_name);
             }
         }
     }
@@ -436,7 +509,6 @@ public class FragmentHome extends Fragment {
      * @param pos 实体的序号
      */
     public void showDetail (int pos) {
-        Log.e("showDetail", String.valueOf(pos + 1));
         Triple tri = (Triple) triNow[course_id].get(pos);
         String uri = tri.getS();
         String name = ((Instance) insLists[course_id].get(pos)).getName();
@@ -447,7 +519,6 @@ public class FragmentHome extends Fragment {
         FragmentInstance fi = new FragmentInstance(uri, name, course_name());
         MainActivity.fragments.add(fi);
         forwardSwitchFragment();
-
     }
 
     protected void forwardSwitchFragment() {
