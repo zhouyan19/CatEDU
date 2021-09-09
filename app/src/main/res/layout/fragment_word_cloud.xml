@@ -25,14 +25,6 @@
             android:src="@drawable/back_home_foreground"
             tools:ignore="RtlSymmetry" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginStart="-8dp"
-            android:text="@string/back"
-            android:textColor="@color/white" />
-
 
     </LinearLayout>
 
@@ -43,96 +35,70 @@
         android:gravity="center"
         android:text="@string/word_cloud"
         android:textColor="@color/white"
-        android:textSize="22sp"
+        android:textSize="20sp"
         app:layout_constraintTop_toTopOf="@+id/nav"
         app:layout_constraintBottom_toBottomOf="@+id/nav"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
-
-    <!--    <LinearLayout-->
-    <!--        android:layout_width="match_parent"-->
-    <!--        android:layout_height="match_parent"-->
-    <!--        android:layout_marginTop="132dp"-->
-    <!--        android:orientation="horizontal"-->
-    <!--        tools:layout_editor_absoluteX="16dp">-->
-    <!--定义一个SearchView-->
-    <!--        <SearchView-->
-    <!--            android:id="@+id/sv"-->
-    <!--            android:layout_width="match_parent"-->
-    <!--            android:layout_height="wrap_content"/>-->
-
-    <!--        <SearchView style="@style/CardView"-->
-
-    <!--            />-->
-    <Spinner
-        android:id="@+id/sp_course"
-        app:layout_constraintBottom_toBottomOf="@id/nav"
-        app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginEnd="5dp"
-        android:layout_width="120dp"
-        android:layout_height="60dp"
-        android:backgroundTint="@color/white"
-        />
-    <ImageView
-        android:id="@+id/cloud_view"
-        android:scaleType="centerCrop"
-        android:adjustViewBounds="true"
-        android:layout_width="320dp"
-        android:layout_height="320dp"
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         app:layout_constraintTop_toBottomOf="@+id/nav"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="20dp"
-         />
-<!--    <Button-->
-<!--        android:id="@+id/btn_search"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="@string/search"-->
-<!--        android:textSize="18sp"-->
-<!--        app:layout_constraintTop_toTopOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        android:layout_marginEnd="10dp"-->
-<!--        android:layout_marginTop="400dp"/>-->
+        android:orientation="vertical">
+        <ImageView
+            android:id="@+id/cloud_view"
+            android:scaleType="centerCrop"
+            android:adjustViewBounds="true"
+            android:layout_width="320dp"
+            android:layout_height="320dp"
+            android:layout_marginTop="100dp"
+            android:layout_gravity="center"/>
 
-    <RadioGroup
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="100dp"
-        android:orientation="horizontal">
-        <RadioButton
-            android:id="@+id/admin"
+
+        <RadioGroup
+            android:id="@+id/color_group"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:text="橙"/>
+            android:orientation="horizontal"
+            android:layout_gravity="center">
+            <RadioButton
+                android:id="@+id/orange"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:text="橙"/>
 
-        <RadioButton
-            android:id="@+id/tech"
+            <RadioButton
+                android:id="@+id/blue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:text="蓝"/>
+
+            <RadioButton
+                android:id="@+id/green"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:text="绿"/>
+
+            <RadioButton
+                android:id="@+id/purple"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:text="紫"/>
+        </RadioGroup>
+
+        <CheckBox
+            android:id="@+id/dark_box"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:text="蓝"/>
-
-        <RadioButton
-            android:id="@+id/market"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:text="绿"/>
-
-        <RadioButton
-            android:id="@+id/guest"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:text="紫"/>
-    </RadioGroup>
-
-
+            android:text="暗色模式"
+            android:layout_gravity="center"/>
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
 
