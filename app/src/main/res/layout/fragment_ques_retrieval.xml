@@ -78,7 +78,7 @@
         app:layout_constraintTop_toBottomOf="@id/sv_retrieval"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginStart="30dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="10dp"
         android:text="排序方案"
         android:textColor="#333333"/>
     <RadioGroup
@@ -143,6 +143,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textStyle="bold"
+            android:textSize="12sp"
             android:text="位于开头"/>
 
         <RadioButton
@@ -150,6 +151,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textStyle="bold"
+            android:textSize="12sp"
             android:text="位于结尾"/>
 
         <RadioButton
@@ -157,6 +159,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textStyle="bold"
+            android:textSize="12sp"
             android:text="类型已知"/>
 
         <RadioButton
@@ -164,6 +167,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textStyle="bold"
+            android:textSize="12sp"
             android:text="类型未知"/>
     </RadioGroup>
 

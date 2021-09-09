@@ -42,6 +42,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -196,25 +199,54 @@ public class FragmentQuesRetrieval extends Fragment {
         return rootView.getRootView().getHeight() - r.bottom;
     }
 
+    Vector<InstanceWithUri> sortAndFilterResults(Vector<InstanceWithUri> res){
+        switch (sortMode){
+            case R.id.sort1:
+                Log.e("sort", sortMode+"");
+                res.sort((ins1, ins2) -> {
+                    return ins1.getName().length() < ins2.getName().length()?-1:1;
+                });
+                break;
+            case R.id.sort2:
+                Log.e("sort", sortMode+"");
+                res.sort((ins1, ins2) -> {
+                    return ins1.getName().length() > ins2.getName().length()?-1:1;
+                });
+                break;
+            case R.id.sort3:
+                Log.e("sort", sortMode+"");
+                res.sort(Comparator.comparing(InstanceWithUri::getName));
+//                res.sort((ins1, ins2) -> {
+//                    return ins1.getName().compareTo(ins2.getName());
+//                });
+                break;
+            case R.id.sort4:
+                Log.e("sort", sortMode+"");
+                res.sort((ins1, ins2) -> ins2.getName().compareTo(ins1.getName()));
+                break;
+            default:
+                break;
+        }
+
+        return res;
+    }
+
 
     //load info
     public void getRetrievalResults() {
         new Thread(() -> {
             try {
                 new Response().handle(res -> {
-
-
-//                    instance = ins;
-//                    Log.e("getInstanceDetail", instance.getEntity_name());
-//                    String name = "实体名称：" + ((instance.getEntity_name().equals("")) ? "无" : instance.getEntity_name());
-//                    String type = "实体类别：" + ((instance.getEntity_type().equals("")) ? "无" : instance.getEntity_type());
                     requireActivity().runOnUiThread(() -> {
 
                         for(InstanceWithUri ins : res){
                             Log.i("Result", ins.getName() + "  " + ins.getType() + "  " + ins.getUri());
                         }
                         resultList.clear();
-                        resultList.addAll(res);
+                        Log.e("sortMode", sortMode+"");
+                        Log.e("filterMode", filterMode+"");
+                        resultList.addAll(sortAndFilterResults(res));
+//                        resultList.addAll(res);
                         for(InstanceWithUri ins : resultList){
                             Log.i("Result", ins.getName() + "  " + ins.getType() + "  " + ins.getUri());
                         }
