@@ -50,6 +50,23 @@ public class NetWorkTask implements Runnable {
     public void run() {
         String servlet_ip="http://82.156.215.178:8080";
         switch (taskno) {
+            case 7:{
+                //获取收藏夹
+                String url=servlet_ip+"/user/getCloud";
+                Document doc = null;
+                HashMap<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                try {
+                    doc = Jsoup.connect(url).headers(headers).ignoreContentType(true).requestBody(requestParam).post();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if(doc!=null){
+                    Element body = doc.body();
+                    res = body.text();
+                }
+                break;
+            }
             case 6:{
                 //获取收藏夹
                 String url=servlet_ip+"/user/getStars";

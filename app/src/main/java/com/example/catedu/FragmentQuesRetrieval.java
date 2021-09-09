@@ -1,15 +1,9 @@
 package com.example.catedu;
 
 import android.annotation.SuppressLint;
-import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Bundle;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DecodeFormat;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.request.target.Target;
-import com.daquexian.flexiblerichtextview.FlexibleRichTextView;
 import com.example.catedu.data.*;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -21,7 +15,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import androidx.appcompat.widget.SearchView;
@@ -31,17 +24,22 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.widget.ArrayAdapter;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.AdapterView;
 import android.widget.TextView;
 
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.CollationKey;
+import java.text.Collator;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -53,6 +51,8 @@ public class FragmentQuesRetrieval extends Fragment {
     private final String[] courses = {"语文", "数学", "英语", "物理", "化学", "生物", "历史", "地理", "政治"};
     private static Vector<InstanceWithUri> resultList;
     int courseId = 0;
+    int sortMode = -1; //default
+    int filterMode = -1; //default
     String queryWord = "";
     SearchView mSearchView;
     ListView mListView;
@@ -60,6 +60,10 @@ public class FragmentQuesRetrieval extends Fragment {
 
     Spinner mSpinner;
     ImageButton back_home;
+    RadioGroup sortGroup;
+    RadioGroup filterGroup;
+    ImageButton sortClearBtn;
+    ImageButton filterClearBtn;
     private static int inputDownHeightDiff;
 
 
@@ -130,6 +134,7 @@ public class FragmentQuesRetrieval extends Fragment {
             public boolean onQueryTextSubmit(String query) {
                 Log.i("String query", query);
                 queryWord = query;
+                mSearchView.clearFocus();
 
                 getRetrievalResults();
 
@@ -147,6 +152,25 @@ public class FragmentQuesRetrieval extends Fragment {
                 return false;
             }
         });
+
+        sortGroup = view.findViewById(R.id.sort_group);
+        filterGroup = view.findViewById(R.id.filter_group);
+        sortGroup.setOnCheckedChangeListener((radioGroup, i) -> {
+            sortMode = i;
+            new Thread(() -> {
+                refreshAndDisplay(resultList);
+            }).start();
+            Log.e("run", "thetet");
+        });
+        filterGroup.setOnCheckedChangeListener((radioGroup, i) -> {
+            filterMode = i;
+            refreshAndDisplay(resultList);
+            Log.e("run", "herehe");
+        });
+        sortClearBtn = view.findViewById(R.id.sort_clear);
+        filterClearBtn = view.findViewById(R.id.filter_clear);
+        sortClearBtn.setOnClickListener(v->sortGroup.clearCheck());
+        filterClearBtn.setOnClickListener(v->filterGroup.clearCheck());
 
         final View rootView = getActivity().getWindow().getDecorView();
 //        final View rootView = getActivity().getWindow().getDecorView().findViewById(android.R.id.content);
@@ -176,45 +200,78 @@ public class FragmentQuesRetrieval extends Fragment {
         return rootView.getRootView().getHeight() - r.bottom;
     }
 
+    List<InstanceWithUri> sortAndFilterResults(Vector<InstanceWithUri> res){
+        switch (sortMode){
+            case R.id.sort1:
+                Log.e("sort", sortMode+" ");
+                res.sort((ins1, ins2) -> {
+                    return ins1.getName().length() < ins2.getName().length()?-1:1;
+                });
+                break;
+            case R.id.sort2:
+                Log.e("sort", sortMode+" ");
+                res.sort((ins1, ins2) -> {
+                    return ins1.getName().length() > ins2.getName().length()?-1:1;
+                });
+                break;
+            case R.id.sort3:
+                Log.e("sort", sortMode+" ");
+                res.sort(Comparator.comparing(InstanceWithUri::getName));
+//                res.sort((ins1, ins2) -> {
+//                    return ins1.getName().compareTo(ins2.getName());
+//                });
+                break;
+            case R.id.sort4:
+                Log.e("sort", sortMode+" ");
+                res.sort((ins1, ins2) -> ins2.getName().compareTo(ins1.getName()));
+                res.sort((ins1, ins2) -> {
+                    Collator collator = Collator.getInstance(Locale.CHINA);
+                    CollationKey key1 = collator.getCollationKey(ins1.getName());
+                    CollationKey key2 = collator.getCollationKey(ins2.getName());
+                    return key1.compareTo(key2);
+                });
+                break;
+            default:
+                break;
+        }
+        switch (filterMode){
+            case R.id.filter1:
+                return res.stream().filter(ins->ins.getName().startsWith(queryWord)).collect(Collectors.toList());
+            case R.id.filter2:
+                return res.stream().filter(ins->ins.getName().endsWith(queryWord)).collect(Collectors.toList());
+            case R.id.filter3:
+                return res.stream().filter(ins->(!ins.getType().isEmpty())).collect(Collectors.toList());
+            case R.id.filter4:
+                return res.stream().filter(ins->ins.getType().isEmpty()).collect(Collectors.toList());
+            default:
+                break;
+        }
+
+        return res;
+    }
+
+    // 重排实体列表并渲染（不含网络请求）
+    public void refreshAndDisplay(Vector<InstanceWithUri> res){
+        requireActivity().runOnUiThread(() -> {
+
+            for(InstanceWithUri ins : res){
+                Log.i("Result", ins.getName() + "|" + ins.getType() + "|" + ins.getUri());
+            }
+            resultList.clear();
+            resultList.addAll(sortAndFilterResults(res));
+//                        resultList.addAll(res);
+            for(InstanceWithUri ins : resultList){
+                Log.i("Result", ins.getName() + "|" + ins.getType() + "|" + ins.getUri());
+            }
+            mRecyclerView.setAdapter(new InsAdapter());
+        });
+    }
 
     //load info
     public void getRetrievalResults() {
         new Thread(() -> {
             try {
-                new Response().handle(res -> {
-
-
-//                    instance = ins;
-//                    Log.e("getInstanceDetail", instance.getEntity_name());
-//                    String name = "实体名称：" + ((instance.getEntity_name().equals("")) ? "无" : instance.getEntity_name());
-//                    String type = "实体类别：" + ((instance.getEntity_type().equals("")) ? "无" : instance.getEntity_type());
-                    requireActivity().runOnUiThread(() -> {
-
-                        for(InstanceWithUri ins : res){
-                            Log.i("Result", ins.getName() + "  " + ins.getType() + "  " + ins.getUri());
-                        }
-                        resultList.clear();
-                        resultList.addAll(res);
-                        for(InstanceWithUri ins : resultList){
-                            Log.i("Result", ins.getName() + "  " + ins.getType() + "  " + ins.getUri());
-                        }
-                        mRecyclerView.setAdapter(new InsAdapter());
-//                        detail_name.setText(name);
-//                        detail_type.setText(type);
-//                        JSONArray features = ins.getEntity_features();
-//                        try {
-//                            for (int i = 0; i < features.length(); ++i) {
-//                                JSONObject feature = features.getJSONObject(i);
-//                                feature_list.add(feature);
-//                            }
-//                        } catch (Exception e) {
-//                            e.printStackTrace();
-//                        }
-//                        detail_feature.setAdapter(new InsAdapter());
-////                        requireActivity().runOnUiThread(() -> skv.setVisibility(View.INVISIBLE));?
-//                        Log.i("getResultList", "Adapter");
-                    });
-                });
+                new Response().handle(this::refreshAndDisplay);
             } catch (JSONException | IOException | InterruptedException e) {
                 e.printStackTrace();
             }
@@ -251,9 +308,11 @@ public class FragmentQuesRetrieval extends Fragment {
             holder.ins_item.setOnClickListener(v -> showDetail(position));
             holder.ins_number.setOnClickListener(v -> showDetail(position));
             holder.ins_name.setOnClickListener(v -> showDetail(position));
+            holder.ins_type.setOnClickListener(v -> showDetail(position));
             String number = String.valueOf(position + 1);
             holder.ins_number.setText(number);
             holder.ins_name.setText(item.getName());
+            holder.ins_type.setText(item.getType());
         }
 
         @Override
@@ -265,11 +324,13 @@ public class FragmentQuesRetrieval extends Fragment {
             LinearLayout ins_item;
             TextView ins_number;
             TextView ins_name;
+            TextView ins_type;
             public ViewHolder(@NonNull @NotNull View itemView) {
                 super(itemView);
                 ins_item = itemView.findViewById(R.id.ins_item);
                 ins_number = itemView.findViewById(R.id.ins_number);
                 ins_name = itemView.findViewById(R.id.ins_name);
+                ins_type = itemView.findViewById(R.id.ins_type);
             }
         }
     }

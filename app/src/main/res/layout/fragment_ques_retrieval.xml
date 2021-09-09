@@ -23,7 +23,7 @@
             android:contentDescription="@string/back"
             android:paddingStart="0dp"
             android:src="@drawable/back_home_foreground"
-            tools:ignore="RtlSymmetry" />
+            tools:ignore="RtlSymmetry"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -51,7 +51,7 @@
         android:id="@+id/sp_course"
         app:layout_constraintTop_toBottomOf="@id/nav"
         app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="20dp"
         android:layout_marginEnd="10dp"
         android:layout_width="120dp"
         android:layout_height="50dp"
@@ -61,7 +61,7 @@
         android:id="@+id/sv_retrieval"
         android:layout_width="0dp"
         android:layout_height="50dp"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="20dp"
         android:layout_marginStart="20dp"
         app:layout_constraintTop_toBottomOf="@id/nav"
         app:layout_constraintEnd_toStartOf="@id/sp_course"
@@ -71,20 +71,134 @@
         android:inputType="text"
         app:iconifiedByDefault="false"
         />
-<!--    <ListView-->
-<!--        android:id="@+id/lv"-->
-<!--        app:layout_constraintLeft_toLeftOf="parent"-->
-<!--        app:layout_constraintRight_toRightOf="parent"-->
-<!--        app:layout_constraintTop_toBottomOf="@id/sv_retrieval"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="328dp"-->
-<!--        android:layout_weight="1"/>-->
+    <LinearLayout
+        android:id="@+id/sort_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/sv_retrieval"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="5dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="10dp"
+            android:text="排序方案"
+            android:textColor="#333333"/>
+        <ImageButton
+            android:id="@+id/sort_clear"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/refresh"/>
+    </LinearLayout>
+    <RadioGroup
+        android:id="@+id/sort_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/sort_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:orientation="horizontal">
+        <RadioButton
+            android:id="@+id/sort1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textSize="12sp"
+            android:text="长度升序"/>
+
+        <RadioButton
+            android:id="@+id/sort2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textSize="12sp"
+            android:text="长度降序"/>
+
+        <RadioButton
+            android:id="@+id/sort3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textSize="12sp"
+            android:text=" A-Z "/>
+
+        <RadioButton
+            android:id="@+id/sort4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textSize="12sp"
+            android:text=" Z-A "/>
+    </RadioGroup>
+    <LinearLayout
+        android:id="@+id/filter_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/sort_group"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="10dp"
+        android:text="筛选方案"
+        android:textColor="#333333"/>
+    <ImageButton
+        android:id="@+id/filter_clear"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/refresh"/>
+    </LinearLayout>
+    <RadioGroup
+        android:id="@+id/filter_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/filter_title"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:orientation="horizontal">
+        <RadioButton
+            android:id="@+id/filter1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textSize="12sp"
+            android:text="以此开头"/>
+
+        <RadioButton
+            android:id="@+id/filter2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textSize="12sp"
+            android:text="以此结尾"/>
+
+        <RadioButton
+            android:id="@+id/filter3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textSize="12sp"
+            android:text="类型已知"/>
+
+        <RadioButton
+            android:id="@+id/filter4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textSize="12sp"
+            android:text="类型未知"/>
+    </RadioGroup>
+
     <androidx.core.widget.NestedScrollView
         android:layout_margin="20dp"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:scrollbars="none"
-        app:layout_constraintTop_toBottomOf="@id/sv_retrieval"
+        app:layout_constraintTop_toBottomOf="@id/filter_group"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent">
@@ -108,9 +222,6 @@
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>
-
-
-
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

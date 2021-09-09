@@ -52,6 +52,7 @@ public class FragmentMine extends Fragment {
     LinearLayout recommendation;
     private boolean logged;
     private String id;
+    LinearLayout word_cloud;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -70,6 +71,8 @@ public class FragmentMine extends Fragment {
         local_cache = (LinearLayout) view.findViewById(R.id.local_cache);
         stars = (LinearLayout) view.findViewById(R.id.stars);
         recommendation = (LinearLayout) view.findViewById(R.id.recommendation);
+
+        word_cloud = (LinearLayout) view.findViewById(R.id.word_cloud);
 
 
         try {
@@ -110,19 +113,22 @@ public class FragmentMine extends Fragment {
                 forwardSwitchFragment();
             }
         });
-
         recommendation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Toast.makeText(getActivity(), "试题推荐中", Toast.LENGTH_SHORT).show();
                 MainActivity.fragments.add(new FragmentWaiting());
+            }
+        });
+        word_cloud.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MainActivity.fragments.add(new FragmentWordCloud());
                 forwardSwitchFragment();
             }
         });
         super.onViewCreated(view, savedInstanceState);
     }
-
-
 
     public void refreshView(View view) throws InterruptedException {
 
