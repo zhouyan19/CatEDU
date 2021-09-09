@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/course_item"
+    android:layout_width="match_parent"
+    android:layout_height="40dp"
+    android:layout_marginLeft="10dp"
+    android:layout_marginStart="10dp"
+    android:layout_marginRight="10dp"
+    android:layout_marginEnd="10dp"
+    android:orientation="horizontal">
+
+    <ImageButton
+        android:id="@+id/opt"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:scaleType="center"
+        android:background="@drawable/course_border"
+        android:layout_gravity="center"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="10dp" />
+
+    <TextView
+        android:id="@+id/this_name"
+        android:layout_width="wrap_content"
+        android:layout_height="24dp"
+        android:layout_gravity="center"
+        android:layout_marginLeft="20dp"
+        android:text="@string/course_card"
+        android:textColor="@color/black"
+        android:textSize="18sp" />
+
+</LinearLayout>

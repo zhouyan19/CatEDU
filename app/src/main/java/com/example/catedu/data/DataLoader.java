@@ -142,7 +142,7 @@ public class DataLoader {
     }
 
     /**
-     * 把读到的 json 字符串转为 Instance 对象
+     * 把读到的 json 字符串转为 InstanceTriple 对象
      * @param jsons json字符串数组
      */
     public Vector<Triple> getDataFromJson (Vector<String> jsons) {

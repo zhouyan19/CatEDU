@@ -90,9 +90,11 @@ public class FragmentInsDetail extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        if (!independence) {
+        if (independence) {
             back_home = view.findViewById(R.id.detail_back_home);
+//            Logger.e("FD","onclick1");
             back_home.setOnClickListener(v -> {
+//                Logger.e("FD","onclick2");
                 try {
                     backSwitchFragment();
                 } catch (Throwable throwable) {

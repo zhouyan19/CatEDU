@@ -11,7 +11,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,7 +19,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 public class FragmentQuestion extends Fragment {
-    CardView cardRetrieval, cardLink, cardQa;
+    CardView cardRetrieval, cardLink, cardQa, cardCamera;
     /**
      * FragmentQuestion 创建时的操作
      */
@@ -33,6 +32,8 @@ public class FragmentQuestion extends Fragment {
         cardRetrieval = view.findViewById(R.id.card_retrieval);
         cardLink = view.findViewById(R.id.card_link);
         cardQa = view.findViewById(R.id.card_qa);
+        cardCamera = view.findViewById(R.id.card_camera);
+
         cardRetrieval.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -57,6 +58,16 @@ public class FragmentQuestion extends Fragment {
                 forwardSwitchFragment();
             }
         });
+
+        cardCamera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i("i","Camera btn clicked!");
+                MainActivity.fragments.add(new FragmentCamera());
+                forwardSwitchFragment();
+            }
+        });
+
     }
 
     protected void forwardSwitchFragment() {

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <!--    这里是Linearlayout布局的背景颜色-->
+    <solid android:color="#FE8D31" />
+
+    <!--    这里是设置边框线的粗细和颜色-->
+    <stroke
+        android:width="0dp"
+        android:color="#FE8D31" />
+
+    <!--    这里是设置四周的空白-->
+    <padding
+        android:bottom="20dp"
+        android:left="40dp"
+        android:right="40dp"
+        android:top="20dp" />
+
+    <!--    这里是设置四周圆角半径-->
+    <corners android:radius="20dp" />
+
+</shape>
