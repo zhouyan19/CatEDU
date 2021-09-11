@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,6 +46,11 @@ public class FragmentLogin extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+
+        ImageButton login_back = view.findViewById(R.id.login_back);
+        login_back.setOnClickListener(v -> {
+            backSwitchFragment();
+        });
 
         Button loginBtn=(Button) view.findViewById(R.id.login);
         EditText nameInput=(EditText) view.findViewById(R.id.name);

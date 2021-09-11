@@ -55,4 +55,5 @@
     <string name="register_text">注册账户</string>
     <string name="modify_text">修改信息</string>
     <string name="recommendation">试题推荐</string>
+    <string name="login_text">登录</string>
 </resources>
