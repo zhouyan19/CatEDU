@@ -71,6 +71,10 @@ public class FragmentQuesRetrieval extends Fragment {
     public FragmentQuesRetrieval() {
         resultList = new Vector<>();
     }
+    public FragmentQuesRetrieval (String org) {
+        resultList = new Vector<>();
+        queryWord = org;
+    }
 
 
     public static FragmentQuesRetrieval newInstance(String param1, String param2) {
@@ -104,6 +108,11 @@ public class FragmentQuesRetrieval extends Fragment {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         mSearchView = view.findViewById(R.id.sv_retrieval);
+
+        if (!queryWord.equals("")) {
+            mSearchView.setQuery(queryWord, false);
+        }
+
 //        mListView = view.findViewById(R.id.lv);
 //        mListView.setAdapter(new ArrayAdapter<String>(this.getContext(), android.R.layout.simple_list_item_1, historyStrs));
 //        mListView.setTextFilterEnabled(true);
