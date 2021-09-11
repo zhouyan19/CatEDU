@@ -226,7 +226,6 @@
         app:layout_constraintRight_toRightOf="parent"
         style="@style/SpinKitView.ThreeBounce"
         app:SpinKit_Color="@color/main"
-        android:visibility="invisible"
         >
     </com.github.ybq.android.spinkit.SpinKitView>
 

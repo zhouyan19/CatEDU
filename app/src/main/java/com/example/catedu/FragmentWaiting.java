@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -36,6 +37,7 @@ public class FragmentWaiting extends Fragment {
     private boolean logged;
     private String id;
     SpinKitView skv;
+    ImageButton backMine;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -44,8 +46,15 @@ public class FragmentWaiting extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        backMine=(ImageButton) view.findViewById(R.id.back_mine);
+        backMine.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                backSwitchFragment();
+            }
+        });
         skv=view.findViewById(R.id.recSpin);
-//        skv.setVisibility(View.VISIBLE);
+        skv.setVisibility(View.VISIBLE);
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -54,7 +63,21 @@ public class FragmentWaiting extends Fragment {
         },1000); // 延时1秒
         super.onViewCreated(view, savedInstanceState);
     }
-
+    public void backSwitchFragment() {
+        int from = MainActivity.last_fragment, to;
+        FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
+        transaction.hide(MainActivity.fragments.get(from));
+        if (MainActivity.last_fragment == 3) { //次级页面
+            to = MainActivity.major_fragment;
+        } else { //多级页面
+            to = MainActivity.last_fragment - 1;
+        }
+        if (!MainActivity.fragments.get(to).isAdded())
+            transaction.add(R.id.nav_host_fragment, MainActivity.fragments.get(to));
+        transaction.show(MainActivity.fragments.get(to)).commitAllowingStateLoss();
+        MainActivity.last_fragment = to; //更新
+        MainActivity.fragments.removeElementAt(from); //删多余的页面
+    }
     void runThread(){
         Vector<Ques> vecQues = new Vector<>();
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("user", Context.MODE_PRIVATE);
@@ -80,6 +103,7 @@ public class FragmentWaiting extends Fragment {
                     JSONObject jsonObject1 = (JSONObject) jsonArray.get(index);
                     JSONObject detail = JSONObject.parseObject(jsonObject1.get("detail").toString());
                     String name = detail.getString("entity_name");
+                    Logger.e("FW",name);
                     Vector<Ques> tmpVec = null;
                     try {
                         tmpVec = getInstanceQues(name);
@@ -151,7 +175,7 @@ public class FragmentWaiting extends Fragment {
         Vector<Ques> vector = new Vector<>();
         Gson gson = new Gson(); // 使用 Gson 工具
         JSONArray data = json.getJSONArray("data");
-        if (data.size() == 0) return vector;
+        if (data==null||data.size() == 0) return vector;
         else {
             for (int i = 0; i < data.size(); ++i) {
                 JSONObject item = data.getJSONObject(i);

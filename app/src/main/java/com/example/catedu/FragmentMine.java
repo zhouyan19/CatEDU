@@ -9,7 +9,6 @@ package com.example.catedu;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -133,15 +132,17 @@ public class FragmentMine extends Fragment {
             public void onClick(View view) {
                 Toast.makeText(getActivity(), "试题推荐中", Toast.LENGTH_SHORT).show();
 
-                skv.setVisibility(View.VISIBLE);
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        runThread();
-                    }
-                },1000); // 延时1秒
-//                MainActivity.fragments.add(new FragmentWaiting());
+//                skv.setVisibility(View.VISIBLE);
+//                new Handler().postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        runThread();
+//                    }
+//                },1); // 延时1秒
+                MainActivity.fragments.add(new FragmentWaiting());
+                forwardSwitchFragment();
                 skv.setVisibility(View.INVISIBLE);
+
             }
         });
         word_cloud.setOnClickListener(new View.OnClickListener() {
@@ -156,6 +157,7 @@ public class FragmentMine extends Fragment {
 
     public void refreshView(View view) throws InterruptedException {
 
+        skv.setVisibility(View.INVISIBLE);
         sharedPreferences = getActivity().getSharedPreferences("user", Context.MODE_PRIVATE);
         this.token = sharedPreferences.getString("token", null);
         Runnable networkTask = new Runnable() {
