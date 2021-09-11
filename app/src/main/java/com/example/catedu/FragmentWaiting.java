@@ -3,7 +3,6 @@ package com.example.catedu;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,6 +37,7 @@ public class FragmentWaiting extends Fragment {
     private String id;
     SpinKitView skv;
     ImageButton backMine;
+    int toLoadNum;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -55,12 +55,15 @@ public class FragmentWaiting extends Fragment {
         });
         skv=view.findViewById(R.id.recSpin);
         skv.setVisibility(View.VISIBLE);
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                runThread();
-            }
-        },1000); // 延时1秒
+        new Thread(()->{
+            runThread();
+        }).start();
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                runThread();
+//            }
+//        },1000); // 延时1秒
         super.onViewCreated(view, savedInstanceState);
     }
     public void backSwitchFragment() {
@@ -78,6 +81,7 @@ public class FragmentWaiting extends Fragment {
         MainActivity.last_fragment = to; //更新
         MainActivity.fragments.removeElementAt(from); //删多余的页面
     }
+
     void runThread(){
         Vector<Ques> vecQues = new Vector<>();
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("user", Context.MODE_PRIVATE);
@@ -97,6 +101,7 @@ public class FragmentWaiting extends Fragment {
             JSONObject resJson = JSONObject.parseObject(res);
             JSONArray jsonArray = (JSONArray) resJson.get("detail");
             Thread[] threadList=new Thread[jsonArray.size()];
+            toLoadNum=jsonArray.size();
             for (int i = 0; i < jsonArray.size(); i++) {
                 final int index = i;
                 threadList[i] = new Thread(() -> {
@@ -106,14 +111,16 @@ public class FragmentWaiting extends Fragment {
                     Logger.e("FW",name);
                     Vector<Ques> tmpVec = null;
                     try {
-                        tmpVec = getInstanceQues(name);
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                        new Response().handle(name,quesVec->{
+                            if (quesVec != null)
+                                vecQues.addAll(quesVec);
+                        });
                     } catch (InterruptedException e) {
                         e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                    if (tmpVec != null)
-                        vecQues.addAll(tmpVec);
+
                 });
                 threadList[i].start();
             }
@@ -134,6 +141,7 @@ public class FragmentWaiting extends Fragment {
                 resVec.add(vecQues.get(i));
             }
 //            skv.setVisibility(View.INVISIBLE);
+            backSwitchFragment();
             MainActivity.fragments.add(new FragmentRecommend(resVec));
             forwardSwitchFragment();
 
@@ -141,11 +149,24 @@ public class FragmentWaiting extends Fragment {
             Toast.makeText(getActivity(), "未登录", Toast.LENGTH_SHORT).show();
         }
     }
+    public class Response {
+
+        public void handle(String name, CallBack callBack) throws InterruptedException, IOException {
+            Vector<Ques> quesVector=getInstanceQues(name);
+            toLoadNum-=1;
+            Logger.e("FW157",quesVector.toString());
+            callBack.onResponse(quesVector);
+        };
+    }
+    interface CallBack  {
+        void onResponse(Vector<Ques> quesVector);
+    }
     public Vector<Ques> getInstanceQues(String name) throws IOException, JSONException, InterruptedException {
         if (!logged) logIn();
         String root = "http://open.edukg.cn/opedukg/api/typeOpen/open/questionListByUriName?uriName=";
         String tail = "&id=" + id;
         URL url = new URL(root + name + tail);
+        Logger.e("FW169",url.toString());
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
         //Get请求不需要DoOutPut
@@ -167,7 +188,8 @@ public class FragmentWaiting extends Fragment {
             result.append(line);
         }
         in.close();
-        JSONObject json = new JSONObject();
+        JSONObject json = JSONObject.parseObject(result.toString());
+        Logger.e("FW192",json.toString());
         return getQuesFromJson(json);
     }
 

@@ -13,12 +13,10 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -37,28 +35,18 @@ import androidx.core.content.FileProvider;
 import androidx.core.os.EnvironmentCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.alibaba.fastjson.JSONObject;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DecodeFormat;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.request.target.Target;
 import com.example.catedu.data.DataLoader;
 import com.example.catedu.data.InstanceDetail;
-import com.example.catedu.data.PicSpider;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.sina.weibo.sdk.api.ImageObject;
 import com.sina.weibo.sdk.api.TextObject;
 import com.sina.weibo.sdk.api.WeiboMultiMessage;
 import com.sina.weibo.sdk.auth.AuthInfo;
-import com.sina.weibo.sdk.auth.Oauth2AccessToken;
-import com.sina.weibo.sdk.auth.WbAuthListener;
-import com.sina.weibo.sdk.common.UiError;
 import com.sina.weibo.sdk.openapi.IWBAPI;
 import com.sina.weibo.sdk.openapi.WBAPIFactory;
-import com.sina.weibo.sdk.share.WbShareCallback;
 
 import org.scilab.forge.jlatexmath.core.AjLatexMath;
 
@@ -67,8 +55,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -227,14 +213,14 @@ public class MainActivity extends AppCompatActivity {
         MainActivity.last_fragment = to; // 更新
     }
 
-    @Override
-    protected void onStop() {
-        SharedPreferences sharedPref = getSharedPreferences("user", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPref.edit();
-        editor.clear();
-        editor.apply();
-        super.onStop();
-    }
+//    @Override
+//    protected void onStop() {
+//        SharedPreferences sharedPref = getSharedPreferences("user", Context.MODE_PRIVATE);
+//        SharedPreferences.Editor editor = sharedPref.edit();
+//        editor.clear();
+//        editor.apply();
+//        super.onStop();
+//    }
 
     public static FragmentActivity getFragmentActivityFromView(View view) {
         if (null != view) {
