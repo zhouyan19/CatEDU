@@ -48,7 +48,9 @@ import cn.jiguang.imui.messages.MsgListAdapter;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeSet;
@@ -145,14 +147,13 @@ public class FragmentQuesQa extends Fragment {
         testBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                MyMessage myMessage = new MyMessage(editText.getText().toString(), SEND_TEXT);
-                myMessage.setUserInfo(new DefaultUser("00", "Admin", "send"));
-                adapter.addToStart(myMessage, true);
+                question = editText.getText().toString();
+                appendMessage(question, SEND_TEXT, "send");
                 editText.setText("");
-                messageList.setAdapter(adapter);
                 fetchAnswer();
             }
         });
+        appendMessage("你好，有什么要问我的吗？", RECEIVE_TEXT, "receive");
         final View rootView = getActivity().getWindow().getDecorView();
 //        final View rootView = getActivity().getWindow().getDecorView().findViewById(android.R.id.content);
         rootView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -190,10 +191,7 @@ public class FragmentQuesQa extends Fragment {
 
 
                     requireActivity().runOnUiThread(() -> {
-                        MyMessage myMessage = new MyMessage(answer, RECEIVE_TEXT);
-                        myMessage.setUserInfo(new DefaultUser("00", "Robot", "receive"));
-                        adapter.addToStart(myMessage, true);
-                        messageList.setAdapter(adapter);
+                        appendMessage(answer, RECEIVE_TEXT, "receive");
                     });
                 });
             } catch (JSONException | IOException | InterruptedException e) {
@@ -201,6 +199,13 @@ public class FragmentQuesQa extends Fragment {
             }
         }).start();
     }
+    public void appendMessage(String content, IMessage.MessageType type, String userTag){
+        MyMessage myMessage = new MyMessage(content, type);
+        myMessage.setUserInfo(new DefaultUser("00", "", userTag));
+        adapter.addToStart(myMessage, true);
+        messageList.setAdapter(adapter);
+    }
+
     public class Response {
         public void handle (FragmentQuesQa.CallBack callBack) throws IOException, JSONException, InterruptedException {
             String answer = MainActivity.dataLoader.getAnswer(Utils.English(courses[courseId]), question);

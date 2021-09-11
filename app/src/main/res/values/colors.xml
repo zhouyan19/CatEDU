@@ -13,4 +13,6 @@
     <color name="divider_grey">#FF888888</color>
     <color name="chat_background">#FDFAFB</color>
     <color name="chat_bottom_bar">#F8F0F0</color>
+    <color name="send_bubble">#F0E6E0</color>
+    <color name="receive_bubble">#444444</color>
 </resources>

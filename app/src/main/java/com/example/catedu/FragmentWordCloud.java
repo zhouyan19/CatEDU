@@ -28,6 +28,9 @@ import com.bumptech.glide.load.DecodeFormat;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.target.Target;
 
+import org.json.JSONException;
+
+import java.io.IOException;
 import java.util.ArrayList;
 
 
@@ -97,24 +100,30 @@ public class FragmentWordCloud extends Fragment {
     }
 
 
-    private void showCloud() {
-        String cloudURL = getCloudURL();
-        Glide.with(requireContext())
-                .load("http://82.156.215.178:8080" + "/img" + cloudURL)
-                .centerCrop()
-                .dontTransform()
-                .dontAnimate()
-                .format(DecodeFormat.PREFER_ARGB_8888)
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
-                .into(imageView);
-    }
-
-    private String getCloudURL() {
-
+    public void showCloud() {
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("user", Context.MODE_PRIVATE);
         String token = sharedPreferences.getString("token", null);
         if (token != null) {
+            new Thread(() -> {
+                String cloudURL = getCloudURL(token);
+                requireActivity().runOnUiThread(() -> {
+                    Glide.with(requireContext())
+                            .load("http://82.156.215.178:8080" + "/img" + cloudURL)
+                            .centerCrop()
+                            .dontTransform()
+                            .dontAnimate()
+                            .format(DecodeFormat.PREFER_ARGB_8888)
+                            .diskCacheStrategy(DiskCacheStrategy.ALL)
+                            .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
+                            .into(imageView);
+                });
+            }).start();
+        } else {
+            imageView.setImageResource(R.drawable.not_login_tip);
+        }
+    }
+
+    private String getCloudURL(String token) {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("token", token);
             jsonObject.put("colorStyle", colorMode);
@@ -132,10 +141,6 @@ public class FragmentWordCloud extends Fragment {
             Log.e("cloud return", resJson.toString());
 //            JSONArray jsonArray = (JSONArray) resJson.get("detail");
             return resJson.getString("detail");
-        } else {
-            return "未登录";
-        }
-
     }
 
     private int Id2ColorMode(int id) {

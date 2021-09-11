@@ -33,13 +33,13 @@ import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 
 import java.io.IOException;
-import java.text.CollationKey;
 import java.text.Collator;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Vector;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -49,7 +49,8 @@ import java.util.stream.Collectors;
 public class FragmentQuesRetrieval extends Fragment {
     private final String[] historyStrs = { };
     private final String[] courses = {"语文", "数学", "英语", "物理", "化学", "生物", "历史", "地理", "政治"};
-    private static Vector<InstanceWithUri> resultList;
+    private static Vector<InstanceWithUri> displayList = new Vector<>();
+    private static Vector<InstanceWithUri> rawResultList = new Vector<InstanceWithUri>();
     int courseId = 0;
     int sortMode = -1; //default
     int filterMode = -1; //default
@@ -68,8 +69,9 @@ public class FragmentQuesRetrieval extends Fragment {
 
 
 
-    public FragmentQuesRetrieval() {
-        resultList = new Vector<>();
+    public FragmentQuesRetrieval() { }
+    public FragmentQuesRetrieval (String org) {
+        queryWord = org;
     }
 
 
@@ -79,12 +81,10 @@ public class FragmentQuesRetrieval extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
-
-
+    
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_ques_retrieval, container, false);
     }
 
@@ -104,9 +104,12 @@ public class FragmentQuesRetrieval extends Fragment {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         mSearchView = view.findViewById(R.id.sv_retrieval);
-//        mListView = view.findViewById(R.id.lv);
-//        mListView.setAdapter(new ArrayAdapter<String>(this.getContext(), android.R.layout.simple_list_item_1, historyStrs));
-//        mListView.setTextFilterEnabled(true);
+
+
+        if (!queryWord.equals("")) {
+            mSearchView.setQuery(queryWord, false);
+        }
+
 
         mSpinner = view.findViewById(R.id.sp_course);
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(this.getContext(), android.R.layout.simple_list_item_1, courses);
@@ -157,15 +160,12 @@ public class FragmentQuesRetrieval extends Fragment {
         filterGroup = view.findViewById(R.id.filter_group);
         sortGroup.setOnCheckedChangeListener((radioGroup, i) -> {
             sortMode = i;
-            new Thread(() -> {
-                refreshAndDisplay(resultList);
-            }).start();
-            Log.e("run", "thetet");
+//            new Thread(this::refreshAndDisplay).start();
+            refreshAndDisplay();
         });
         filterGroup.setOnCheckedChangeListener((radioGroup, i) -> {
             filterMode = i;
-            refreshAndDisplay(resultList);
-            Log.e("run", "herehe");
+            refreshAndDisplay();
         });
         sortClearBtn = view.findViewById(R.id.sort_clear);
         filterClearBtn = view.findViewById(R.id.filter_clear);
@@ -200,67 +200,61 @@ public class FragmentQuesRetrieval extends Fragment {
         return rootView.getRootView().getHeight() - r.bottom;
     }
 
-    List<InstanceWithUri> sortAndFilterResults(Vector<InstanceWithUri> res){
+    List<InstanceWithUri> sortAndFilterResults(Vector<InstanceWithUri> rawList){
+        Stream<InstanceWithUri> stream = rawList.stream();
         switch (sortMode){
             case R.id.sort1:
                 Log.e("sort", sortMode+" ");
-                res.sort((ins1, ins2) -> {
-                    return ins1.getName().length() < ins2.getName().length()?-1:1;
-                });
+                stream = stream.sorted(Comparator.comparingInt(ins -> ins.getName().length()));
                 break;
             case R.id.sort2:
                 Log.e("sort", sortMode+" ");
-                res.sort((ins1, ins2) -> {
-                    return ins1.getName().length() > ins2.getName().length()?-1:1;
-                });
+                stream = stream.sorted(Comparator.comparingInt(ins -> - ins.getName().length()));
                 break;
             case R.id.sort3:
                 Log.e("sort", sortMode+" ");
-                res.sort(Comparator.comparing(InstanceWithUri::getName));
-//                res.sort((ins1, ins2) -> {
-//                    return ins1.getName().compareTo(ins2.getName());
-//                });
+//                res.sort(Comparator.comparing(InstanceWithUri::getName));
+                stream = stream.sorted((ins1, ins2) -> Collator.getInstance(Locale.CHINA).compare(ins1.getName(), ins2.getName()));
                 break;
             case R.id.sort4:
                 Log.e("sort", sortMode+" ");
-                res.sort((ins1, ins2) -> ins2.getName().compareTo(ins1.getName()));
-                res.sort((ins1, ins2) -> {
-                    Collator collator = Collator.getInstance(Locale.CHINA);
-                    CollationKey key1 = collator.getCollationKey(ins1.getName());
-                    CollationKey key2 = collator.getCollationKey(ins2.getName());
-                    return key1.compareTo(key2);
-                });
+//                res.sort((ins1, ins2) -> ins2.getName().compareTo(ins1.getName()));
+                stream = stream.sorted((ins1, ins2) -> Collator.getInstance(Locale.CHINA).compare(ins2.getName(), ins1.getName()));
                 break;
             default:
                 break;
         }
         switch (filterMode){
             case R.id.filter1:
-                return res.stream().filter(ins->ins.getName().startsWith(queryWord)).collect(Collectors.toList());
+                stream = stream.filter(ins->ins.getName().startsWith(queryWord));
+                break;
             case R.id.filter2:
-                return res.stream().filter(ins->ins.getName().endsWith(queryWord)).collect(Collectors.toList());
+                stream = stream.filter(ins->ins.getName().endsWith(queryWord));
+                break;
             case R.id.filter3:
-                return res.stream().filter(ins->(!ins.getType().isEmpty())).collect(Collectors.toList());
+                stream = stream.filter(ins->(!ins.getType().isEmpty()));
+                break;
             case R.id.filter4:
-                return res.stream().filter(ins->ins.getType().isEmpty()).collect(Collectors.toList());
+                stream = stream.filter(ins->ins.getType().isEmpty());
+                break;
             default:
                 break;
         }
-
-        return res;
+        return stream.collect(Collectors.toList());
     }
 
     // 重排实体列表并渲染（不含网络请求）
-    public void refreshAndDisplay(Vector<InstanceWithUri> res){
+    public void refreshAndDisplay(){
+        Log.e("runOnUiThread","refreshAndDisplay000");
         requireActivity().runOnUiThread(() -> {
+            Log.e("refreshAndDisplay","refreshAndDisplay");
 
-            for(InstanceWithUri ins : res){
+            for(InstanceWithUri ins : rawResultList){
                 Log.i("Result", ins.getName() + "|" + ins.getType() + "|" + ins.getUri());
             }
-            resultList.clear();
-            resultList.addAll(sortAndFilterResults(res));
-//                        resultList.addAll(res);
-            for(InstanceWithUri ins : resultList){
+            displayList.clear();
+            displayList.addAll(sortAndFilterResults(rawResultList));
+            for(InstanceWithUri ins : displayList){
                 Log.i("Result", ins.getName() + "|" + ins.getType() + "|" + ins.getUri());
             }
             mRecyclerView.setAdapter(new InsAdapter());
@@ -279,12 +273,12 @@ public class FragmentQuesRetrieval extends Fragment {
     }
     public class Response {
         public void handle (FragmentQuesRetrieval.CallBack callBack) throws IOException, JSONException, InterruptedException {
-            Vector<InstanceWithUri> res = MainActivity.dataLoader.getInstanceListByString(Utils.English(courses[courseId]), queryWord);
-            callBack.onResponse(res);
+            rawResultList = MainActivity.dataLoader.getInstanceListByString(Utils.English(courses[courseId]), queryWord);
+            callBack.onResponse();
         }
     }
     interface CallBack  {
-        void onResponse(Vector<InstanceWithUri> res) throws IOException;
+        void onResponse() throws IOException;
     }
     // end fetching thread
 
@@ -304,7 +298,7 @@ public class FragmentQuesRetrieval extends Fragment {
         @SuppressLint("UseCompatLoadingForDrawables")
         @Override
         public void onBindViewHolder(@NonNull @NotNull FragmentQuesRetrieval.InsAdapter.ViewHolder holder, int position) {
-            InstanceWithUri item = resultList.get(position);
+            InstanceWithUri item = displayList.get(position);
             holder.ins_item.setOnClickListener(v -> showDetail(position));
             holder.ins_number.setOnClickListener(v -> showDetail(position));
             holder.ins_name.setOnClickListener(v -> showDetail(position));
@@ -312,12 +306,15 @@ public class FragmentQuesRetrieval extends Fragment {
             String number = String.valueOf(position + 1);
             holder.ins_number.setText(number);
             holder.ins_name.setText(item.getName());
-            holder.ins_type.setText(item.getType());
+            if(item.getType().isEmpty())
+                holder.ins_type.setVisibility(View.GONE);
+            else
+                holder.ins_type.setText(item.getType());
         }
 
         @Override
         public int getItemCount() {
-            return resultList.size();
+            return displayList.size();
         }
 
         public class ViewHolder extends RecyclerView.ViewHolder {
@@ -340,7 +337,7 @@ public class FragmentQuesRetrieval extends Fragment {
      * @param pos 实体的序号
      */
     public void showDetail (int pos) {
-        InstanceWithUri ins = resultList.get(pos);
+        InstanceWithUri ins = displayList.get(pos);
         Log.i("showDetail", String.valueOf(pos + 1));
 
         FragmentInstance fi = new FragmentInstance(ins.getUri(), ins.getName(), Utils.English(courses[courseId]));

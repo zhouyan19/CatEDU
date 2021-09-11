@@ -69,7 +69,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textStyle="bold"
-                android:text="橙"/>
+                android:text="橙"
+                android:checked="true"/>
 
             <RadioButton
                 android:id="@+id/blue"
