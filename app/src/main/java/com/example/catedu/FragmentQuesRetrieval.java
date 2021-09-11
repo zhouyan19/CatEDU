@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -66,6 +67,8 @@ public class FragmentQuesRetrieval extends Fragment {
     ImageButton sortClearBtn;
     ImageButton filterClearBtn;
     private static int inputDownHeightDiff;
+    Button searchBtn;
+
 
 
 
@@ -155,6 +158,12 @@ public class FragmentQuesRetrieval extends Fragment {
                 return false;
             }
         });
+        mSearchView.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus)
+                searchBtn.setVisibility(View.VISIBLE);
+            else
+                searchBtn.setVisibility(View.GONE);
+        });
 
         sortGroup = view.findViewById(R.id.sort_group);
         filterGroup = view.findViewById(R.id.filter_group);
@@ -171,6 +180,9 @@ public class FragmentQuesRetrieval extends Fragment {
         filterClearBtn = view.findViewById(R.id.filter_clear);
         sortClearBtn.setOnClickListener(v->sortGroup.clearCheck());
         filterClearBtn.setOnClickListener(v->filterGroup.clearCheck());
+
+        searchBtn = view.findViewById(R.id.btn_search);
+        searchBtn.setOnClickListener(v->mSearchView.setQuery(mSearchView.getQuery(), true));
 
         final View rootView = getActivity().getWindow().getDecorView();
 //        final View rootView = getActivity().getWindow().getDecorView().findViewById(android.R.id.content);

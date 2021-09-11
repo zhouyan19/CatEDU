@@ -90,6 +90,8 @@ public class FragmentRecommend extends Fragment {
 
         requireActivity().runOnUiThread(() -> {
             if (ques_vec.size() > 0) {
+                options = new String[ques_vec.size()];
+                for (int i = 0; i < ques_vec.size(); ++i) options[i] = "";
                 rv_ques.setAdapter(new QuesAdapter());
                 sub_button.setVisibility(View.VISIBLE);
             } else {

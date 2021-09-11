@@ -71,6 +71,7 @@
         app:edt_content="email"
         app:layout_constraintTop_toBottomOf="@id/item_nickname">
     </com.example.catedu.widget.ItemGroup>
+
     <com.example.catedu.widget.ItemGroup
         android:id="@+id/item_nickname"
         android:layout_width="match_parent"
@@ -79,7 +80,7 @@
         app:edt_content="nickname"
         app:layout_constraintTop_toBottomOf="@id/ll_portrait"
         app:title="昵称"
-        tools:layout_editor_absoluteX="20dp"></com.example.catedu.widget.ItemGroup>
+        tools:layout_editor_absoluteX="20dp" />
 
     <Button
         app:layout_constraintBottom_toTopOf="@id/exit_login"
@@ -96,5 +97,5 @@
         android:id="@+id/exit_login"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:text="退出登录"></Button>
+        android:text="退出登录" />
 </androidx.constraintlayout.widget.ConstraintLayout>

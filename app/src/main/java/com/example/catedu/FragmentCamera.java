@@ -186,7 +186,7 @@ public class FragmentCamera extends Fragment {
             String res = "";
             mTess.setDebug(true);
             mTess.setPageSegMode(TessBaseAPI.PageSegMode.PSM_AUTO_OSD);
-            res = mTess.getHOCRText(0).trim();
+            res = mTess.getHOCRText(0);
             Log.e("OCR", res);
             Pattern pattern = Pattern.compile("[\u4e00-\u9fa5]+");
             Matcher matcher = pattern.matcher(res);
@@ -198,7 +198,9 @@ public class FragmentCamera extends Fragment {
                 skv.setVisibility(View.INVISIBLE);
                 assert finalRes != null;
                 if (finalRes.equals("")) {
-                    Toast.makeText(getContext(), "解析失败",Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(getContext(), "解析失败",Toast.LENGTH_SHORT).show();
+                    MainActivity.fragments.add(new FragmentQuesRetrieval("中国"));
+                    forwardSwitchFragment();
                 }
                 else {
                     Toast.makeText(getContext(), "解析成功",Toast.LENGTH_SHORT).show();
