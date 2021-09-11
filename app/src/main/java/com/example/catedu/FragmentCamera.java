@@ -46,6 +46,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class FragmentCamera extends Fragment {
     ImageButton camera_do;
@@ -146,6 +148,16 @@ public class FragmentCamera extends Fragment {
         MainActivity.fragments.removeElementAt(from); //删多余的页面
     }
 
+    protected void forwardSwitchFragment() {
+        int from = MainActivity.last_fragment, to = MainActivity.fragments.size() - 1;
+        FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
+        transaction.hide(MainActivity.fragments.get(from));
+        if (!MainActivity.fragments.get(to).isAdded())
+            transaction.add(R.id.nav_host_fragment, MainActivity.fragments.get(to));
+        transaction.show(MainActivity.fragments.get(to)).commitAllowingStateLoss();
+        MainActivity.last_fragment = to; // 更新
+    }
+
     public Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage (Message msg) {
@@ -170,15 +182,29 @@ public class FragmentCamera extends Fragment {
             requireActivity().runOnUiThread(() -> Toast.makeText(getContext(), "解析中...",Toast.LENGTH_SHORT).show());
             mTess.setImage(bitmap);
             Log.e("Bitmap set", "Begin parsing...");
-            requireActivity().runOnUiThread(() -> skv.setVisibility(View.VISIBLE));
+            requireActivity().runOnUiThread(() -> { skv.setVisibility(View.VISIBLE); });
             String res = "";
-            res = mTess.getUTF8Text();
+            mTess.setDebug(true);
+            mTess.setPageSegMode(TessBaseAPI.PageSegMode.PSM_AUTO_OSD);
+            res = mTess.getHOCRText(0).trim();
             Log.e("OCR", res);
+            Pattern pattern = Pattern.compile("[\u4e00-\u9fa5]+");
+            Matcher matcher = pattern.matcher(res);
+            if (matcher.find()) res = matcher.group(0);
+            else res = "";
             String finalRes = res;
+            Log.e("finalRes", finalRes);
             requireActivity().runOnUiThread(() -> {
                 skv.setVisibility(View.INVISIBLE);
-                if (finalRes.equals("")) Toast.makeText(getContext(), "解析失败",Toast.LENGTH_SHORT).show();
-                else Toast.makeText(getContext(), "解析成功",Toast.LENGTH_SHORT).show();
+                assert finalRes != null;
+                if (finalRes.equals("")) {
+                    Toast.makeText(getContext(), "解析失败",Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    Toast.makeText(getContext(), "解析成功",Toast.LENGTH_SHORT).show();
+                    MainActivity.fragments.add(new FragmentQuesRetrieval(finalRes));
+                    forwardSwitchFragment();
+                }
             });
         }).start();
     }
