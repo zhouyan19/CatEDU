@@ -379,7 +379,7 @@ public class DataLoader {
     public String getAnswer(String course, String question) throws IOException{
 
         try {
-            URL ins_url = new URL("http://open.edukg.cn/opedukg/api/typeOpen/open/linkInstance");
+            URL ins_url = new URL("http://open.edukg.cn/opedukg/api/typeOpen/open/inputQuestion");
             HttpURLConnection conn = (HttpURLConnection) ins_url.openConnection(); // 创建HttpURLConnection对象
             conn.setRequestMethod("POST"); // 请求方式为 POST
             conn.setConnectTimeout(8000); // 设置超时
@@ -410,13 +410,14 @@ public class DataLoader {
             while ((line = in.readLine()) != null)
                 result.append(line);
             in.close();
+            Log.i("response of answer", result.toString());
             // 获得答案
             JSONObject json = new JSONObject(result.toString());
             if(json.isNull("data"))
                 return "抱歉，机器人好像睡着了。";
             JSONArray data = json.getJSONArray("data");
-
-            return data.getJSONObject(0).getString("value");
+            String ans = data.getJSONObject(0).getString("value");
+            return ans.isEmpty()?"哎呀，我好像不明白你的问题。":ans;
         }catch(SocketTimeoutException e){
             e.printStackTrace();
             return "抱歉，机器人好像睡着了。";
@@ -537,55 +538,5 @@ public class DataLoader {
         }
         return vector;
     }
-
-//    public String getWordCloudURL() throws IOException{
-//        try {
-//            URL ins_url = new URL("http://open.edukg.cn/opedukg/api/typeOpen/open/linkInstance");
-//            HttpURLConnection conn = (HttpURLConnection) ins_url.openConnection(); // 创建HttpURLConnection对象
-//            conn.setRequestMethod("POST"); // 请求方式为 POST
-//            conn.setConnectTimeout(8000); // 设置超时
-//            conn.setReadTimeout(8000);
-//            conn.setDoOutput(true);
-//            conn.setDoInput(true);
-//            conn.setUseCaches(false); // Post方式不能缓存,需手动设置为false
-//            conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8"); // 设置请求头
-//            conn.connect();
-//
-//            // 写入参数
-//            HashMap<String, String> map = new HashMap<String, String>();
-//            map.put("course", course);
-//            map.put("inputQuestion", question);
-//            map.put("id", id);
-//            String params = new Gson().toJson(map);
-//
-//            // 获取输出流，写入参数
-//            OutputStream out = conn.getOutputStream();
-//            out.write(params.getBytes());
-//            out.flush();
-//            out.close();
-//
-//            // 取得输入流，并使用Reader读取
-//            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "UTF-8"));
-//            StringBuilder result = new StringBuilder();
-//            String line;
-//            while ((line = in.readLine()) != null)
-//                result.append(line);
-//            in.close();
-//            // 获得答案
-//            JSONObject json = new JSONObject(result.toString());
-//            if(json.isNull("data"))
-//                return "抱歉，机器人好像睡着了。";
-//            JSONArray data = json.getJSONArray("data");
-//
-//            return data.getJSONObject(0).getString("value");
-//        }catch(SocketTimeoutException e){
-//            e.printStackTrace();
-//            return "抱歉，机器人好像睡着了。";
-//        }catch (JSONException e){
-//            e.printStackTrace();
-//            return "哎呀，我好像不明白你的问题。";
-//        }
-//
-//    }
 
 }
