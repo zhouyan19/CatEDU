@@ -488,23 +488,23 @@ public class MainActivity extends AppCompatActivity {
         }
         if (requestCode == PERMISSION_CAMERA_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                if (isAndroidQ) {
+//                if (isAndroidQ) {
                     // Android 10 使用图片uri加载
                     // ivPhoto.setImageURI(mCameraUri);
-                    Message msg = Message.obtain();
-                    msg.obj = mCameraUri;
-                    try {
-                        FragmentCamera frag = (FragmentCamera) fragments.get(fragments.size() - 1);
-                        frag.mHandler.sendMessage(msg);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-//                    Toast.makeText(this,"Photo by Android 10",Toast.LENGTH_LONG).show();
-                } else {
-                    // 使用图片路径加载
-                    // ivPhoto.setImageBitmap(BitmapFactory.decodeFile(mCameraImagePath));
-                    Toast.makeText(this,"安卓版本过低，暂不支持此功能",Toast.LENGTH_LONG).show();
+                Message msg = Message.obtain();
+                msg.obj = mCameraUri;
+                try {
+                    FragmentCamera frag = (FragmentCamera) fragments.get(fragments.size() - 1);
+                    frag.mHandler.sendMessage(msg);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
+//                    Toast.makeText(this,"Photo by Android 10",Toast.LENGTH_LONG).show();
+//                } else {
+//                    // 使用图片路径加载
+//                    // ivPhoto.setImageBitmap(BitmapFactory.decodeFile(mCameraImagePath));
+//                    Toast.makeText(this,"安卓版本过低，暂不支持此功能",Toast.LENGTH_LONG).show();
+//                }
             } else {
                 Toast.makeText(this,"取消",Toast.LENGTH_SHORT).show();
             }

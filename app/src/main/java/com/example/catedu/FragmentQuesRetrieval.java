@@ -67,7 +67,13 @@ public class FragmentQuesRetrieval extends Fragment {
     ImageButton filterClearBtn;
     private static int inputDownHeightDiff;
 
+
+
     public FragmentQuesRetrieval() { }
+    public FragmentQuesRetrieval (String org) {
+        queryWord = org;
+    }
+
 
     public static FragmentQuesRetrieval newInstance(String param1, String param2) {
         FragmentQuesRetrieval fragment = new FragmentQuesRetrieval();
@@ -98,6 +104,12 @@ public class FragmentQuesRetrieval extends Fragment {
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         mSearchView = view.findViewById(R.id.sv_retrieval);
+
+
+        if (!queryWord.equals("")) {
+            mSearchView.setQuery(queryWord, false);
+        }
+
 
         mSpinner = view.findViewById(R.id.sp_course);
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(this.getContext(), android.R.layout.simple_list_item_1, courses);
