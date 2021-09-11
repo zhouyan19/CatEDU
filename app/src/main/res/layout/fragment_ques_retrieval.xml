@@ -100,13 +100,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:orientation="horizontal">
+
         <RadioButton
             android:id="@+id/sort1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textStyle="bold"
+            android:text="长度升序"
             android:textSize="12sp"
-            android:text="长度升序"/>
+            android:textStyle="bold" />
 
         <RadioButton
             android:id="@+id/sort2"
@@ -192,6 +193,17 @@
             android:textSize="12sp"
             android:text="类型未知"/>
     </RadioGroup>
+
+    <Button
+        android:id="@+id/btn_search"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="10dp"
+        android:text="@string/search"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/filter_group" />
 
     <androidx.core.widget.NestedScrollView
         android:layout_margin="20dp"
