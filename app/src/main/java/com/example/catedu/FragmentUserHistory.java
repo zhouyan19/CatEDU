@@ -50,6 +50,8 @@ public class FragmentUserHistory extends Fragment {
                 backSwitchFragment();
             }
         });
+        TextView title_text = view.findViewById(R.id.title_text);
+        title_text.setText("历史记录");
     }
 
     private void initdata() {

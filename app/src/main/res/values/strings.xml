@@ -51,4 +51,8 @@
     <string name="camera_do">点此拍照搜索知识点</string>
     <string name="order_text">选择学科</string>
     <string name="course_card">学科</string>
+    <string name="edit_avatar">修改头像</string>
+    <string name="register_text">注册账户</string>
+    <string name="modify_text">修改信息</string>
+    <string name="recommendation">试题推荐</string>
 </resources>

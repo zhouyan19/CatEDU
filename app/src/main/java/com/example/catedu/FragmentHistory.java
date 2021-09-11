@@ -48,6 +48,8 @@ public class FragmentHistory extends Fragment {
                 backSwitchFragment();
             }
         });
+        TextView title_text = view.findViewById(R.id.title_text);
+        title_text.setText("本地缓存");
     }
 
     private void initdata() {
