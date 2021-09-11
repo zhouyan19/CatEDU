@@ -1,5 +1,7 @@
 package com.example.catedu;
 
+import static com.example.catedu.Utils.indexToTypeBorderResid;
+
 import android.annotation.SuppressLint;
 import android.graphics.Rect;
 import android.os.Bundle;
@@ -318,10 +320,11 @@ public class FragmentQuesRetrieval extends Fragment {
             String number = String.valueOf(position + 1);
             holder.ins_number.setText(number);
             holder.ins_name.setText(item.getName());
+            holder.ins_type.setText(item.getType());
             if(item.getType().isEmpty())
                 holder.ins_type.setVisibility(View.GONE);
             else
-                holder.ins_type.setText(item.getType());
+                holder.ins_type.setBackgroundResource(indexToTypeBorderResid(item.getType().hashCode() % 8));
         }
 
         @Override

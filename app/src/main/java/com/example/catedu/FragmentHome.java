@@ -6,12 +6,11 @@
 
 package com.example.catedu;
 
+import static com.example.catedu.Utils.indexToTypeBorderResid;
+
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,9 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,29 +26,17 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.androidkun.xtablayout.XTabLayout;
-import com.daquexian.flexiblerichtextview.FlexibleRichTextView;
-import com.example.catedu.data.DataLoader;
 import com.example.catedu.data.Instance;
 import com.example.catedu.data.Triple;
 import com.github.ybq.android.spinkit.SpinKitView;
-import com.ldoublem.loadingviewlib.view.LVEatBeans;
 import com.scwang.smart.refresh.layout.api.RefreshLayout;
 
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONException;
 
-import java.io.IOException;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.Set;
-import java.util.TreeMap;
 import java.util.Vector;
 
 public class FragmentHome extends Fragment {
@@ -145,7 +130,7 @@ public class FragmentHome extends Fragment {
 
         srl = view.findViewById(R.id.smart_refresh);
         rv_list = view.findViewById(R.id.rv_list);
-        rv_list.addItemDecoration(new DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL));
+//        rv_list.addItemDecoration(new DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL));
         rv_list.setLayoutManager(new LinearLayoutManager(getContext()));
 
         srl.setOnRefreshListener(refreshLayout -> {
@@ -289,7 +274,7 @@ public class FragmentHome extends Fragment {
         @NotNull
         @Override
         public ViewHolder onCreateViewHolder(@NonNull @NotNull ViewGroup parent, int viewType) {
-            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.ins_item, parent, false);
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.home_item, parent, false);
             return new ViewHolder(v);
         }
 
@@ -304,11 +289,11 @@ public class FragmentHome extends Fragment {
             holder.ins_number.setText(number);
             holder.ins_name.setText(ins.getName());
             String type = ins.getType();
-            if (type.equals("")) {
+            if (type.equals(""))
                 holder.ins_type.setVisibility(View.INVISIBLE);
-            } else {
+            else {
                 holder.ins_type.setText(type);
-                if (position % 2 == 1) holder.ins_type.setBackgroundResource(R.drawable.subject_border);
+                holder.ins_type.setBackgroundResource(indexToTypeBorderResid(ins.getType().hashCode() % 8));
             }
 //            Boolean seen = (Boolean) seenLists[course_id].get(position);
             String u = ((Triple) triLists[course_id].get(position)).getS();
