@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -58,6 +59,11 @@ public class FragmentRegister extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         final boolean[] input_valid=new boolean[4];
+
+        ImageButton register_back = view.findViewById(R.id.register_back);
+        register_back.setOnClickListener(v -> {
+            backSwitchFragment();
+        });
 
         username = (EditText) view.findViewById(R.id.edit_username);
         username_sign = (ImageView) view.findViewById(R.id.username_sign);

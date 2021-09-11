@@ -6,9 +6,11 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,6 +34,7 @@ public class FragmentStars extends Fragment {
     ArrayList<String> StarsData;
     private ImageButton backButton;
     MainActivity main;
+    Button clear;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -43,6 +46,39 @@ public class FragmentStars extends Fragment {
         main = (MainActivity) getActivity();
         initdata();
         initview(view);
+        clear=view.findViewById(R.id.clear);
+        clear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SharedPreferences sharedPreferences = getActivity().getSharedPreferences("user", Context.MODE_PRIVATE);
+                String token = sharedPreferences.getString("token", null);
+                if(token==null)
+                {
+                    Toast.makeText(getActivity(), "未登录", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("token",token);
+                NetWorkTask netWorkTask = new NetWorkTask(9, token, jsonObject.toString());
+                Thread newThread = new Thread(netWorkTask);
+                newThread.start();
+                try {
+                    newThread.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                String res = netWorkTask.getRes();
+                JSONObject resJson = JSONObject.parseObject(res);
+                boolean success=resJson.getBoolean("success");
+                if(success){
+                    Toast.makeText(getActivity(), "清除收藏成功", Toast.LENGTH_SHORT).show();
+                    backSwitchFragment();
+                }
+                else {
+                    Toast.makeText(getActivity(), "清除失败", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
         backButton = view.findViewById(R.id.detail_back);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override

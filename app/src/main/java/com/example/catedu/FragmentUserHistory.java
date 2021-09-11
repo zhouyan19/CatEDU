@@ -6,9 +6,11 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,6 +34,7 @@ public class FragmentUserHistory extends Fragment {
     ArrayList<String> userHistoryData;
     private ImageButton backButton;
     MainActivity main;
+    Button clear_his;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -43,6 +46,40 @@ public class FragmentUserHistory extends Fragment {
         main = (MainActivity) getActivity();
         initdata();
         initview(view);
+        clear_his=(Button) view.findViewById(R.id.clear_his);
+        clear_his.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Logger.e("FH","onclick");
+                SharedPreferences sharedPreferences = getActivity().getSharedPreferences("user", Context.MODE_PRIVATE);
+                String token = sharedPreferences.getString("token", null);
+                if(token==null)
+                {
+                    Toast.makeText(getActivity(), "未登录", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("token",token);
+                NetWorkTask netWorkTask = new NetWorkTask(10, token, jsonObject.toString());
+                Thread newThread = new Thread(netWorkTask);
+                newThread.start();
+                try {
+                    newThread.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                String res = netWorkTask.getRes();
+                JSONObject resJson = JSONObject.parseObject(res);
+                boolean success=resJson.getBoolean("success");
+                if(success){
+                    Toast.makeText(getActivity(), "清除历史成功", Toast.LENGTH_SHORT).show();
+                    backSwitchFragment();
+                }
+                else {
+                    Toast.makeText(getActivity(), "清除失败", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
         backButton = view.findViewById(R.id.detail_back);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -50,6 +87,8 @@ public class FragmentUserHistory extends Fragment {
                 backSwitchFragment();
             }
         });
+        TextView title_text = view.findViewById(R.id.title_text);
+        title_text.setText("历史记录");
     }
 
     private void initdata() {

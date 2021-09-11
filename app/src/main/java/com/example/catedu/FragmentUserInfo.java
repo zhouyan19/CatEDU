@@ -25,6 +25,7 @@ public class FragmentUserInfo extends Fragment {
     ImageView selfie_to_change;
     ImageButton backButton;
     Button exitLogin;
+    Button modPw;
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_userinfo, container, false);
     }
@@ -32,6 +33,7 @@ public class FragmentUserInfo extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 
         selfie_to_change= (ImageView) view.findViewById(R.id.selfie_to_change);
+        modPw=(Button) view.findViewById(R.id.mod_pw);
         backButton=(ImageButton) view.findViewById(R.id.detail_back);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -53,6 +55,13 @@ public class FragmentUserInfo extends Fragment {
                 editor.clear();
                 editor.apply();
                 backSwitchFragment();
+            }
+        });
+        modPw.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                MainActivity.fragments.add(new FragmentChangePw());
+                forwardSwitchFragment();
             }
         });
 

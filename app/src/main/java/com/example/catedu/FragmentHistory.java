@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -30,6 +31,7 @@ public class FragmentHistory extends Fragment {
     ArrayList<String> historyData;
     private ImageButton backButton;
     MainActivity main;
+    Button clear_his;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -41,6 +43,9 @@ public class FragmentHistory extends Fragment {
         main = (MainActivity) getActivity();
         initdata();
         initview(view);
+        clear_his=view.findViewById(R.id.clear_his);
+        clear_his.setVisibility(View.INVISIBLE);
+
         backButton = view.findViewById(R.id.detail_back);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -48,6 +53,8 @@ public class FragmentHistory extends Fragment {
                 backSwitchFragment();
             }
         });
+        TextView title_text = view.findViewById(R.id.title_text);
+        title_text.setText("本地缓存");
     }
 
     private void initdata() {
