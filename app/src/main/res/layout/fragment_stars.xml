@@ -42,8 +42,16 @@
         android:id="@+id/recycleview"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/clear"
         app:layout_constraintTop_toBottomOf="@id/title_bar"
         android:layout_margin="20dp">
     </androidx.recyclerview.widget.RecyclerView>
+    <Button
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="20dp"
+        android:layout_marginHorizontal="@dimen/margin_left_and_right"
+        android:id="@+id/clear"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text="清除收藏"></Button>
 </androidx.constraintlayout.widget.ConstraintLayout>

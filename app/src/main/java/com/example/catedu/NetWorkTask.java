@@ -50,6 +50,60 @@ public class NetWorkTask implements Runnable {
     public void run() {
         String servlet_ip="http://82.156.215.178:8080";
         switch (taskno) {
+            case 10:{
+//              清除历史
+
+                String url=servlet_ip+"/user/delHistory";
+                Document doc = null;
+                HashMap<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                try {
+                    doc = Jsoup.connect(url).headers(headers).ignoreContentType(true).requestBody(requestParam).post();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if(doc!=null){
+                    Element body = doc.body();
+                    res = body.text();
+                }
+                break;
+            }
+            case 9:{
+//              清除收藏
+
+                String url=servlet_ip+"/user/delStars";
+                Document doc = null;
+                HashMap<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                try {
+                    doc = Jsoup.connect(url).headers(headers).ignoreContentType(true).requestBody(requestParam).post();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if(doc!=null){
+                    Element body = doc.body();
+                    res = body.text();
+                }
+                break;
+            }
+            case 8:{
+//                修改密码
+
+                String url=servlet_ip+"/user/modify/password";
+                Document doc = null;
+                HashMap<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json");
+                try {
+                    doc = Jsoup.connect(url).headers(headers).ignoreContentType(true).requestBody(requestParam).post();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if(doc!=null){
+                    Element body = doc.body();
+                    res = body.text();
+                }
+                break;
+            }
             case 7:{
                 //获取收藏夹
                 String url=servlet_ip+"/user/getCloud";

@@ -3,6 +3,7 @@ package com.example.catedu;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -146,7 +147,9 @@ public class FragmentWaiting extends Fragment {
             forwardSwitchFragment();
 
         } else {
+            Looper.prepare();
             Toast.makeText(getActivity(), "未登录", Toast.LENGTH_SHORT).show();
+            Looper.loop();
         }
     }
     public class Response {
