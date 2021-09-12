@@ -106,11 +106,12 @@ public class FragmentInsQues extends Fragment {
         requireActivity().runOnUiThread(() -> {
             if (ques_vec.size() > 0) {
                 rv_ques.setAdapter(new QuesAdapter());
+                no_ques.setVisibility(View.INVISIBLE);
                 sub_button.setVisibility(View.VISIBLE);
             } else {
                 no_ques.setText("暂无试题");
-                no_ques.setVisibility(View.VISIBLE);
-                nested_scroll.setVisibility(View.GONE);
+                no_ques.setVisibility(View.INVISIBLE);
+//                nested_scroll.setVisibility(View.GONE);
             }
             Log.e("getQues", "QuesAdapter");
         });

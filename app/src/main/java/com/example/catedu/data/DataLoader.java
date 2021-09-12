@@ -61,8 +61,8 @@ public class DataLoader {
      * 发送 POST 请求以登录， 并获取 id
      */
     public void logInOnSubThread () throws IOException, JSONException {
-        String phone = "18357331593"; // zy的手机号
-        String password = "2021zyywtwzt"; // zy的密码
+        String phone = "18811781150"; // zy的手机号
+        String password = "wzt107210"; // zy的密码
         URL login_url = new URL("http://open.edukg.cn/opedukg/api/typeAuth/user/login");
         HttpURLConnection conn = (HttpURLConnection) login_url.openConnection(); // 创建HttpURLConnection对象
         conn.setRequestMethod("POST"); // 请求方式为 POST
