@@ -266,6 +266,7 @@ public class MainActivity extends AppCompatActivity {
             outputStream = openFileOutput(name, Context.MODE_PRIVATE);
             outputStream.write("".getBytes());
             outputStream.close();
+            seenList = readCache();
         } catch (Exception e) {
             Log.e("ClearCache", e.toString());
         }
