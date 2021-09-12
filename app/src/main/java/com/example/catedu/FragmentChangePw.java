@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -33,6 +34,11 @@ public class FragmentChangePw extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        ImageButton pw_back = view.findViewById(R.id.pw_back);
+        pw_back.setOnClickListener(v -> {
+            backSwitchFragment();
+        });
+
         submit = view.findViewById(R.id.submit_pw);
         old_pw_edt=(EditText) view.findViewById(R.id.old_pw_edt);
         new_pw_edt=(EditText) view.findViewById(R.id.new_pw_edt);

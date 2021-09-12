@@ -130,6 +130,14 @@ public class FragmentMine extends Fragment {
         recommendation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                sharedPreferences = getActivity().getSharedPreferences("user", Context.MODE_PRIVATE);
+                String token = sharedPreferences.getString("token", null);
+
+                if (token == null) {
+                    Toast.makeText(getActivity(), "请登录", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 Toast.makeText(getActivity(), "试题推荐中", Toast.LENGTH_SHORT).show();
 
 //                skv.setVisibility(View.VISIBLE);
