@@ -2,6 +2,8 @@ package com.example.catedu;
 
 import static androidx.core.content.ContextCompat.getSystemService;
 
+import static com.example.catedu.Utils.indexToTypeBorderResid;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
@@ -148,7 +150,7 @@ public class FragmentQuesLink extends Fragment {
                 queryText = input.getText().toString();
                 Log.i("String query", queryText);
                 clearTextSpan();
-//                input.clearFocus();
+                input.clearFocus();
                 getRetrievalResults();
                 //hide input method
                 InputMethodManager im =(InputMethodManager)getActivity().getApplicationContext().
@@ -255,7 +257,7 @@ public class FragmentQuesLink extends Fragment {
 //                    });
 //                    for(InstanceEnbedding insEnb : res)
 //                        set.add(insEnb.getInstanceWithUri());
-//                    resultList.clear();
+                    resultList.clear();
 //                    resultList.addAll(set);
                     // remove duplicate while keeping order
                     for(InstanceEnbedding insEnb : res)
@@ -317,6 +319,11 @@ public class FragmentQuesLink extends Fragment {
             String number = String.valueOf(position + 1);
             holder.ins_number.setText(number);
             holder.ins_name.setText(item.getName());
+            holder.ins_type.setText(item.getType());
+            if(item.getType().isEmpty())
+                holder.ins_type.setVisibility(View.GONE);
+            else
+                holder.ins_type.setBackgroundResource(indexToTypeBorderResid(item.getType().hashCode() % 8));
         }
 
         @Override
@@ -328,11 +335,13 @@ public class FragmentQuesLink extends Fragment {
             LinearLayout ins_item;
             TextView ins_number;
             TextView ins_name;
+            TextView ins_type;
             public ViewHolder(@NonNull @NotNull View itemView) {
                 super(itemView);
                 ins_item = itemView.findViewById(R.id.ins_item);
                 ins_number = itemView.findViewById(R.id.ins_number);
                 ins_name = itemView.findViewById(R.id.ins_name);
+                ins_type = itemView.findViewById(R.id.ins_type);
             }
         }
     }

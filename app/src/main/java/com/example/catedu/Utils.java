@@ -104,4 +104,25 @@ public class Utils {
         string = Base64.encodeToString(bytes,Base64.DEFAULT);
         return string;
     }
+
+    public static int indexToTypeBorderResid(int idx){
+        switch (idx){
+            case 0:
+                return R.drawable.type_border0;
+            case 1:
+                return R.drawable.type_border1;
+            case 2:
+                return R.drawable.type_border2;
+            case 3:
+                return R.drawable.type_border3;
+            case 4:
+                return R.drawable.type_border4;
+            case 5:
+                return R.drawable.type_border5;
+            case 6:
+                return R.drawable.type_border6;
+            default:
+                return R.drawable.type_border7;
+        }
+    }
 }
